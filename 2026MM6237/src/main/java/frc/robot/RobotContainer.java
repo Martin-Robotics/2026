@@ -9,7 +9,7 @@ import frc.robot.controllers.DriverController;
 import frc.robot.controllers.OperatorController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.SubsystemTuning;
-import frc.robot.subsystems.CommandSwerveDrivetrainOld;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -62,7 +62,7 @@ public class RobotContainer {
     // private final CommandXboxController operator = new CommandXboxController(Constants.OperatorConstants.kOperatorControllerPort);
     private final CommandXboxController operator =new CommandXboxController(Constants.OperatorConstants.kOperatorControllerPort);
 
-    public final CommandSwerveDrivetrainOld drivetrain = TunerConstants.createDrivetrain();
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
       private final SendableChooser<Command> autoChooser;
 
     // Replace with CommandPS4Controller or CommandJoystick if needed

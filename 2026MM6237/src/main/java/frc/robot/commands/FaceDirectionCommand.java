@@ -10,14 +10,14 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.CommandSwerveDrivetrainOld;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * Command that rotates the robot to face a specific direction relative to the field.
  * The robot maintains the facing direction while the command is held.
  */
 public class FaceDirectionCommand extends Command {
-    private final CommandSwerveDrivetrainOld drivetrain;
+    private final CommandSwerveDrivetrain drivetrain;
     private final Rotation2d targetRotation;
     private final SwerveRequest.FieldCentric driveRequest;
 
@@ -27,7 +27,7 @@ public class FaceDirectionCommand extends Command {
      * @param drivetrain The swerve drivetrain subsystem
      * @param targetRotation The target rotation to face (0° = forward, 90° = left, 180° = back, 270° = right)
      */
-    public FaceDirectionCommand(CommandSwerveDrivetrainOld drivetrain, Rotation2d targetRotation) {
+    public FaceDirectionCommand(CommandSwerveDrivetrain drivetrain, Rotation2d targetRotation) {
         this.drivetrain = drivetrain;
         this.targetRotation = targetRotation;
         
@@ -46,7 +46,7 @@ public class FaceDirectionCommand extends Command {
      * @param drivetrain The swerve drivetrain subsystem
      * @param direction The direction to face: "forward", "left", "backward", "right", or "operator"
      */
-    public FaceDirectionCommand(CommandSwerveDrivetrainOld drivetrain, String direction) {
+    public FaceDirectionCommand(CommandSwerveDrivetrain drivetrain, String direction) {
         this(drivetrain, getRotationForDirection(direction));
     }
 
