@@ -20,19 +20,19 @@ public final class Ports {
 
     // ======================== SWERVE DRIVE MOTOR IDs ========================
     // Front Left Module
-    public static final int kFrontLeftDriveMotor = 7;
-    public static final int kFrontLeftSteerMotor = 13;
+    public static final int kFrontLeftDriveMotor = 13;
+    public static final int kFrontLeftSteerMotor = 7;
     public static final int kFrontLeftEncoder = 16;
 
     // Front Right Module
     public static final int kFrontRightDriveMotor = 3;
     public static final int kFrontRightSteerMotor = 8;
-    public static final int kFrontRightEncoder = 19;
+    public static final int kFrontRightEncoder = 17;
 
     // Back Left Module
     public static final int kBackLeftDriveMotor = 1;
     public static final int kBackLeftSteerMotor = 9;
-    public static final int kBackLeftEncoder = 17;
+    public static final int kBackLeftEncoder = 19;
 
     // Back Right Module
     public static final int kBackRightDriveMotor = 4;
