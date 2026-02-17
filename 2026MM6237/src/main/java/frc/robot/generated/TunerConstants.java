@@ -74,6 +74,9 @@ public class TunerConstants {
                 .withStatorCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
+        // .withMagnetSensor(new MagnetSensorConfigs()
+        //     .withAbsoluteSensorDiscontinuityPoint(Rotations.of(1)));  // Use absolute position
+
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private static final Pigeon2Configuration pigeonConfigs = null;
 

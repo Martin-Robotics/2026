@@ -10,7 +10,6 @@ import frc.robot.controllers.OperatorController;
 import frc.robot.generated.TunerConstants;
 import frc.robot.util.SubsystemTuning;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
@@ -19,18 +18,11 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.robot.commands.auto.*;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -47,7 +39,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
-    private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
     private final Intake intake = new Intake();
     private final Floor floor = new Floor();
@@ -62,10 +53,6 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
       private final SendableChooser<Command> autoChooser;
-
-    private static final SwerveRequest.FieldCentric tempDrive = new SwerveRequest.FieldCentric()
-      .withDeadband(TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)).withRotationalDeadband(RotationsPerSecond.of(0.5).in(RadiansPerSecond))
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
     private final LimelightSubsystem6237 limelight = new LimelightSubsystem6237();
 
@@ -122,20 +109,6 @@ public class RobotContainer {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
       DriverController.mapXboxController(driver, drivetrain, null);
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor);
-      // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-      // cancelling on release.
-
-        Command defaultDrivetrainCommand = drivetrain.applyRequest(() ->
-            tempDrive.withVelocityX(driver.getLeftY() * Constants.CommandSwerveDrivetrain.kSpeedAt12Volts.in(MetersPerSecond)) 
-                .withVelocityY(driver.getLeftX() * Constants.CommandSwerveDrivetrain.kSpeedAt12Volts.in(MetersPerSecond)) 
-                .withRotationalRate(-1 * driver.getRightX() * RotationsPerSecond.of(0.5).in(RadiansPerSecond))
-        ); 
-        // Command defaultDrivetrainCommand = drivetrain.applyRequest(() -> new SwerveRequest.Idle());
-
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            defaultDrivetrainCommand
-        );
     }
 
     /**
