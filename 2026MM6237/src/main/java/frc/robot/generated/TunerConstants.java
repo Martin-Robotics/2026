@@ -74,15 +74,12 @@ public class TunerConstants {
                 .withStatorCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
-        // .withMagnetSensor(new MagnetSensorConfigs()
-        //     .withAbsoluteSensorDiscontinuityPoint(Rotations.of(1)));  // Use absolute position
-
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private static final Pigeon2Configuration pigeonConfigs = null;
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    public static final CANBus kCANBus = new CANBus("", "./logs/example.hoot");
+    public static final CANBus kCANBus = Ports.kRoboRioCANBus;
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
@@ -142,8 +139,8 @@ public class TunerConstants {
     private static final int kFrontLeftSteerMotorId = Ports.kFrontLeftSteerMotor;
     private static final int kFrontLeftEncoderId = Ports.kFrontLeftEncoder;
     private static final Angle kFrontLeftEncoderOffset = Rotations.of(Constants.CommandSwerveDrivetrain.kFrontLeftEncoderOffsetRotations);
-    private static final boolean kFrontLeftSteerMotorInverted = Constants.CommandSwerveDrivetrain.kSteerMotorInverted;
-    private static final boolean kFrontLeftEncoderInverted = Constants.CommandSwerveDrivetrain.kEncoderInverted;
+    private static final boolean kFrontLeftSteerMotorInverted = Constants.CommandSwerveDrivetrain.kFrontLeftSteerMotorInverted;
+    private static final boolean kFrontLeftEncoderInverted = Constants.CommandSwerveDrivetrain.kFrontLeftEncoderInverted;
 
     private static final Distance kFrontLeftXPos = Inches.of(Constants.CommandSwerveDrivetrain.kFrontLeftXPosInches);
     private static final Distance kFrontLeftYPos = Inches.of(Constants.CommandSwerveDrivetrain.kFrontLeftYPosInches);
@@ -153,8 +150,8 @@ public class TunerConstants {
     private static final int kFrontRightSteerMotorId = Ports.kFrontRightSteerMotor;
     private static final int kFrontRightEncoderId = Ports.kFrontRightEncoder;
     private static final Angle kFrontRightEncoderOffset = Rotations.of(Constants.CommandSwerveDrivetrain.kFrontRightEncoderOffsetRotations);
-    private static final boolean kFrontRightSteerMotorInverted = Constants.CommandSwerveDrivetrain.kSteerMotorInverted;
-    private static final boolean kFrontRightEncoderInverted = Constants.CommandSwerveDrivetrain.kEncoderInverted;
+    private static final boolean kFrontRightSteerMotorInverted = Constants.CommandSwerveDrivetrain.kFrontRightSteerMotorInverted;
+    private static final boolean kFrontRightEncoderInverted = Constants.CommandSwerveDrivetrain.kFrontRightEncoderInverted;
 
     private static final Distance kFrontRightXPos = Inches.of(Constants.CommandSwerveDrivetrain.kFrontRightXPosInches);
     private static final Distance kFrontRightYPos = Inches.of(Constants.CommandSwerveDrivetrain.kFrontRightYPosInches);
@@ -164,8 +161,8 @@ public class TunerConstants {
     private static final int kBackLeftSteerMotorId = Ports.kBackLeftSteerMotor;
     private static final int kBackLeftEncoderId = Ports.kBackLeftEncoder;
     private static final Angle kBackLeftEncoderOffset = Rotations.of(Constants.CommandSwerveDrivetrain.kBackLeftEncoderOffsetRotations);
-    private static final boolean kBackLeftSteerMotorInverted = Constants.CommandSwerveDrivetrain.kSteerMotorInverted;
-    private static final boolean kBackLeftEncoderInverted = Constants.CommandSwerveDrivetrain.kEncoderInverted;
+    private static final boolean kBackLeftSteerMotorInverted = Constants.CommandSwerveDrivetrain.kBackLeftSteerMotorInverted;
+    private static final boolean kBackLeftEncoderInverted = Constants.CommandSwerveDrivetrain.kBackLeftEncoderInverted;
 
     private static final Distance kBackLeftXPos = Inches.of(Constants.CommandSwerveDrivetrain.kBackLeftXPosInches);
     private static final Distance kBackLeftYPos = Inches.of(Constants.CommandSwerveDrivetrain.kBackLeftYPosInches);
@@ -175,8 +172,8 @@ public class TunerConstants {
     private static final int kBackRightSteerMotorId = Ports.kBackRightSteerMotor;
     private static final int kBackRightEncoderId = Ports.kBackRightEncoder;
     private static final Angle kBackRightEncoderOffset = Rotations.of(Constants.CommandSwerveDrivetrain.kBackRightEncoderOffsetRotations);
-    private static final boolean kBackRightSteerMotorInverted = Constants.CommandSwerveDrivetrain.kSteerMotorInverted;
-    private static final boolean kBackRightEncoderInverted = Constants.CommandSwerveDrivetrain.kEncoderInverted;
+    private static final boolean kBackRightSteerMotorInverted = Constants.CommandSwerveDrivetrain.kBackRightSteerMotorInverted;
+    private static final boolean kBackRightEncoderInverted = Constants.CommandSwerveDrivetrain.kBackRightEncoderInverted;
 
     private static final Distance kBackRightXPos = Inches.of(Constants.CommandSwerveDrivetrain.kBackRightXPosInches);
     private static final Distance kBackRightYPos = Inches.of(Constants.CommandSwerveDrivetrain.kBackRightYPosInches);

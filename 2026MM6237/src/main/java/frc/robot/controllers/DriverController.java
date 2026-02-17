@@ -34,28 +34,18 @@ public class DriverController {
         robotCentricControl = new Trigger(() -> driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
 
         Command defaultDrivetrainCommand = drivetrain.applyRequest(() -> {
-            // Get joystick inputs
-            double velocityX = driverController.getLeftY() * Constants.TempSwerve.MaxSpeed;
-            double velocityY = driverController.getLeftX() * Constants.TempSwerve.MaxSpeed;
-            double rotationalRate = -1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate;
-            
-            // If no joystick input, return idle to prevent motor seeking
-            if (Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01 && Math.abs(rotationalRate) < 0.01) {
-                return new SwerveRequest.Idle();
-            }
-            
             if (robotCentricControl.getAsBoolean()) {
                 // Robot-centric control when left trigger is pressed
                 return robotCentricDrive
-                    .withVelocityX(invertXNumberRobotCentric * velocityX)
-                    .withVelocityY(invertYNumberRobotCentric * velocityY)
-                    .withRotationalRate(rotationalRate);
+                    .withVelocityX(invertXNumberRobotCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(invertYNumberRobotCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate); // Drive counterclockwise with negative X (left)
             } else {
                 // Field-centric control (default)
                 return drive
-                    .withVelocityX(invertXNumberFieldCentric * velocityX)
-                    .withVelocityY(invertXNumberFieldCentric * velocityY)
-                    .withRotationalRate(rotationalRate);
+                    .withVelocityX(invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(invertXNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate); // Drive counterclockwise with negative X (left)
             }
         });
 

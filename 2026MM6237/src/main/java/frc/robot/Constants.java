@@ -335,7 +335,7 @@ public final class Constants {
         public static final double kSteerMotorKI = 0;
         public static final double kSteerMotorKD = 0.5;
         public static final double kSteerMotorKS = 0.1;   // Static feedforward
-        public static final double kSteerMotorKV = 2.66;  // Velocity feedforward
+        public static final double kSteerMotorKV = 3.23;  // Velocity feedforward
         public static final double kSteerMotorKA = 0;     // Acceleration feedforward
 
         // ======================== DRIVE MOTOR GAINS ========================
@@ -358,19 +358,25 @@ public final class Constants {
         public static final double kSteerStatorCurrentLimitAmps = 60.0;
 
         // ======================== MOTOR GEAR RATIOS ========================
-        public static final double kDriveGearRatio = 6.746031746031747;
-        public static final double kSteerGearRatio = 21.428571428571427;
-        public static final double kCoupleRatio = 3.5714285714285716;
+        public static final double kDriveGearRatio = 6.026785714285714;
+        public static final double kSteerGearRatio = 26;
+        public static final double kCoupleRatio = 3.857142857142857;
 
         // ======================== WHEEL CONFIGURATION ========================
         public static final double kWheelRadiusInches = 2.0;
-        public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.58);
+        public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.12);
 
         // ======================== INVERSION SETTINGS ========================
         public static final boolean kInvertLeftSide = false;
         public static final boolean kInvertRightSide = true;
-        public static final boolean kSteerMotorInverted = true;
-        public static final boolean kEncoderInverted = false;
+        public static final boolean kFrontLeftSteerMotorInverted = false;
+        public static final boolean kFrontLeftEncoderInverted = false;
+        public static final boolean kFrontRightSteerMotorInverted = false;
+        public static final boolean kFrontRightEncoderInverted = false;
+        public static final boolean kBackLeftSteerMotorInverted = false;
+        public static final boolean kBackLeftEncoderInverted = false;
+        public static final boolean kBackRightSteerMotorInverted = false;
+        public static final boolean kBackRightEncoderInverted = false;
 
         // ======================== SIMULATION PARAMETERS ========================
         public static final double kSteerInertiaKgm2 = 0.01;
@@ -379,27 +385,27 @@ public final class Constants {
         public static final double kDriveFrictionVoltage = 0.2;
 
         // ======================== ENCODER OFFSETS (in rotations) ========================
-        public static final double kFrontLeftEncoderOffsetRotations = -0.4697265625;
-        public static final double kFrontRightEncoderOffsetRotations = -0.4404296875;
-        public static final double kBackLeftEncoderOffsetRotations = 0.11083984375;
-        public static final double kBackRightEncoderOffsetRotations = -0.111572265625;
+        public static final double kFrontLeftEncoderOffsetRotations = 0.033935546875;
+        public static final double kFrontRightEncoderOffsetRotations = -0.01611328125;
+        public static final double kBackLeftEncoderOffsetRotations = 0.14111328125;
+        public static final double kBackRightEncoderOffsetRotations = 0.172119140625;
 
         // ======================== MODULE POSITIONS (in inches) ========================
         // Front Left Module
-        public static final double kFrontLeftXPosInches = 9.8425;
-        public static final double kFrontLeftYPosInches = 9.8425;
+        public static final double kFrontLeftXPosInches = 11.875;
+        public static final double kFrontLeftYPosInches = 10.25;
 
         // Front Right Module
-        public static final double kFrontRightXPosInches = 9.8425;
-        public static final double kFrontRightYPosInches = -9.8425;
+        public static final double kFrontRightXPosInches = 11.875;
+        public static final double kFrontRightYPosInches = -10.25;
 
         // Back Left Module
-        public static final double kBackLeftXPosInches = -9.8425;
-        public static final double kBackLeftYPosInches = 9.8425;
+        public static final double kBackLeftXPosInches = -11.875;
+        public static final double kBackLeftYPosInches = 10.25;
 
         // Back Right Module
-        public static final double kBackRightXPosInches = -9.8425;
-        public static final double kBackRightYPosInches = -9.8425;
+        public static final double kBackRightXPosInches = -11.875;
+        public static final double kBackRightYPosInches = -10.25;
     }
 
     // ======================== AUTONOMOUS COMMAND CONSTANTS ========================
