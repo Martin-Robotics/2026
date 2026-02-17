@@ -86,7 +86,7 @@ public class RobotContainer {
       
       // Configure the trigger bindings
       configureBindings();
-      autoChooser = AutoBuilder.buildAutoChooser("DefaultPath");
+      autoChooser = AutoBuilder.buildAutoChooser("DefaultAuto");
       SmartDashboard.putData("Auto Mode", autoChooser);
       
       // Initialize subsystem tuning displays

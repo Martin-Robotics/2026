@@ -345,6 +345,14 @@ public final class Constants {
         public static final double kDriveMotorKS = 0;       // Static feedforward
         public static final double kDriveMotorKV = 0.124;   // Velocity feedforward
 
+        // ======================== PATH FOLLOWING GAINS FOR AUTONOMOUS ========================
+        public static final double kTranslationPIDKP = 10;
+        public static final double kTranslationPIDKI = 0;
+        public static final double kTranslationPIDKD = 0;
+        public static final double kRotationPIDKP = 7;
+        public static final double kRotationPIDKI = 0;
+        public static final double kRotationPIDKD = 0;
+
         // ======================== MOTOR CURRENT LIMITS ========================
         public static final double kSlipCurrentAmps = 120.0;
         public static final double kSteerStatorCurrentLimitAmps = 60.0;
