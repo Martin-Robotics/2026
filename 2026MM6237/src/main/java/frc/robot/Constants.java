@@ -331,9 +331,10 @@ public final class Constants {
 
     public static class CommandSwerveDrivetrain {
         // ======================== STEER MOTOR GAINS ========================
-        public static final double kSteerMotorKP = 100;
+        // TUNING: Moderate kP, no D gain (D causes instability on this robot)
+        public static final double kSteerMotorKP = 5.0;  // Conservative but responsive
         public static final double kSteerMotorKI = 0;
-        public static final double kSteerMotorKD = 0.5;
+        public static final double kSteerMotorKD = 0.0;  // D gain causes oscillation - leave at 0
         public static final double kSteerMotorKS = 0.1;   // Static feedforward
         public static final double kSteerMotorKV = 2.66;  // Velocity feedforward
         public static final double kSteerMotorKA = 0;     // Acceleration feedforward
@@ -379,27 +380,28 @@ public final class Constants {
         public static final double kDriveFrictionVoltage = 0.2;
 
         // ======================== ENCODER OFFSETS (in rotations) ========================
-        public static final double kFrontLeftEncoderOffsetRotations = -0.4697265625;
-        public static final double kFrontRightEncoderOffsetRotations = -0.4404296875;
-        public static final double kBackLeftEncoderOffsetRotations = 0.11083984375;
-        public static final double kBackRightEncoderOffsetRotations = -0.111572265625;
+        // ZEROED FOR DEBUGGING - Will show actual wheel angles
+        public static final double kFrontLeftEncoderOffsetRotations = 0.0;
+        public static final double kFrontRightEncoderOffsetRotations = 0.0;
+        public static final double kBackLeftEncoderOffsetRotations = 0.0;
+        public static final double kBackRightEncoderOffsetRotations = 0.0;
 
         // ======================== MODULE POSITIONS (in inches) ========================
         // Front Left Module
-        public static final double kFrontLeftXPosInches = 9.8425;
-        public static final double kFrontLeftYPosInches = 9.8425;
+        public static final double kFrontLeftXPosInches = 13.375;
+        public static final double kFrontLeftYPosInches = 11.375;
 
         // Front Right Module
-        public static final double kFrontRightXPosInches = 9.8425;
-        public static final double kFrontRightYPosInches = -9.8425;
+        public static final double kFrontRightXPosInches = 13.375;
+        public static final double kFrontRightYPosInches = -11.375;
 
         // Back Left Module
-        public static final double kBackLeftXPosInches = -9.8425;
-        public static final double kBackLeftYPosInches = 9.8425;
+        public static final double kBackLeftXPosInches = -13.375;
+        public static final double kBackLeftYPosInches = 11.375;
 
         // Back Right Module
-        public static final double kBackRightXPosInches = -9.8425;
-        public static final double kBackRightYPosInches = -9.8425;
+        public static final double kBackRightXPosInches = -13.375;
+        public static final double kBackRightYPosInches = -11.375;
     }
 
     // ======================== AUTONOMOUS COMMAND CONSTANTS ========================
@@ -409,3 +411,4 @@ public final class Constants {
         public static final int kHubAprilTagID = 4;
     }
 }
+ 

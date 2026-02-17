@@ -138,6 +138,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+        
+        // CRITICAL FIX: Force synchronization of steer motors to CANcoder positions
+        // This prevents multi-turn accumulation issues
+        try {
+            Thread.sleep(250); // Wait for CAN devices to fully initialize
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
+        var moduleArray = this.getModules();
+        for (var module : moduleArray) {
+            var steerMotor = module.getSteerMotor();
+            var currentPos = steerMotor.getPosition().refresh().getValueAsDouble();
+            edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("InitialSteerPos_" + steerMotor.getDeviceID(), currentPos);
+            
+            // Set position to 0 to clear any multi-turn accumulation
+            steerMotor.setPosition(0.0);
+        }
+        
+        // Seed field-centric after clearing positions
+        seedFieldCentric();
     }
 
     private void configureAutoBuilder() {
@@ -275,6 +296,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 );
                 m_hasAppliedOperatorPerspective = true;
             });
+        }
+        
+        // DIAGNOSTIC TELEMETRY - Remove after debugging
+        var modules = this.getModules();
+        for (int i = 0; i < modules.length; i++) {
+            var module = modules[i];
+            var state = module.getCurrentState();
+            
+            edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("Module[" + i + "]/Angle_deg", state.angle.getDegrees());
+            edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("Module[" + i + "]/SteerMotor_rot", module.getSteerMotor().getPosition().getValueAsDouble());
+            edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("Module[" + i + "]/DriveSpeed_mps", state.speedMetersPerSecond);
+            edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.putNumber("Module[" + i + "]/SteerCurrent_A", module.getSteerMotor().getStatorCurrent().getValueAsDouble());
         }
     }
 

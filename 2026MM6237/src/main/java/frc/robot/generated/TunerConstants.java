@@ -72,6 +72,10 @@ public class TunerConstants {
                 // stator current limit to help avoid brownouts without impacting performance.
                 .withStatorCurrentLimit(Amps.of(Constants.CommandSwerveDrivetrain.kSteerStatorCurrentLimitAmps))
                 .withStatorCurrentLimitEnable(true)
+        )
+        .withMotorOutput(
+            new MotorOutputConfigs()
+                .withNeutralMode(NeutralModeValue.Brake)
         );
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
         // .withMagnetSensor(new MagnetSensorConfigs()
