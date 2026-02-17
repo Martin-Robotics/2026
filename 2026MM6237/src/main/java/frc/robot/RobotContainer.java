@@ -130,6 +130,7 @@ public class RobotContainer {
                 .withVelocityY(driver.getLeftX() * Constants.CommandSwerveDrivetrain.kSpeedAt12Volts.in(MetersPerSecond)) 
                 .withRotationalRate(-1 * driver.getRightX() * RotationsPerSecond.of(0.5).in(RadiansPerSecond))
         ); 
+        // Command defaultDrivetrainCommand = drivetrain.applyRequest(() -> new SwerveRequest.Idle());
 
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically

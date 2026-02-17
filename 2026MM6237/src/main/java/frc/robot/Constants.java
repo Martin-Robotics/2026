@@ -331,7 +331,7 @@ public final class Constants {
 
     public static class CommandSwerveDrivetrain {
         // ======================== STEER MOTOR GAINS ========================
-        public static final double kSteerMotorKP = 10;//100;
+        public static final double kSteerMotorKP = 100;
         public static final double kSteerMotorKI = 0;
         public static final double kSteerMotorKD = 0.5;
         public static final double kSteerMotorKS = 0.1;   // Static feedforward
