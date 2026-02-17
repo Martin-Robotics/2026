@@ -1,12 +1,10 @@
 package frc.robot.subsystems;
-
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -19,7 +17,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Voltage;
@@ -32,51 +29,39 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
-
 public class Intake extends SubsystemBase {
     public enum Speed {
         STOP(0),
         INTAKE(Constants.Intake.kIntakePercentOutput);
-
         private final double percentOutput;
-
         private Speed(double percentOutput) {
             this.percentOutput = percentOutput;
         }
-
         public Voltage voltage() {
             return Volts.of(percentOutput * 12.0);
         }
     }
-
     public enum Position {
         HOMED(Constants.Intake.kHomedPositionDegrees),
         STOWED(Constants.Intake.kStowedPositionDegrees),
         INTAKE(Constants.Intake.kIntakePositionDegrees),
         AGITATE(Constants.Intake.kAgitatePositionDegrees);
-
         private final double degrees;
-
         private Position(double degrees) {
             this.degrees = degrees;
         }
-
         public Angle angle() {
             return Degrees.of(degrees);
         }
     }
-
     private static final double kPivotReduction = Constants.Intake.kPivotReduction;
     private static final AngularVelocity kMaxPivotSpeed = KrakenX60.kFreeSpeed.div(kPivotReduction);
     private static final Angle kPositionTolerance = Constants.Intake.kPositionTolerance;
-
     private final TalonFX pivotMotor, rollerMotor;
     private final VoltageOut pivotVoltageRequest = new VoltageOut(0);
     private final MotionMagicVoltage pivotMotionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
-
     private boolean isHomed = false;
-
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kCANivoreCANBus);
         rollerMotor = new TalonFX(Ports.kIntakeRollers, Ports.kRoboRioCANBus);
@@ -89,7 +74,6 @@ public class Intake extends SubsystemBase {
         
         SmartDashboard.putData(this);
     }
-
     private void configurePivotMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(
@@ -123,7 +107,6 @@ public class Intake extends SubsystemBase {
             );
         pivotMotor.getConfigurator().apply(config);
     }
-
     private void configureRollerMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(
@@ -140,7 +123,6 @@ public class Intake extends SubsystemBase {
             );
         rollerMotor.getConfigurator().apply(config);
     }
-
     /**
      * Ensures both motors start with zero voltage output.
      * Called during initialization to prevent unintended motion on enable.
@@ -151,44 +133,49 @@ public class Intake extends SubsystemBase {
         // Set roller motor to zero voltage
         rollerMotor.setControl(rollerVoltageRequest.withOutput(Volts.of(0)));
     }
-
     private boolean isPositionWithinTolerance() {
         final Angle currentPosition = pivotMotor.getPosition().getValue();
         final Angle targetPosition = pivotMotionMagicRequest.getPositionMeasure();
         return currentPosition.isNear(targetPosition, kPositionTolerance);
     }
-
     private void setPivotPercentOutput(double percentOutput) {
         pivotMotor.setControl(
             pivotVoltageRequest
                 .withOutput(Volts.of(percentOutput * 12.0))
         );
     }
-
+    /**
+     * Commands the pivot to move to a specified position.
+     * SAFETY: This method will ignore commands if the intake has not been homed.
+     * 
+     * @param position The target position for the intake pivot
+     */
     public void set(Position position) {
+        if (!isHomed) {
+            // Safety: Don't send position commands until homing is complete
+            System.err.println("WARNING: Intake position command ignored - not homed!");
+            return;
+        }
         pivotMotor.setControl(
             pivotMotionMagicRequest
                 .withPosition(position.angle())
         );
     }
-
     public void set(Speed speed) {
         rollerMotor.setControl(
             rollerVoltageRequest
                 .withOutput(speed.voltage())
         );
     }
-
     public Command intakeCommand() {
-        return startEnd(
-            () -> {
+        return Commands.sequence(
+            runOnce(() -> {
                 set(Position.INTAKE);
                 set(Speed.INTAKE);
-            },
-            () -> set(Speed.STOP)
-        );
+            }),
+            Commands.waitUntil(this::isPositionWithinTolerance)
+        ).finallyDo((interrupted) -> set(Speed.STOP));
     }
-
     public Command agitateCommand() {
         return runOnce(() -> set(Speed.INTAKE))
             .andThen(
@@ -200,12 +187,21 @@ public class Intake extends SubsystemBase {
                 )
                 .repeatedly()
             )
-            .handleInterrupt(() -> {
+            .finallyDo((interrupted) -> {
                 set(Position.INTAKE);
                 set(Speed.STOP);
             });
     }
-
+    /**
+     * Homes the intake pivot by driving into a hard stop until current spike is detected.
+     * After homing, the intake automatically moves to the STOWED position and waits
+     * for the motion to complete before finishing.
+     * 
+     * This command will not run if the intake is already homed, and cannot be interrupted
+     * once started for safety reasons.
+     * 
+     * @return Command that homes the intake and moves to stowed position
+     */
     public Command homingCommand() {
         return Commands.sequence(
             runOnce(() -> setPivotPercentOutput(Constants.Intake.kHomingPercentOutput)),
@@ -214,34 +210,28 @@ public class Intake extends SubsystemBase {
                 pivotMotor.setPosition(Position.HOMED.angle());
                 isHomed = true;
                 set(Position.STOWED);
-            })
+            }),
+            Commands.waitUntil(this::isPositionWithinTolerance)  // Wait for stowed position
         )
         .unless(() -> isHomed)
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
-
     // ======================== GETTER METHODS FOR TUNING ========================
-
     public double getPivotAngleDegrees() {
         return pivotMotor.getPosition().getValue().in(Degrees);
     }
-
     public double getRollerRPM() {
         return rollerMotor.getVelocity().getValue().in(RPM);
     }
-
     public double getPivotStatorCurrent() {
         return pivotMotor.getStatorCurrent().getValue().in(Amps);
     }
-
     public double getRollerStatorCurrent() {
         return rollerMotor.getStatorCurrent().getValue().in(Amps);
     }
-
     public boolean isHomed() {
         return isHomed;
     }
-
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
@@ -249,5 +239,6 @@ public class Intake extends SubsystemBase {
         builder.addDoubleProperty("RPM", () -> rollerMotor.getVelocity().getValue().in(RPM), null);
         builder.addDoubleProperty("Pivot Supply Current", () -> pivotMotor.getSupplyCurrent().getValue().in(Amps), null);
         builder.addDoubleProperty("Roller Supply Current", () -> rollerMotor.getSupplyCurrent().getValue().in(Amps), null);
+        builder.addBooleanProperty("Is Homed", this::isHomed, null);
     }
 }
