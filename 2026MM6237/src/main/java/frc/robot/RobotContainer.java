@@ -63,10 +63,6 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
       private final SendableChooser<Command> autoChooser;
 
-    // Replace with CommandPS4Controller or CommandJoystick if needed
-    private final CommandXboxController m_driverController =
-        new CommandXboxController(OperatorConstants.kDriverControllerPort);
-
     private static final SwerveRequest.FieldCentric tempDrive = new SwerveRequest.FieldCentric()
       .withDeadband(TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)).withRotationalDeadband(RotationsPerSecond.of(0.5).in(RadiansPerSecond))
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
@@ -129,16 +125,16 @@ public class RobotContainer {
       // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
       // cancelling on release.
 
-        // Command defaultDrivetrainCommand = drivetrain.applyRequest(() ->
-        //     tempDrive.withVelocityX(m_driverController.getLeftY() * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)) 
-        //         .withVelocityY(m_driverController.getLeftX() * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)) 
-        //         .withRotationalRate(-1 * m_driverController.getRightX() * RotationsPerSecond.of(0.5).in(RadiansPerSecond))
-        // ); 
+        Command defaultDrivetrainCommand = drivetrain.applyRequest(() ->
+            tempDrive.withVelocityX(driver.getLeftY() * Constants.CommandSwerveDrivetrain.kSpeedAt12Volts.in(MetersPerSecond)) 
+                .withVelocityY(driver.getLeftX() * Constants.CommandSwerveDrivetrain.kSpeedAt12Volts.in(MetersPerSecond)) 
+                .withRotationalRate(-1 * driver.getRightX() * RotationsPerSecond.of(0.5).in(RadiansPerSecond))
+        ); 
 
-        // drivetrain.setDefaultCommand(
-        //     // Drivetrain will execute this command periodically
-        //     defaultDrivetrainCommand
-        // );
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            defaultDrivetrainCommand
+        );
     }
 
     /**

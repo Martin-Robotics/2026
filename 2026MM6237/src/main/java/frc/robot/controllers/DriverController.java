@@ -17,8 +17,8 @@ public class DriverController {
     public static double invertXNumberFieldCentric = 1.0;
     public static double invertYNumberFieldCentric = 1.0;
 
-    public static double invertXNumberRobotCentric = -1.0;
-    public static double invertYNumberRobotCentric = -1.0;
+    public static double invertXNumberRobotCentric = 1.0;
+    public static double invertYNumberRobotCentric = 1.0;
 
     public static Trigger robotCentricControl;
 

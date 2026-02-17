@@ -249,85 +249,85 @@ public final class Constants {
     //     public static final double kBackRightYPosInches = -11.375;
     // }
 
-    public static class Swerve {
-        public static final double kPathXControllerKP = 10;
-        public static final double kPathXControllerKI = 0;
-        public static final double kPathXControllerKD = 0;
-        public static final double kPathYControllerKP = 10;
-        public static final double kPathYControllerKI = 0;
-        public static final double kPathYControllerKD = 0;
-        public static final double kPathThetaControllerKP = 7;
-        public static final double kPathThetaControllerKI = 0;
-        public static final double kPathThetaControllerKD = 0;
-        public static final double kOdometryStandardDeviationX = 0.1;
-        public static final double kOdometryStandardDeviationY = 0.1;
-        public static final double kOdometryStandardDeviationTheta = 0.1;
-        public static final double kVisionStandardDeviationX = 0.1;
-        public static final double kVisionStandardDeviationY = 0.1;
-        public static final double kVisionStandardDeviationTheta = 0.1;
+    // public static class Swerve {
+    //     public static final double kPathXControllerKP = 10;
+    //     public static final double kPathXControllerKI = 0;
+    //     public static final double kPathXControllerKD = 0;
+    //     public static final double kPathYControllerKP = 10;
+    //     public static final double kPathYControllerKI = 0;
+    //     public static final double kPathYControllerKD = 0;
+    //     public static final double kPathThetaControllerKP = 7;
+    //     public static final double kPathThetaControllerKI = 0;
+    //     public static final double kPathThetaControllerKD = 0;
+    //     public static final double kOdometryStandardDeviationX = 0.1;
+    //     public static final double kOdometryStandardDeviationY = 0.1;
+    //     public static final double kOdometryStandardDeviationTheta = 0.1;
+    //     public static final double kVisionStandardDeviationX = 0.1;
+    //     public static final double kVisionStandardDeviationY = 0.1;
+    //     public static final double kVisionStandardDeviationTheta = 0.1;
 
-        // ======================== STEER MOTOR GAINS ========================
-        public static final double kSteerMotorKP = 100;
-        public static final double kSteerMotorKI = 0;
-        public static final double kSteerMotorKD = 0.5;
-        public static final double kSteerMotorKS = 0.1;  // Static feedforward
-        public static final double kSteerMotorKV = 2.66; // Velocity feedforward
-        public static final double kSteerMotorKA = 0;    // Acceleration feedforward
+    //     // ======================== STEER MOTOR GAINS ========================
+    //     public static final double kSteerMotorKP = 100;
+    //     public static final double kSteerMotorKI = 0;
+    //     public static final double kSteerMotorKD = 0.5;
+    //     public static final double kSteerMotorKS = 0.1;  // Static feedforward
+    //     public static final double kSteerMotorKV = 2.66; // Velocity feedforward
+    //     public static final double kSteerMotorKA = 0;    // Acceleration feedforward
 
-        // ======================== DRIVE MOTOR GAINS ========================
-        public static final double kDriveMotorKP = 0.1;
-        public static final double kDriveMotorKI = 0;
-        public static final double kDriveMotorKD = 0;
-        public static final double kDriveMotorKS = 0;      // Static feedforward
-        public static final double kDriveMotorKV = 0.124;  // Velocity feedforward
+    //     // ======================== DRIVE MOTOR GAINS ========================
+    //     public static final double kDriveMotorKP = 0.1;
+    //     public static final double kDriveMotorKI = 0;
+    //     public static final double kDriveMotorKD = 0;
+    //     public static final double kDriveMotorKS = 0;      // Static feedforward
+    //     public static final double kDriveMotorKV = 0.124;  // Velocity feedforward
 
-        // ======================== MOTOR CURRENT LIMITS ========================
-        public static final double kSlipCurrentAmps = 120.0;
-        public static final double kSteerStatorCurrentLimitAmps = 60.0;
+    //     // ======================== MOTOR CURRENT LIMITS ========================
+    //     public static final double kSlipCurrentAmps = 120.0;
+    //     public static final double kSteerStatorCurrentLimitAmps = 60.0;
 
-        // ======================== MOTOR GEAR RATIOS ========================
-        public static final double kDriveGearRatio = 6.746031746031747;
-        public static final double kSteerGearRatio = 21.428571428571427;
-        public static final double kCouplingGearRatio = 3.5714285714285716;
+    //     // ======================== MOTOR GEAR RATIOS ========================
+    //     public static final double kDriveGearRatio = 6.746031746031747;
+    //     public static final double kSteerGearRatio = 21.428571428571427;
+    //     public static final double kCouplingGearRatio = 3.5714285714285716;
 
-        // ======================== WHEEL CONFIGURATION ========================
-        public static final double kWheelRadiusInches = 2.0;
+    //     // ======================== WHEEL CONFIGURATION ========================
+    //     public static final double kWheelRadiusInches = 2.0;
 
-        // ======================== INVERSION SETTINGS ========================
-        public static final boolean kInvertLeftSide = false;
-        public static final boolean kInvertRightSide = true;
-        public static final boolean kSteerMotorInverted = true;
-        public static final boolean kEncoderInverted = false;
+    //     // ======================== INVERSION SETTINGS ========================
+    //     public static final boolean kInvertLeftSide = false;
+    //     public static final boolean kInvertRightSide = true;
+    //     public static final boolean kSteerMotorInverted = true;
+    //     public static final boolean kEncoderInverted = false;
 
-        // ======================== SIMULATION PARAMETERS ========================
-        public static final double kSteerInertiaKgm2 = 0.01;
-        public static final double kDriveInertiaKgm2 = 0.01;
-        public static final double kSteerFrictionVoltage = 0.2;
-        public static final double kDriveFrictionVoltage = 0.2;
+    //     // ======================== SIMULATION PARAMETERS ========================
+    //     public static final double kSteerInertiaKgm2 = 0.01;
+    //     public static final double kDriveInertiaKgm2 = 0.01;
+    //     public static final double kSteerFrictionVoltage = 0.2;
+    //     public static final double kDriveFrictionVoltage = 0.2;
 
-        // ======================== ENCODER OFFSETS (in rotations) ========================
-        public static final double kFrontLeftEncoderOffsetRotations = -0.0537109375;
-        public static final double kFrontRightEncoderOffsetRotations = -0.17626953125;
-        public static final double kBackLeftEncoderOffsetRotations = 0.397705078125;
-        public static final double kBackRightEncoderOffsetRotations = 0.416015625;
+    //     // ======================== ENCODER OFFSETS (in rotations) ========================
+    //     public static final double kFrontLeftEncoderOffsetRotations = -0.0537109375;
+    //     public static final double kFrontRightEncoderOffsetRotations = -0.17626953125;
+    //     public static final double kBackLeftEncoderOffsetRotations = 0.397705078125;
+    //     public static final double kBackRightEncoderOffsetRotations = 0.416015625;
 
-        // ======================== MODULE POSITIONS ========================
-        // Front Left Module
-        public static final double kFrontLeftXPosInches = 13.375;
-        public static final double kFrontLeftYPosInches = 11.375;
+    //     // ======================== MODULE POSITIONS ========================
+    //     // Front Left Module
+    //     public static final double kFrontLeftXPosInches = 13.375;
+    //     public static final double kFrontLeftYPosInches = 11.375;
 
-        // Front Right Module
-        public static final double kFrontRightXPosInches = 13.375;
-        public static final double kFrontRightYPosInches = -11.375;
+    //     // Front Right Module
+    //     public static final double kFrontRightXPosInches = 13.375;
+    //     public static final double kFrontRightYPosInches = -11.375;
 
-        // Back Left Module
-        public static final double kBackLeftXPosInches = -13.375;
-        public static final double kBackLeftYPosInches = 11.375;
+    //     // Back Left Module
+    //     public static final double kBackLeftXPosInches = -13.375;
+    //     public static final double kBackLeftYPosInches = 11.375;
 
-        // Back Right Module
-        public static final double kBackRightXPosInches = -13.375;
-        public static final double kBackRightYPosInches = -11.375;
-    }
+    //     // Back Right Module
+    //     public static final double kBackRightXPosInches = -13.375;
+    //     public static final double kBackRightYPosInches = -11.375;
+    // }
 
     public static class CommandSwerveDrivetrain {
         // ======================== STEER MOTOR GAINS ========================
@@ -368,8 +368,8 @@ public final class Constants {
 
         // ======================== INVERSION SETTINGS ========================
         public static final boolean kInvertLeftSide = false;
-        public static final boolean kInvertRightSide = true;
-        public static final boolean kSteerMotorInverted = true;
+        public static final boolean kInvertRightSide = false;
+        public static final boolean kSteerMotorInverted = false;
         public static final boolean kEncoderInverted = false;
 
         // ======================== SIMULATION PARAMETERS ========================
