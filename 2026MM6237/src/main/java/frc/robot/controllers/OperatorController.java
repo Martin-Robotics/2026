@@ -3,6 +3,7 @@ package frc.robot.controllers;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.commands.WCP.PrepareStaticShotCommand;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
@@ -35,12 +36,16 @@ import frc.robot.subsystems.Shooter;
  * - DPad Down: Hanger retract (negative voltage)
  * - DPad Left: Floor feed forward
  * - DPad Right: Floor feed reverse
+ * - Start: Prepare and shoot at static distance (shooter + hood + feeder + floor)
  */
 public class OperatorController {
     
     // Control percentages for safe voltage testing
     private static final double MOTOR_SPEED_PERCENT = 0.3;  // 30% voltage for testing
     private static final double INTAKE_SPEED_PERCENT = 0.06; // 6% voltage for intake testing (20% of 30%)
+    
+    // Shot preparation distance (meters)
+    private static final double STATIC_SHOT_DISTANCE_METERS = 2.0; // Default test distance
     
     // Hood servo safe testing positions (centered around 0.5, small range for initial testing)
     private static final double HOOD_SAFE_UP_POSITION = 0.8;    // Slightly up from center
@@ -179,5 +184,15 @@ public class OperatorController {
                 () -> floor.set(Floor.Speed.REVERSE),
                 () -> floor.set(Floor.Speed.STOP)
             ).withName("Floor Feed Reverse"));
+        
+        // ======================== SHOT PREPARATION ========================
+        // Start Button: Prepare shot at static distance (for testing without odometry)
+        // Spins up shooter, positions hood, and engages feeder and floor when at speed
+        // operatorController.start()
+        //     .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, STATIC_SHOT_DISTANCE_METERS) STATIC_SHOT_DISTANCE_METERS = 2.0
+        //         .withName("Prepare Static Shot"));
+        operatorController.start()
+            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 1) 
+                .withName("Prepare Static Shot"));
     }
 }
