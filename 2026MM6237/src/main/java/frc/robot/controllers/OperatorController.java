@@ -23,11 +23,12 @@ import frc.robot.subsystems.Shooter;
  * - LT: Feeder reverse (negative voltage)
  * - RB: Shooter forward (positive voltage)
  * - RT: Shooter reverse (negative voltage)
- * - Y: Intake forward (rollers)
- * - X: Intake reverse (rollers)
- * - B: Intake pivot up
- * - A: Intake pivot down
- * - Left Stick Up/Down: Hood position (analog, 0.0-1.0)
+ * - Left Stick Up: Intake forward (rollers spin, pivot to INTAKE position)
+ * - Left Stick Down: Intake stow (stop rollers, pivot to STOWED position)
+ * - Y: Hood servo UP (safe testing position - 0.6)
+ * - X: Hood servo DOWN (safe testing position - 0.4)
+ * - B: Intake agitate
+ * - A: Intake homing
  * - DPad Up: Hanger extend (positive voltage)
  * - DPad Down: Hanger retract (negative voltage)
  * - DPad Left: Floor feed forward
@@ -37,6 +38,11 @@ public class OperatorController {
     
     // Control percentages for safe voltage testing
     private static final double MOTOR_SPEED_PERCENT = 0.3;  // 30% voltage for testing
+    
+    // Hood servo safe testing positions (centered around 0.5, small range for initial testing)
+    private static final double HOOD_SAFE_UP_POSITION = 0.8;    // Slightly up from center
+    private static final double HOOD_SAFE_DOWN_POSITION = 0.4;  // Slightly down from center
+    private static final double LEFT_STICK_THRESHOLD = 0.15;     // Deadband for stick input
     
     /**
      * Maps Xbox controller inputs to subsystem commands.
@@ -89,8 +95,8 @@ public class OperatorController {
             ).withName("Shooter Reverse"));
         
         // ======================== INTAKE CONTROLS ========================
-        // Y Button: Intake forward (rollers spin, pivot goes to INTAKE position)
-        operatorController.y()
+        // Left Stick Up: Intake forward (rollers spin, pivot goes to INTAKE position)
+        new Trigger(() -> operatorController.getLeftY() < -LEFT_STICK_THRESHOLD)
             .whileTrue(intake.runEnd(
                 () -> {
                     intake.set(Intake.Speed.INTAKE);
@@ -99,8 +105,8 @@ public class OperatorController {
                 () -> intake.set(Intake.Speed.STOP)
             ).withName("Intake Forward"));
         
-        // X Button: Intake reverse (rollers reverse, pivot goes to STOWED)
-        operatorController.x()
+        // Left Stick Down: Intake stow (stop rollers, pivot goes to STOWED)
+        new Trigger(() -> operatorController.getLeftY() > LEFT_STICK_THRESHOLD)
             .whileTrue(intake.runEnd(
                 () -> {
                     intake.set(Intake.Speed.STOP);
@@ -118,18 +124,20 @@ public class OperatorController {
             .onTrue(intake.homingCommand().withName("Intake Homing"));
         
         // ======================== HOOD CONTROLS ========================
-        // NOTE: Hood does NOT have a default command to prevent unwanted servo movement on robot enable.
-        // When controller sticks are not centered, having a default command would cause the hood
-        // to move immediately upon enable, potentially causing mechanical damage.
-        // 
-        // For future implementation: Add explicit button/trigger-based controls instead:
-        // Example:
-        // operatorController.leftStick()
-        //     .whileTrue(hood.run(() -> hood.setPosition(newPosition)));
-        //
-        // IMPORTANT: Never use .setDefaultCommand() on subsystems that directly command motors!
-        // Default commands run immediately on enable without any operator input validation.
+        // Y Button: Hood servo UP (safe testing - small movement to 0.6)
+        // SAFETY NOTE: These positions are close to center (0.5) for initial testing
+        // since the hood is not confirmed to be wired/working. This prevents large
+        // movements that could cause mechanical damage during initial testing.
+        operatorController.y()
+            .onTrue(hood.runOnce(() -> hood.setPosition(HOOD_SAFE_UP_POSITION))
+                .withName("Hood Up (Safe Test)"));
         
+        // X Button: Hood servo DOWN (safe testing - small movement to 0.4)
+        operatorController.x()
+            .onTrue(hood.runOnce(() -> hood.setPosition(HOOD_SAFE_DOWN_POSITION))
+                .withName("Hood Down (Safe Test)"));
+
+
         // ======================== HANGER CONTROLS ========================
         // DPad Up: Hanger extend (positive voltage)
         operatorController.pov(0)
