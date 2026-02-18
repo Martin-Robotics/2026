@@ -23,15 +23,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "StopIntake"
+            "pathName": "Depot16"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "DepotCross"
+            "name": "StopIntake"
           }
         },
         {
@@ -45,17 +45,11 @@
           "data": {
             "name": "Fire"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "MISC.",
   "choreoAuto": false
 }

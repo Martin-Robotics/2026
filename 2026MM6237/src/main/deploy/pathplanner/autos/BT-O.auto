@@ -13,7 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BumpDepot"
+            "pathName": "BTOutpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OutpostCurve"
           }
         },
         {
@@ -29,12 +35,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "DepotCross"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "PrepareToFire"
@@ -45,17 +45,11 @@
           "data": {
             "name": "Fire"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "MISC.",
   "choreoAuto": false
 }
