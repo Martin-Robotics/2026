@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.1530232558139533,
-        "y": 6.606726296958855
+        "x": 1.7636135957066186,
+        "y": 6.460697674418604
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7046869409691254,
-        "y": 6.850107334531874
+        "x": 2.656010733452594,
+        "y": 5.616976744186045
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Lulu P1.1E"
     },
     {
       "anchor": {
-        "x": 0.43313059034449397,
-        "y": 6.347119856893046
+        "x": 2.8182647584973166,
+        "y": 5.438497316636852
       },
       "prevControl": {
-        "x": 0.5946222294714087,
-        "y": 7.174764507419647
-      },
-      "nextControl": {
-        "x": 0.1735241502744242,
-        "y": 5.016636851532066
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.5262075134214173,
-        "y": 4.02688729875351
-      },
-      "prevControl": {
-        "x": 1.9096422182514705,
-        "y": 3.945760286231149
+        "x": 1.990769230769231,
+        "y": 6.282218246869409
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Lulu P1.2E"
     }
   ],
   "rotationTargets": [],
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 179.3338000298169
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 42.273689006093704
   },
   "useDefaultConstraints": true
 }

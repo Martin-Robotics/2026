@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.1530232558139533,
-        "y": 6.606726296958855
+        "x": 3.272576028627169,
+        "y": 4.043
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7046869409691254,
-        "y": 6.850107334531874
+        "x": 3.5217243620446794,
+        "y": 4.022381853738103
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LuluA P3.1"
     },
     {
       "anchor": {
-        "x": 0.43313059034449397,
-        "y": 6.347119856893046
+        "x": 3.272576028627169,
+        "y": 4.043
       },
       "prevControl": {
-        "x": 0.5946222294714087,
-        "y": 7.174764507419647
-      },
-      "nextControl": {
-        "x": 0.1735241502744242,
-        "y": 5.016636851532066
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.5262075134214173,
-        "y": 4.02688729875351
-      },
-      "prevControl": {
-        "x": 1.9096422182514705,
-        "y": 3.945760286231149
+        "x": 3.0225761517050858,
+        "y": 4.043248070440154
       },
       "nextControl": null,
       "isLocked": false,
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -93.43410628568252
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 93.9442445012032
   },
   "useDefaultConstraints": true
 }
