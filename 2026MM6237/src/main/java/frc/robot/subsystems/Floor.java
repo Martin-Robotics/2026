@@ -23,7 +23,8 @@ import frc.robot.Ports;
 public class Floor extends SubsystemBase {
     public enum Speed {
         STOP(0),
-        FEED(Constants.Floor.kFeedPercentOutput);
+        FEED(Constants.Floor.kFeedPercentOutput),
+        REVERSE(-Constants.Floor.kFeedPercentOutput);
 
         private final double percentOutput;
 

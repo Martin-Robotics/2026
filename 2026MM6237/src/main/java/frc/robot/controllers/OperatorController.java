@@ -161,12 +161,11 @@ public class OperatorController {
                 () -> floor.set(Floor.Speed.STOP)
             ).withName("Floor Feed Forward"));
         
-        // DPad Right: Floor manual control (reverse by directly controlling motor)
-        // Since Floor doesn't have reverse in Speed enum, we'll stop and note this limitation
+        // DPad Right: Floor feed reverse
         operatorController.pov(90)
             .whileTrue(floor.runEnd(
-                () -> floor.set(Floor.Speed.STOP),
+                () -> floor.set(Floor.Speed.REVERSE),
                 () -> floor.set(Floor.Speed.STOP)
-            ).withName("Floor Stop"));
+            ).withName("Floor Feed Reverse"));
     }
 }
