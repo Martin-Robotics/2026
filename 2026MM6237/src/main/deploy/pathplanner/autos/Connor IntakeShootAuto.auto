@@ -13,19 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "A1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot auto"
+            "pathName": "IntakeShoot1"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "IntakeShoot2"
           }
         },
         {

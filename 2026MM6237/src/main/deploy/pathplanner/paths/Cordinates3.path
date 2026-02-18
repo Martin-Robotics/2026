@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.933,
+        "y": 0.5
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.933,
+        "y": 1.5
+      },
+      "isLocked": false,
+      "linkedName": "13"
+    },
+    {
+      "anchor": {
+        "x": 2.93,
+        "y": 1.9
+      },
+      "prevControl": {
+        "x": 2.93,
+        "y": 0.8999999999999999
+      },
+      "nextControl": {
+        "x": 2.93,
+        "y": 2.9
+      },
+      "isLocked": false,
+      "linkedName": "14"
+    },
+    {
+      "anchor": {
+        "x": 2.93,
+        "y": 3.3
+      },
+      "prevControl": {
+        "x": 2.93,
+        "y": 2.61282108324564
+      },
+      "nextControl": {
+        "x": 2.93,
+        "y": 3.9871789167543596
+      },
+      "isLocked": false,
+      "linkedName": "15"
+    },
+    {
+      "anchor": {
+        "x": 2.933,
+        "y": 4.7
+      },
+      "prevControl": {
+        "x": 2.933,
+        "y": 4.446600069180501
+      },
+      "nextControl": {
+        "x": 2.933,
+        "y": 4.953399930819499
+      },
+      "isLocked": false,
+      "linkedName": "16"
+    },
+    {
+      "anchor": {
+        "x": 2.933,
+        "y": 6.1
+      },
+      "prevControl": {
+        "x": 2.933,
+        "y": 5.462729488613828
+      },
+      "nextControl": {
+        "x": 2.933,
+        "y": 6.737270511386171
+      },
+      "isLocked": false,
+      "linkedName": "17"
+    },
+    {
+      "anchor": {
+        "x": 2.933,
+        "y": 7.5
+      },
+      "prevControl": {
+        "x": 2.933,
+        "y": 6.987249368588313
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "18"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Help",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

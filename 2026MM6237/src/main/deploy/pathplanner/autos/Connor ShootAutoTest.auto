@@ -5,27 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "RunIntake"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "A1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot auto"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopIntake"
+            "pathName": "MoveALittle"
           }
         },
         {

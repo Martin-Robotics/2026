@@ -1,0 +1,59 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.45,
+        "y": 7.25
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.579596678529064,
+        "y": 6.030830367734283
+      },
+      "isLocked": false,
+      "linkedName": "10"
+    },
+    {
+      "anchor": {
+        "x": 4.6,
+        "y": 6.0
+      },
+      "prevControl": {
+        "x": 2.4442692307692324,
+        "y": 7.2560128205128205
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "14"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.9750164365549002,
+      "rotationDegrees": 150.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Projects D2",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -29.999999999999996
+  },
+  "useDefaultConstraints": true
+}

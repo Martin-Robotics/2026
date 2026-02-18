@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.716,
+        "y": 0.5
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.716,
+        "y": 1.5
+      },
+      "isLocked": false,
+      "linkedName": "7"
+    },
+    {
+      "anchor": {
+        "x": 1.716,
+        "y": 1.9
+      },
+      "prevControl": {
+        "x": 1.716,
+        "y": 0.8999999999999999
+      },
+      "nextControl": {
+        "x": 1.716,
+        "y": 2.9
+      },
+      "isLocked": false,
+      "linkedName": "8"
+    },
+    {
+      "anchor": {
+        "x": 1.716,
+        "y": 3.3
+      },
+      "prevControl": {
+        "x": 1.716,
+        "y": 3.0500000000000007
+      },
+      "nextControl": {
+        "x": 1.716,
+        "y": 3.549999999999999
+      },
+      "isLocked": false,
+      "linkedName": "9"
+    },
+    {
+      "anchor": {
+        "x": 1.716,
+        "y": 4.7
+      },
+      "prevControl": {
+        "x": 1.716,
+        "y": 3.8702340923744325
+      },
+      "nextControl": {
+        "x": 1.716,
+        "y": 5.529765907625568
+      },
+      "isLocked": false,
+      "linkedName": "10"
+    },
+    {
+      "anchor": {
+        "x": 1.716,
+        "y": 6.1
+      },
+      "prevControl": {
+        "x": 1.7159999999999997,
+        "y": 4.061981725126742
+      },
+      "nextControl": {
+        "x": 1.7160000000000002,
+        "y": 8.138018274873257
+      },
+      "isLocked": false,
+      "linkedName": "11"
+    },
+    {
+      "anchor": {
+        "x": 1.716,
+        "y": 7.5
+      },
+      "prevControl": {
+        "x": 1.716,
+        "y": 5.989555682869632
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "12"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Help",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
