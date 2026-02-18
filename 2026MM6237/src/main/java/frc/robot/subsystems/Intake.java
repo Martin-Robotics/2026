@@ -95,8 +95,9 @@ public class Intake extends SubsystemBase {
             )
             .withMotionMagic(
                 new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed)
-                    .withMotionMagicAcceleration(kMaxPivotSpeed.per(Second))
+                    // Reduced to 20% of max speed for safe testing
+                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed.times(0.2))
+                    .withMotionMagicAcceleration(kMaxPivotSpeed.times(0.2).per(Second))
             )
             .withSlot0(
                 new Slot0Configs()
@@ -144,6 +145,31 @@ public class Intake extends SubsystemBase {
                 .withOutput(Volts.of(percentOutput * 12.0))
         );
     }
+    
+    /**
+     * Manually sets the pivot motor voltage for testing purposes.
+     * Use this for initial testing before homing to verify motor direction.
+     * 
+     * @param percentOutput Percent output from -1.0 to 1.0
+     */
+    public void setManualPivotVoltage(double percentOutput) {
+        setPivotPercentOutput(percentOutput);
+    }
+    
+    /**
+     * Manually sets the pivot position for testing purposes, bypassing homing check.
+     * Use this ONLY for testing after you've manually established a zero point.
+     * For normal operation, use set(Position) after homing.
+     * 
+     * @param position The target position for the intake pivot
+     */
+    public void setManualPosition(Position position) {
+        pivotMotor.setControl(
+            pivotMotionMagicRequest
+                .withPosition(position.angle())
+        );
+    }
+    
     /**
      * Commands the pivot to move to a specified position.
      * SAFETY: This method will ignore commands if the intake has not been homed.

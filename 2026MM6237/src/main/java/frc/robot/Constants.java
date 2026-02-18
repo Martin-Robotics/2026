@@ -126,15 +126,15 @@ public final class Constants {
 
     public static class Intake {
         public static final double kIntakePercentOutput = 0.8;
-        public static final double kHomedPositionDegrees = 110;
-        public static final double kStowedPositionDegrees = 100;
-        public static final double kIntakePositionDegrees = -4;
-        public static final double kAgitatePositionDegrees = 20;
+        public static final double kHomedPositionDegrees = 10;   // Home position (slightly past stowed)
+        public static final double kStowedPositionDegrees = 5;   // Safe/normal stowed position
+        public static final double kIntakePositionDegrees = -110; // Fully extended intake position
+        public static final double kAgitatePositionDegrees = -50; // Mid-position for agitating
         public static final double kPivotReduction = 50.0;
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;
         public static final double kSupplyCurrentLimit = 70;
-        public static final double kPivotKP = 300;
+        public static final double kPivotKP = 0.1;  // Very low gain for safe testing (similar to 6% manual voltage)
         public static final double kPivotKI = 0;
         public static final double kPivotKD = 0;
         public static final double kHomingPercentOutput = 0.1;

@@ -23,10 +23,12 @@ import frc.robot.subsystems.Shooter;
  * - LT: Feeder reverse (negative voltage)
  * - RB: Shooter forward (positive voltage)
  * - RT: Shooter reverse (negative voltage)
- * - Left Stick Up: Intake forward (rollers spin, pivot to INTAKE position)
- * - Left Stick Down: Intake stow (stop rollers, pivot to STOWED position)
- * - Y: Hood servo UP (safe testing position - 0.6)
- * - X: Hood servo DOWN (safe testing position - 0.4)
+ * - Left Stick Up: Intake pivot manual positive voltage (6% for testing)
+ * - Left Stick Down: Intake pivot manual negative voltage (6% for testing)
+ * - Left Stick Left: Seek STOWED position (while held)
+ * - Left Stick Right: Seek INTAKE position (while held)
+ * - Y: Hood servo UP (full up position - 1.0)
+ * - X: Hood servo DOWN (full down position - 0.0)
  * - B: Intake agitate
  * - A: Intake homing
  * - DPad Up: Hanger extend (positive voltage)
@@ -38,6 +40,7 @@ public class OperatorController {
     
     // Control percentages for safe voltage testing
     private static final double MOTOR_SPEED_PERCENT = 0.3;  // 30% voltage for testing
+    private static final double INTAKE_SPEED_PERCENT = 0.06; // 6% voltage for intake testing (20% of 30%)
     
     // Hood servo safe testing positions (centered around 0.5, small range for initial testing)
     private static final double HOOD_SAFE_UP_POSITION = 0.8;    // Slightly up from center
@@ -95,25 +98,34 @@ public class OperatorController {
             ).withName("Shooter Reverse"));
         
         // ======================== INTAKE CONTROLS ========================
-        // Left Stick Up: Intake forward (rollers spin, pivot goes to INTAKE position)
+        // Left Stick Up: Manual intake pivot positive voltage (for initial testing)
+        // NOTE: Using reduced 6% voltage (20% of normal) for safe initial testing
         new Trigger(() -> operatorController.getLeftY() < -LEFT_STICK_THRESHOLD)
             .whileTrue(intake.runEnd(
-                () -> {
-                    intake.set(Intake.Speed.INTAKE);
-                    intake.set(Intake.Position.INTAKE);
-                },
-                () -> intake.set(Intake.Speed.STOP)
-            ).withName("Intake Forward"));
+                () -> intake.setManualPivotVoltage(INTAKE_SPEED_PERCENT),
+                () -> intake.setManualPivotVoltage(0.0)
+            ).withName("Intake Pivot Up (Manual)"));
         
-        // Left Stick Down: Intake stow (stop rollers, pivot goes to STOWED)
+        // Left Stick Down: Manual intake pivot negative voltage (for initial testing)
         new Trigger(() -> operatorController.getLeftY() > LEFT_STICK_THRESHOLD)
             .whileTrue(intake.runEnd(
-                () -> {
-                    intake.set(Intake.Speed.STOP);
-                    intake.set(Intake.Position.STOWED);
-                },
-                () -> intake.set(Intake.Speed.STOP)
-            ).withName("Intake Stow"));
+                () -> intake.setManualPivotVoltage(-INTAKE_SPEED_PERCENT),
+                () -> intake.setManualPivotVoltage(0.0)
+            ).withName("Intake Pivot Down (Manual)"));
+        
+        // Left Stick Left: Seek STOWED position (only while held)
+        // Command continuously sends position command while stick is held left
+        // Uses manual position command for testing (bypasses homing check)
+        new Trigger(() -> operatorController.getLeftX() < -LEFT_STICK_THRESHOLD)
+            .whileTrue(intake.run(() -> intake.setManualPosition(Intake.Position.STOWED))
+                .withName("Seek Stowed Position"));
+        
+        // Left Stick Right: Seek INTAKE position (only while held)
+        // Command continuously sends position command while stick is held right
+        // Uses manual position command for testing (bypasses homing check)
+        new Trigger(() -> operatorController.getLeftX() > LEFT_STICK_THRESHOLD)
+            .whileTrue(intake.run(() -> intake.setManualPosition(Intake.Position.INTAKE))
+                .withName("Seek Intake Position"));
         
         // B Button: Intake agitate command
         operatorController.b()
