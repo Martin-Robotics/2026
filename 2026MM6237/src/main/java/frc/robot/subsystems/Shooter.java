@@ -45,7 +45,8 @@ public class Shooter extends SubsystemBase {
         motors = List.of(leftMotor, middleMotor, rightMotor);
 
         configureMotor(leftMotor, InvertedValue.CounterClockwise_Positive);
-        configureMotor(middleMotor, InvertedValue.Clockwise_Positive);
+        // configureMotor(middleMotor, InvertedValue.Clockwise_Positive);'
+        configureMotor(middleMotor, InvertedValue.CounterClockwise_Positive);
         configureMotor(rightMotor, InvertedValue.Clockwise_Positive);
 
         // SAFETY: Ensure motors start with zero voltage output
