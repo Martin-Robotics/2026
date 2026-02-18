@@ -3,16 +3,9 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "Help",
-    "Connor",
-    "Projects D2",
-    "Vision Auto",
-    "InitAutoTesting",
     "New Folder"
   ],
-  "autoFolders": [
-    "MISC."
-  ],
+  "autoFolders": [],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 540.0,

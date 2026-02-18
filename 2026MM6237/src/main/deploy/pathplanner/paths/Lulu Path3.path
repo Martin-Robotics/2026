@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.1530232558139533,
-        "y": 6.606726296958855
+        "x": 4.294776386404293,
+        "y": 7.093488372093023
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.7046869409691254,
-        "y": 6.850107334531874
+        "x": 2.282826475849731,
+        "y": 6.979910554561717
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Lulu Point 2"
     },
     {
       "anchor": {
-        "x": 0.43313059034449397,
-        "y": 6.347119856893046
+        "x": 2.0,
+        "y": 7.0
       },
       "prevControl": {
-        "x": 0.5946222294714087,
-        "y": 7.174764507419647
-      },
-      "nextControl": {
-        "x": 0.1735241502744242,
-        "y": 5.016636851532066
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.5262075134214173,
-        "y": 4.02688729875351
-      },
-      "prevControl": {
-        "x": 1.9096422182514705,
-        "y": 3.945760286231149
+        "x": 4.051395348837209,
+        "y": 7.061037567084079
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LS Point3"
     }
   ],
   "rotationTargets": [],
