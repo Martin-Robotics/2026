@@ -3,35 +3,39 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.933,
-        "y": 6.1
+        "x": 1.716,
+        "y": 1.9
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.933,
-        "y": 6.35
+        "x": 2.6928076923076936,
+        "y": 2.4988846153846156
       },
       "isLocked": false,
-      "linkedName": "17"
+      "linkedName": "8"
     },
     {
       "anchor": {
-        "x": 2.933,
-        "y": 6.1
+        "x": 6.746705128205129,
+        "y": 2.2675128205128217
       },
       "prevControl": {
-        "x": 2.933,
-        "y": 5.85
+        "x": 6.002500000000001,
+        "y": 3.0117179487179495
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "17"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.0,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 0.3701512163050609,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 0.7672583826430004,
+      "rotationDegrees": 45.0
     }
   ],
   "constraintZones": [],
@@ -47,13 +51,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Vision Auto",
   "idealStartingState": {
-    "velocity": 0.0,
-    "rotation": 90.0
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

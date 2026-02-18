@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BumpDepot"
+            "pathName": "BTOutpost"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "OutpostCurve"
           }
         },
         {
@@ -47,15 +47,21 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Across"
+            "pathName": "OBump"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "MISC.",
   "choreoAuto": false
 }
