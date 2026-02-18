@@ -45,6 +45,16 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    
+    // Update subsystem tuning displays
+    frc.robot.util.SubsystemTuning.updateAllDashboards(
+        m_robotContainer.getFeeder(),
+        m_robotContainer.getShooter(),
+        m_robotContainer.getIntake(),
+        m_robotContainer.getHood(),
+        m_robotContainer.getHanger(),
+        m_robotContainer.getFloor()
+    );
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

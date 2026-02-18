@@ -19,7 +19,7 @@ import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
  * The subsystem is designed to be independent of drivetrain implementation,
  * allowing it to persist across drivetrain generation/replacement cycles.
  */
-public class LimelightSubsystem implements Subsystem {
+public class LimelightSubsystem6237 implements Subsystem {
     private final String limelightName;
     private boolean limelightConnected = false;
 
@@ -27,7 +27,7 @@ public class LimelightSubsystem implements Subsystem {
      * Constructs a LimelightSubsystem with the default Limelight name.
      * Uses empty string "" which corresponds to "limelight" on the network.
      */
-    public LimelightSubsystem() {
+    public LimelightSubsystem6237() {
         this("");
     }
 
@@ -35,7 +35,7 @@ public class LimelightSubsystem implements Subsystem {
      * Constructs a LimelightSubsystem with a specific Limelight name.
      * @param name The network name of the Limelight (e.g., "limelight-front", "limelight")
      */
-    public LimelightSubsystem(String name) {
+    public LimelightSubsystem6237(String name) {
         this.limelightName = name;
     }
 
