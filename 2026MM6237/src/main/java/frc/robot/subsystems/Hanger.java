@@ -1,22 +1,17 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkBase.ControlType;
 
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.DistanceUnit;
@@ -31,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
 
 public class Hanger extends SubsystemBase {
@@ -56,42 +50,50 @@ public class Hanger extends SubsystemBase {
     private static final Per<DistanceUnit, AngleUnit> kHangerExtensionPerMotorAngle = Inches.of(Constants.Hanger.kHangerExtensionInches).div(Rotations.of(Constants.Hanger.kHangerExtensionMotorRotations));
     private static final Distance kExtensionTolerance = Constants.Hanger.kExtensionTolerance;
 
-    private final TalonFX motor;
-    private final MotionMagicVoltage motionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
-    private final VoltageOut voltageRequest = new VoltageOut(0);
+    private final SparkMax masterMotor;
+    private final SparkMax followerMotor;
+    private final RelativeEncoder encoder;
+    private final SparkClosedLoopController pidController;
+    
+    private Angle targetPosition = Rotations.zero();
 
     private boolean isHomed = false;
 
     public Hanger() {
-        motor = new TalonFX(Ports.kHanger, Ports.kRoboRioCANBus);
+        // Master motor - controls the hanger position
+        masterMotor = new SparkMax(Ports.kHanger, MotorType.kBrushless);
+        encoder = masterMotor.getEncoder();
+        pidController = masterMotor.getClosedLoopController();
+        
+        // Follower motor - runs in sync with master
+        followerMotor = new SparkMax(Ports.kHangerFollower, MotorType.kBrushless);
 
-        final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(Constants.Hanger.kStatorCurrentLimit))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(Constants.Hanger.kSupplyCurrentLimit))
-                    .withSupplyCurrentLimitEnable(true)
-            )
-            .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(KrakenX60.kFreeSpeed)
-                    .withMotionMagicAcceleration(KrakenX60.kFreeSpeed.per(Second))
-            )
-            .withSlot0(
-                new Slot0Configs()
-                    .withKP(Constants.Hanger.kP)
-                    .withKI(Constants.Hanger.kI)
-                    .withKD(Constants.Hanger.kD)
-                    .withKV(12.0 / KrakenX60.kFreeSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
-            );
+        final SparkMaxConfig config = new SparkMaxConfig();
+        
+        // Motor output configuration
+        config.inverted(true); // Equivalent to Clockwise_Positive
+        config.idleMode(IdleMode.kBrake);
+        
+        // Current limits
+        config.smartCurrentLimit((int) Constants.Hanger.kStatorCurrentLimit);
+        
+        // PID configuration for slot 0
+        config.closedLoop.p(Constants.Hanger.kP);
+        config.closedLoop.i(Constants.Hanger.kI);
+        config.closedLoop.d(Constants.Hanger.kD);
+        config.closedLoop.outputRange(-1, 1);
 
-        motor.getConfigurator().apply(config);
+        // Apply configuration to master motor
+        masterMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        
+        // Configure follower motor with same settings but potentially different inversion
+        final SparkMaxConfig followerConfig = new SparkMaxConfig();
+        followerConfig.inverted(true); // Change to false if follower needs opposite direction
+        followerConfig.idleMode(IdleMode.kBrake);
+        followerConfig.smartCurrentLimit((int) Constants.Hanger.kStatorCurrentLimit);
+        followerConfig.follow(Ports.kHanger); // Follow the master motor
+        
+        followerMotor.configure(followerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         
         // SAFETY: Ensure motor starts with zero voltage output
         neutralizeMotor();
@@ -104,21 +106,16 @@ public class Hanger extends SubsystemBase {
      * Called during initialization to prevent unintended motor motion on enable.
      */
     private void neutralizeMotor() {
-        motor.setControl(voltageRequest.withOutput(Volts.of(0)));
+        masterMotor.setVoltage(0);
     }
 
     public void set(Position position) {
-        motor.setControl(
-            motionMagicRequest
-                .withPosition(position.motorAngle())
-        );
+        targetPosition = position.motorAngle();
+        pidController.setReference(targetPosition.in(Rotations), ControlType.kPosition);
     }
 
     public void setPercentOutput(double percentOutput) {
-        motor.setControl(
-            voltageRequest
-                .withOutput(Volts.of(percentOutput * 12.0))
-        );
+        masterMotor.set(percentOutput);
     }
 
     public Command positionCommand(Position position) {
@@ -129,9 +126,9 @@ public class Hanger extends SubsystemBase {
     public Command homingCommand() {
         return Commands.sequence(
             runOnce(() -> setPercentOutput(Constants.Hanger.kHomingPercentOutput)),
-            Commands.waitUntil(() -> motor.getSupplyCurrent().getValue().in(Amps) > Constants.Hanger.kHomingCurrentThreshold),
+            Commands.waitUntil(() -> masterMotor.getOutputCurrent() > Constants.Hanger.kHomingCurrentThreshold),
             runOnce(() -> {
-                motor.setPosition(Position.HOMED.motorAngle());
+                encoder.setPosition(Position.HOMED.motorAngle().in(Rotations));
                 isHomed = true;
                 set(Position.EXTEND_HOPPER);
             })
@@ -147,16 +144,16 @@ public class Hanger extends SubsystemBase {
     // ======================== GETTER METHODS FOR TUNING ========================
 
     public double getCurrentExtensionInches() {
-        return motorAngleToExtension(motor.getPosition().getValue()).in(Inches);
+        return motorAngleToExtension(Rotations.of(encoder.getPosition())).in(Inches);
     }
 
     public double getSupplyCurrent() {
-        return motor.getSupplyCurrent().getValue().in(Amps);
+        return masterMotor.getOutputCurrent();
     }
 
     private boolean isExtensionWithinTolerance() {
-        final Distance currentExtension = motorAngleToExtension(motor.getPosition().getValue());
-        final Distance targetExtension = motorAngleToExtension(motionMagicRequest.getPositionMeasure());
+        final Distance currentExtension = motorAngleToExtension(Rotations.of(encoder.getPosition()));
+        final Distance targetExtension = motorAngleToExtension(targetPosition);
         return currentExtension.isNear(targetExtension, kExtensionTolerance);
     }
 
@@ -168,7 +165,7 @@ public class Hanger extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
-        builder.addDoubleProperty("Extension (inches)", () -> motorAngleToExtension(motor.getPosition().getValue()).in(Inches), null);
-        builder.addDoubleProperty("Supply Current", () -> motor.getSupplyCurrent().getValue().in(Amps), null);
+        builder.addDoubleProperty("Extension (inches)", () -> motorAngleToExtension(Rotations.of(encoder.getPosition())).in(Inches), null);
+        builder.addDoubleProperty("Supply Current", () -> masterMotor.getOutputCurrent(), null);
     }
 }
