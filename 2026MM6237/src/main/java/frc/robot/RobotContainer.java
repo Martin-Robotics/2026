@@ -15,6 +15,8 @@ import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.HubMonitor;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
 
@@ -28,6 +30,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -55,6 +58,8 @@ public class RobotContainer {
       private final SendableChooser<Command> autoChooser;
 
     private final LimelightSubsystem6237 limelight = new LimelightSubsystem6237();
+    private final LEDSubsystem m_leds = new LEDSubsystem();
+    private final HubMonitor m_hubMonitor = new HubMonitor();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -109,6 +114,10 @@ public class RobotContainer {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
       DriverController.mapXboxController(driver, drivetrain, null);
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor);
+
+      new Trigger(m_hubMonitor::isHubActive)
+        .whileTrue(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), m_leds))
+        .whileFalse(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.INACTIVE_HUB), m_leds));
     }
 
     /**
@@ -149,5 +158,9 @@ public class RobotContainer {
 
     public Floor getFloor() {
       return floor;
+    }
+
+    public LEDSubsystem getLEDs() {
+      return m_leds;
     }
 }
