@@ -42,13 +42,13 @@ public final class Constants {
   }
 
   public static class TempSwerve {
-    public static final double MaxSpeed = 2.0; // meters per second
-    public static final double MaxAngularRate = 2 * Math.PI; // radians per second
+    public static final double MaxSpeed = 2.0 * 0.35; // meters per second (limited to 35%)
+    public static final double MaxAngularRate = 2 * Math.PI * 0.35; // radians per second (limited to 35%)
   }
   
     public static class Driving {
-      public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts;
-      public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(1);
+      public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts.times(0.35); // Limited to 35%
+      public static final AngularVelocity kMaxRotationalRate = RotationsPerSecond.of(1 * 0.35); // Limited to 35%
       public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.005);
     }
 
@@ -364,7 +364,7 @@ public final class Constants {
 
         // ======================== WHEEL CONFIGURATION ========================
         public static final double kWheelRadiusInches = 2.0;
-        public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.12);
+        public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.12 * 0.35); // Limited to 35%
 
         // ======================== INVERSION SETTINGS ========================
         public static final boolean kInvertLeftSide = false;
