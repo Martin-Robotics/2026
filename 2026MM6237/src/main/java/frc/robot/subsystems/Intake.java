@@ -157,6 +157,19 @@ public class Intake extends SubsystemBase {
     }
     
     /**
+     * Manually sets the roller motor voltage for testing purposes.
+     * Use this to verify motor direction and test roller operation.
+     * 
+     * @param percentOutput Percent output from -1.0 to 1.0
+     */
+    public void setManualRollerVoltage(double percentOutput) {
+        rollerMotor.setControl(
+            rollerVoltageRequest
+                .withOutput(Volts.of(percentOutput * 12.0))
+        );
+    }
+    
+    /**
      * Manually sets the pivot position for testing purposes, bypassing homing check.
      * Use this ONLY for testing after you've manually established a zero point.
      * For normal operation, use set(Position) after homing.

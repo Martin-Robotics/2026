@@ -32,8 +32,8 @@ import frc.robot.subsystems.Shooter;
  * - X: Hood servo DOWN (full down position - 0.0)
  * - B: Intake agitate
  * - A: Intake homing
- * - DPad Up: Hanger extend (positive voltage)
- * - DPad Down: Hanger retract (negative voltage)
+ * - DPad Up: Intake roller forward (positive voltage)
+ * - DPad Down: Intake roller reverse (negative voltage)
  * - DPad Left: Floor feed forward
  * - DPad Right: Floor feed reverse
  * - Start: Prepare and shoot at static distance (shooter + hood + feeder + floor)
@@ -42,6 +42,7 @@ public class OperatorController {
     
     // Control percentages for safe voltage testing
     private static final double MOTOR_SPEED_PERCENT = 0.3;  // 30% voltage for testing
+    private static final double INTAKE_ROLLER_SPEED_PERCENT = 0.3; // 30% voltage for intake pivot testing
     private static final double INTAKE_SPEED_PERCENT = 0.06; // 6% voltage for intake testing (20% of 30%)
     
     // Shot preparation distance (meters)
@@ -155,20 +156,20 @@ public class OperatorController {
                 .withName("Hood Down (Safe Test)"));
 
 
-        // ======================== HANGER CONTROLS ========================
-        // DPad Up: Hanger extend (positive voltage)
+        // ======================== INTAKE ROLLER CONTROLS ========================
+        // DPad Up: Intake roller forward (positive voltage)
         operatorController.pov(0)
-            .whileTrue(hanger.runEnd(
-                () -> hanger.setPercentOutput(MOTOR_SPEED_PERCENT),
-                () -> hanger.setPercentOutput(0.0)
-            ).withName("Hanger Extend"));
+            .whileTrue(intake.runEnd(
+                () -> intake.setManualRollerVoltage(INTAKE_ROLLER_SPEED_PERCENT),
+                () -> intake.setManualRollerVoltage(0.0)
+            ).withName("Intake Roller Forward"));
         
-        // DPad Down: Hanger retract (negative voltage)
+        // DPad Down: Intake roller reverse (negative voltage)  
         operatorController.pov(180)
-            .whileTrue(hanger.runEnd(
-                () -> hanger.setPercentOutput(-MOTOR_SPEED_PERCENT),
-                () -> hanger.setPercentOutput(0.0)
-            ).withName("Hanger Retract"));
+            .whileTrue(intake.runEnd(
+                () -> intake.setManualRollerVoltage(-INTAKE_ROLLER_SPEED_PERCENT),
+                () -> intake.setManualRollerVoltage(0.0)
+            ).withName("Intake Roller Reverse"));
         
         // ======================== FLOOR CONTROLS ========================
         // DPad Left: Floor feed forward
