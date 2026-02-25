@@ -1,12 +1,22 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HubMonitor extends SubsystemBase {
   private boolean isOurHubActive = true;
+  private final GenericEntry m_hubActiveEntry;
+
+  public HubMonitor() {
+    m_hubActiveEntry = Shuffleboard.getTab("Driver")
+        .add("Hub Active", true)
+        .withWidget(BuiltInWidgets.kBooleanBox)
+        .getEntry();
+  }
 
   @Override
   public void periodic() {
@@ -26,7 +36,7 @@ public class HubMonitor extends SubsystemBase {
       isOurHubActive = calculateShiftStatus(matchTime, gameData);
     }
 
-    SmartDashboard.putBoolean("Our Hub Active", isOurHubActive);
+    m_hubActiveEntry.setBoolean(isOurHubActive);
   }
 
   private boolean calculateShiftStatus(double time, String data) {
