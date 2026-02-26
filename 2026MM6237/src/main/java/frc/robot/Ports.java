@@ -11,9 +11,10 @@ public final class Ports {
     public static final int kIntakePivot = 12;
     public static final int kFloor = 10;
     public static final int kFeeder = 14;
-    public static final int kIntakeRollers = 99;//11;
+    public static final int kIntakeRollers = 20;//11;
     public static final int kHanger = 99;//18;
-
+    //Climb - SparkMax Right ID 21
+    //Climp - SparkMax Left  ID 22
     public static final int kShooterLeft = 11;
     public static final int kShooterMiddle = 2;
     public static final int kShooterRight = 5;
