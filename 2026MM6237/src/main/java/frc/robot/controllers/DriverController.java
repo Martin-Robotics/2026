@@ -21,6 +21,8 @@ public class DriverController {
     public static double invertYNumberRobotCentric = -1.0;
 
     public static Trigger robotCentricControl;
+    public static Trigger slowSpeedControl;
+    public static Trigger fastSpeedControl;
 
     private static final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband).withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
@@ -31,21 +33,32 @@ public class DriverController {
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public static void mapXboxController(CommandXboxController driverController, CommandSwerveDrivetrain drivetrain, NetworkTable limelight) {
-        robotCentricControl = new Trigger(() -> driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
+        robotCentricControl = new Trigger(() -> driverController.leftBumper().getAsBoolean());
+        slowSpeedControl = new Trigger(() -> driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
+        fastSpeedControl = new Trigger(() -> driverController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
 
         Command defaultDrivetrainCommand = drivetrain.applyRequest(() -> {
+            // Determine speed multiplier based on triggers
+            // Left trigger = 15%, Normal = 35%, Right trigger = 55%
+            double speedMultiplier = 1.0; // Default is 35% (already in Constants.TempSwerve.MaxSpeed)
+            if (slowSpeedControl.getAsBoolean()) {
+                speedMultiplier = 15.0 / 35.0; // Scale to 15%
+            } else if (fastSpeedControl.getAsBoolean()) {
+                speedMultiplier = 55.0 / 35.0; // Scale to 55%
+            }
+            
             if (robotCentricControl.getAsBoolean()) {
-                // Robot-centric control when left trigger is pressed
+                // Robot-centric control when left bumper is pressed
                 return robotCentricDrive
-                    .withVelocityX(invertXNumberRobotCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(invertYNumberRobotCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate); // Drive counterclockwise with negative X (left)
+                    .withVelocityX(invertXNumberRobotCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
+                    .withVelocityY(invertYNumberRobotCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
+                    .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate * speedMultiplier);
             } else {
                 // Field-centric control (default)
                 return drive
-                    .withVelocityX(invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate); // Drive counterclockwise with negative X (left)
+                    .withVelocityX(invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
+                    .withVelocityY(invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
+                    .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate * speedMultiplier);
             }
         });
 
