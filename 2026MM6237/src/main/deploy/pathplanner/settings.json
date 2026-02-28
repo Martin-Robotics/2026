@@ -3,13 +3,11 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
-    "Help",
-    "Connor",
-    "Projects D2",
-    "Vision Auto"
+    "New Folder",
+    "Lilly's Paths"
   ],
   "autoFolders": [
-    "MISC."
+    "Lilly's Autos"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

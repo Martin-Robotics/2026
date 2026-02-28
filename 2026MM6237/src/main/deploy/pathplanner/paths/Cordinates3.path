@@ -16,31 +16,31 @@
     },
     {
       "anchor": {
-        "x": 2.93,
+        "x": 2.933,
         "y": 1.9
       },
       "prevControl": {
-        "x": 2.93,
-        "y": 0.8999999999999999
+        "x": 2.933,
+        "y": 0.9000000000000004
       },
       "nextControl": {
-        "x": 2.93,
-        "y": 2.9
+        "x": 2.933,
+        "y": 2.9000000000000004
       },
       "isLocked": false,
       "linkedName": "14"
     },
     {
       "anchor": {
-        "x": 2.93,
+        "x": 2.933,
         "y": 3.3
       },
       "prevControl": {
-        "x": 2.93,
+        "x": 2.933,
         "y": 2.61282108324564
       },
       "nextControl": {
-        "x": 2.93,
+        "x": 2.933,
         "y": 3.9871789167543596
       },
       "isLocked": false,
@@ -109,7 +109,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Help",
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

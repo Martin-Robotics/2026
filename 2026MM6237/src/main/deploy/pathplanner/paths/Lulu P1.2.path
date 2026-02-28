@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.7636135957066186,
+        "y": 6.460697674418604
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.656010733452594,
+        "y": 5.616976744186045
+      },
+      "isLocked": false,
+      "linkedName": "Lulu P1.1E"
+    },
+    {
+      "anchor": {
+        "x": 2.8182647584973166,
+        "y": 5.438497316636852
+      },
+      "prevControl": {
+        "x": 1.990769230769231,
+        "y": 6.282218246869409
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Lulu P1.2E"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 179.3338000298169
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 42.273689006093704
+  },
+  "useDefaultConstraints": true
+}

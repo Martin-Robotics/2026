@@ -12,7 +12,7 @@
         "y": 8.5
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "36"
     },
     {
       "anchor": {
@@ -28,7 +28,7 @@
         "y": 7.1
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "35"
     },
     {
       "anchor": {
@@ -44,7 +44,7 @@
         "y": 3.3011212139024977
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "34"
     },
     {
       "anchor": {
@@ -60,7 +60,7 @@
         "y": 3.05
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "33"
     },
     {
       "anchor": {
@@ -76,7 +76,7 @@
         "y": 1.6134343447051918
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "32"
     },
     {
       "anchor": {
@@ -89,7 +89,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "31"
     }
   ],
   "rotationTargets": [],
@@ -109,7 +109,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Help",
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

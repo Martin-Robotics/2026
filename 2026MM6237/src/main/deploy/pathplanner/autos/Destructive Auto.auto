@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BumpDepot"
+            "pathName": "HBTrenchDepot"
           }
         },
         {
@@ -56,6 +56,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Lilly's Autos",
   "choreoAuto": false
 }

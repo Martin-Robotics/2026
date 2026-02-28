@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.272576028627169,
+        "y": 4.043
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.0225764055527153,
+        "y": 4.043434122829451
+      },
+      "isLocked": false,
+      "linkedName": "LuluA P3.1"
+    },
+    {
+      "anchor": {
+        "x": 3.272576028627169,
+        "y": 4.043
+      },
+      "prevControl": {
+        "x": 3.5225758611044933,
+        "y": 4.043289415462087
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -86.05387159403797
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 93.9442445012032
+  },
+  "useDefaultConstraints": true
+}

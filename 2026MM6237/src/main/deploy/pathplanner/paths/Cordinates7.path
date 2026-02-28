@@ -53,11 +53,11 @@
       },
       "prevControl": {
         "x": 7.8,
-        "y": 3.0500000000000003
+        "y": 3.05
       },
       "nextControl": {
         "x": 7.8,
-        "y": 3.5499999999999994
+        "y": 3.55
       },
       "isLocked": false,
       "linkedName": "39"
@@ -109,7 +109,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Help",
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
