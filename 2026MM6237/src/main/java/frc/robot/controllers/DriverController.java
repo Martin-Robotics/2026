@@ -14,11 +14,11 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class DriverController {
     
-    public static double invertXNumberFieldCentric = 1.0;
-    public static double invertYNumberFieldCentric = 1.0;
+    public static double invertXNumberFieldCentric = -1.0;
+    public static double invertYNumberFieldCentric = -1.0;
 
-    public static double invertXNumberRobotCentric = 1.0;
-    public static double invertYNumberRobotCentric = 1.0;
+    public static double invertXNumberRobotCentric = -1.0;
+    public static double invertYNumberRobotCentric = -1.0;
 
     public static Trigger robotCentricControl;
 
@@ -44,7 +44,7 @@ public class DriverController {
                 // Field-centric control (default)
                 return drive
                     .withVelocityX(invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(invertXNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed) // Drive left with negative X (left)
+                    .withVelocityY(invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed) // Drive left with negative X (left)
                     .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate); // Drive counterclockwise with negative X (left)
             }
         });

@@ -46,7 +46,7 @@ public class OperatorController {
     private static final double MOTOR_SPEED_PERCENT = 0.3;  // 30% voltage for testing
     private static final double INTAKE_ROLLER_SPEED_PERCENT = 0.75; // 30% voltage for intake pivot testing
     private static final double INTAKE_SPEED_PERCENT = 0.06; // 6% voltage for intake testing (20% of 30%)
-    private static final double HANGER_SPEED_PERCENT = 0.06; // 6% voltage for hanger testing (minimal for safety)
+    private static final double HANGER_SPEED_PERCENT = 0.30; // 6% voltage for hanger testing (minimal for safety)
     
     // Shot preparation distance (meters)
     private static final double STATIC_SHOT_DISTANCE_METERS = 2.0; // Default test distance
