@@ -28,6 +28,8 @@ import frc.robot.subsystems.Shooter;
  * - Left Stick Down: Intake pivot manual negative voltage (6% for testing)
  * - Left Stick Left: Seek STOWED position (while held)
  * - Left Stick Right: Seek INTAKE position (while held)
+ * - Right Stick Forward: Hanger extend (minimal voltage for safe testing)
+ * - Right Stick Backward: Hanger retract (minimal voltage for safe testing)
  * - Y: Hood servo UP (full up position - 1.0)
  * - X: Hood servo DOWN (full down position - 0.0)
  * - B: Intake agitate
@@ -44,6 +46,7 @@ public class OperatorController {
     private static final double MOTOR_SPEED_PERCENT = 0.3;  // 30% voltage for testing
     private static final double INTAKE_ROLLER_SPEED_PERCENT = 0.75; // 30% voltage for intake pivot testing
     private static final double INTAKE_SPEED_PERCENT = 0.06; // 6% voltage for intake testing (20% of 30%)
+    private static final double HANGER_SPEED_PERCENT = 0.06; // 6% voltage for hanger testing (minimal for safety)
     
     // Shot preparation distance (meters)
     private static final double STATIC_SHOT_DISTANCE_METERS = 2.0; // Default test distance
@@ -52,6 +55,7 @@ public class OperatorController {
     private static final double HOOD_SAFE_UP_POSITION = 0.8;    // Slightly up from center
     private static final double HOOD_SAFE_DOWN_POSITION = 0.4;  // Slightly down from center
     private static final double LEFT_STICK_THRESHOLD = 0.15;     // Deadband for stick input
+    private static final double RIGHT_STICK_THRESHOLD = 0.15;    // Deadband for stick input
     
     /**
      * Maps Xbox controller inputs to subsystem commands.
@@ -155,6 +159,23 @@ public class OperatorController {
             .onTrue(hood.runOnce(() -> hood.setPosition(HOOD_SAFE_DOWN_POSITION))
                 .withName("Hood Down (Safe Test)"));
 
+        // ======================== HANGER CONTROLS ========================
+        // Right Stick Forward: Hanger extend (minimal voltage for safe testing)
+        // SAFETY NOTE: Using 6% voltage for initial testing to prevent damage
+        // to the climb mechanism. This allows safe verification of motor direction
+        // and mechanical operation before using full power.
+        new Trigger(() -> operatorController.getRightY() < -RIGHT_STICK_THRESHOLD)
+            .whileTrue(hanger.runEnd(
+                () -> hanger.setPercentOutput(HANGER_SPEED_PERCENT),
+                () -> hanger.setPercentOutput(0.0)
+            ).withName("Hanger Extend (Safe Test)"));
+        
+        // Right Stick Backward: Hanger retract (minimal voltage for safe testing)
+        new Trigger(() -> operatorController.getRightY() > RIGHT_STICK_THRESHOLD)
+            .whileTrue(hanger.runEnd(
+                () -> hanger.setPercentOutput(-HANGER_SPEED_PERCENT),
+                () -> hanger.setPercentOutput(0.0)
+            ).withName("Hanger Retract (Safe Test)"));
 
         // ======================== INTAKE ROLLER CONTROLS ========================
         // DPad Up: Intake roller forward (positive voltage)
