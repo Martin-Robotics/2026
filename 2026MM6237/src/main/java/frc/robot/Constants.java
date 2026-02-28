@@ -358,7 +358,7 @@ public final class Constants {
         public static final double kSteerStatorCurrentLimitAmps = 60.0;
 
         // ======================== MOTOR GEAR RATIOS ========================
-        public static final double kDriveGearRatio = 6.026785714285714;
+        public static final double kDriveGearRatio = 6.026785714285714; // R2 Ratio = 6.03 / R1 Ratio (Slower) = 7.03
         public static final double kSteerGearRatio = 26;
         public static final double kCoupleRatio = 3.857142857142857;
 
