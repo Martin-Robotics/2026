@@ -33,10 +33,15 @@ public class Shooter extends SubsystemBase {
 
     private final TalonFX leftMotor, middleMotor, rightMotor;
     private final List<TalonFX> motors;
-    private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+    private final VelocityVoltage leftVelocityRequest = new VelocityVoltage(0).withSlot(0);
+    private final VelocityVoltage middleVelocityRequest = new VelocityVoltage(0).withSlot(0);
+    private final VelocityVoltage rightVelocityRequest = new VelocityVoltage(0).withSlot(0);
     private final VoltageOut voltageRequest = new VoltageOut(0);
 
     private double dashboardTargetRPM = 0.0;
+    private double leftTargetRPM = 0.0;
+    private double middleTargetRPM = 0.0;
+    private double rightTargetRPM = 0.0;
 
     public Shooter() {
         leftMotor = new TalonFX(Ports.kShooterLeft, Ports.kRoboRioCANBus);
@@ -44,10 +49,10 @@ public class Shooter extends SubsystemBase {
         rightMotor = new TalonFX(Ports.kShooterRight, Ports.kRoboRioCANBus);
         motors = List.of(leftMotor, middleMotor, rightMotor);
 
-        configureMotor(leftMotor, InvertedValue.CounterClockwise_Positive);
+        configureMotor(leftMotor, InvertedValue.CounterClockwise_Positive, Constants.Shooter.kLeftKP);
         // configureMotor(middleMotor, InvertedValue.Clockwise_Positive);'
-        configureMotor(middleMotor, InvertedValue.CounterClockwise_Positive);
-        configureMotor(rightMotor, InvertedValue.Clockwise_Positive);
+        configureMotor(middleMotor, InvertedValue.CounterClockwise_Positive, Constants.Shooter.kMiddleKP);
+        configureMotor(rightMotor, InvertedValue.Clockwise_Positive, Constants.Shooter.kRightKP);
 
         // SAFETY: Ensure motors start with zero voltage output
         neutralizeMotors();
@@ -55,7 +60,7 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putData(this);
     }
 
-    private void configureMotor(TalonFX motor, InvertedValue invertDirection) {
+    private void configureMotor(TalonFX motor, InvertedValue invertDirection, double kP) {
         final TalonFXConfiguration config = new TalonFXConfiguration()
             .withMotorOutput(
                 new MotorOutputConfigs()
@@ -75,7 +80,7 @@ public class Shooter extends SubsystemBase {
             )
             .withSlot0(
                 new Slot0Configs()
-                    .withKP(Constants.Shooter.kLeftKP)
+                    .withKP(kP)
                     .withKI(Constants.Shooter.kKI)
                     .withKD(Constants.Shooter.kKD)
                     .withKV(12.0 / KrakenX60.kFreeSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
@@ -95,12 +100,30 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setRPM(double rpm) {
-        for (final TalonFX motor : motors) {
-            motor.setControl(
-                velocityRequest
-                    .withVelocity(RPM.of(rpm))
-            );
-        }
+        // Left and middle motors use the base RPM
+        leftTargetRPM = rpm;
+        leftMotor.setControl(
+            leftVelocityRequest
+                .withVelocity(RPM.of(leftTargetRPM))
+        );
+        
+        middleTargetRPM = rpm;
+        middleMotor.setControl(
+            middleVelocityRequest
+                .withVelocity(RPM.of(middleTargetRPM))
+        );
+        
+        // Apply 25% increase to right motor to compensate for decreased wheel width
+        rightTargetRPM = rpm * 1.25;
+        rightMotor.setControl(
+            rightVelocityRequest
+                .withVelocity(RPM.of(rightTargetRPM))
+        );
+        
+        // Debug output to verify commands
+        SmartDashboard.putNumber("Shooter/Commanded Left RPM", leftTargetRPM);
+        SmartDashboard.putNumber("Shooter/Commanded Middle RPM", middleTargetRPM);
+        SmartDashboard.putNumber("Shooter/Commanded Right RPM", rightTargetRPM);
     }
 
     public void setPercentOutput(double percentOutput) {
@@ -126,12 +149,14 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isVelocityWithinTolerance() {
-        return motors.stream().allMatch(motor -> {
-            final boolean isInVelocityMode = motor.getAppliedControl().equals(velocityRequest);
-            final AngularVelocity currentVelocity = motor.getVelocity().getValue();
-            final AngularVelocity targetVelocity = velocityRequest.getVelocityMeasure();
-            return isInVelocityMode && currentVelocity.isNear(targetVelocity, kVelocityTolerance);
-        });
+        final boolean leftAtSpeed = leftMotor.getVelocity().getValue()
+            .isNear(RPM.of(leftTargetRPM), kVelocityTolerance);
+        final boolean middleAtSpeed = middleMotor.getVelocity().getValue()
+            .isNear(RPM.of(middleTargetRPM), kVelocityTolerance);
+        final boolean rightAtSpeed = rightMotor.getVelocity().getValue()
+            .isNear(RPM.of(rightTargetRPM), kVelocityTolerance);
+        
+        return leftAtSpeed && middleAtSpeed && rightAtSpeed;
     }
 
     // ======================== GETTER METHODS FOR TUNING ========================
@@ -173,6 +198,8 @@ public class Shooter extends SubsystemBase {
         initSendable(builder, rightMotor, "Right");
         builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
         builder.addDoubleProperty("Dashboard RPM", () -> dashboardTargetRPM, value -> dashboardTargetRPM = value);
-        builder.addDoubleProperty("Target RPM", () -> velocityRequest.getVelocityMeasure().in(RPM), null);
+        builder.addDoubleProperty("Left Target RPM", () -> leftTargetRPM, null);
+        builder.addDoubleProperty("Middle Target RPM", () -> middleTargetRPM, null);
+        builder.addDoubleProperty("Right Target RPM", () -> rightTargetRPM, null);
     }
 }
