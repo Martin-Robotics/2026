@@ -56,6 +56,10 @@ public final class Constants {
         public static final AngularVelocity kFreeSpeed = RPM.of(6000);
     }
 
+    public static class NEO {
+        public static final AngularVelocity kFreeSpeed = RPM.of(5676);
+    }
+
     public static class Feeder {
         public static final double kFeedRPM = 5000;
         public static final double kStatorCurrentLimit = 120;
