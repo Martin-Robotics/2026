@@ -53,22 +53,21 @@ public class FaceDirectionCommand extends Command {
     /**
      * Helper method to convert direction strings to Rotation2d angles.
      * Assuming the field is oriented with:
-     * - 0° = Forward (toward red alliance wall)
-     * - 90° = Left wall
-     * - 180° = Backward (toward blue alliance wall)
-     * - 270°/−90° = Right wall
-     * - 180° = Operator (assuming operator is at blue alliance wall)
+     * - 45° = Forward-left diagonal
+     * - 135° = Backward-left diagonal
+     * - 225° = Backward-right diagonal
+     * - 315° = Forward-right diagonal
      *
      * @param direction The direction string ("forward", "left", "backward", "right", "operator")
      * @return The corresponding Rotation2d angle
      */
     private static Rotation2d getRotationForDirection(String direction) {
         return switch (direction.toLowerCase()) {
-            case "forward" -> Rotation2d.kZero; // Y button: face forward (0°)
-            case "left" -> Rotation2d.fromDegrees(90); // X button: face left wall (90°)
-            case "backward" -> Rotation2d.k180deg; // A button: face operator/backward (180°)
-            case "right" -> Rotation2d.fromDegrees(270); // B button: face right wall (270°)
-            case "operator" -> Rotation2d.k180deg; // Alternative name for backward
+            case "forward" -> Rotation2d.fromDegrees(45); // Y button: face forward-left diagonal (45°)
+            case "left" -> Rotation2d.fromDegrees(135); // X button: face backward-left diagonal (135°)
+            case "backward" -> Rotation2d.fromDegrees(225); // A button: face backward-right diagonal (225°)
+            case "right" -> Rotation2d.fromDegrees(315); // B button: face forward-right diagonal (315°)
+            case "operator" -> Rotation2d.fromDegrees(225); // Alternative name for backward
             default -> throw new IllegalArgumentException("Invalid direction: " + direction);
         };
     }
@@ -89,11 +88,11 @@ public class FaceDirectionCommand extends Command {
         
         // Calculate desired rotational rate with proportional control
         // Scale the error by a gain to convert angle error to rotation speed
-        double proportionalGain = 3.0; // rad/s per radian of error
+        double proportionalGain = 1.5; // rad/s per radian of error (reduced from 3.0 for less aggressive turning)
         double rotationalRate = errorRadians * proportionalGain;
         
         // Add a minimum rotation speed to overcome deadband when there's significant error
-        double minRotationSpeed = 1.5; // rad/s minimum when error > threshold
+        double minRotationSpeed = 0.8; // rad/s minimum when error > threshold (reduced from 1.5)
         double errorThreshold = 0.1; // ~5.7 degrees
         
         if (Math.abs(errorRadians) > errorThreshold) {
