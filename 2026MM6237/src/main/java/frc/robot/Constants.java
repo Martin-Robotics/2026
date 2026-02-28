@@ -335,7 +335,7 @@ public final class Constants {
         public static final double kSteerMotorKI = 0;
         public static final double kSteerMotorKD = 0.5;
         public static final double kSteerMotorKS = 0.1;   // Static feedforward
-        public static final double kSteerMotorKV = 3.23;  // Velocity feedforward
+        public static final double kSteerMotorKV = 2.49;  // Velocity feedforward (updated for new steering motors)
         public static final double kSteerMotorKA = 0;     // Acceleration feedforward
 
         // ======================== DRIVE MOTOR GAINS ========================
@@ -386,9 +386,9 @@ public final class Constants {
 
         // ======================== ENCODER OFFSETS (in rotations) ========================
         public static final double kFrontLeftEncoderOffsetRotations = 0.033935546875;
-        public static final double kFrontRightEncoderOffsetRotations = -0.01611328125;
-        public static final double kBackLeftEncoderOffsetRotations = 0.14111328125;
-        public static final double kBackRightEncoderOffsetRotations = 0.172119140625;
+        public static final double kFrontRightEncoderOffsetRotations = -0.015380859375;  // Updated from generated code
+        public static final double kBackLeftEncoderOffsetRotations = 0.1416015625;      // Updated from generated code
+        public static final double kBackRightEncoderOffsetRotations = 0.17333984375;    // Updated from generated code
 
         // ======================== MODULE POSITIONS (in inches) ========================
         // Front Left Module
