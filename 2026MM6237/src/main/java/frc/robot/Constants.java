@@ -138,7 +138,7 @@ public final class Constants {
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;
         public static final double kSupplyCurrentLimit = 70;
-        public static final double kPivotKP = 0.1;  // Very low gain for safe testing (similar to 6% manual voltage)
+        public static final double kPivotKP = 5;//0.1;  // Very low gain for safe testing (similar to 6% manual voltage)
         public static final double kPivotKI = 0;
         public static final double kPivotKD = 0;
         public static final double kHomingPercentOutput = 0.1;

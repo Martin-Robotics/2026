@@ -95,9 +95,9 @@ public class Intake extends SubsystemBase {
             )
             .withMotionMagic(
                 new MotionMagicConfigs()
-                    // Reduced to 20% of max speed for safe testing
-                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed.times(0.2))
-                    .withMotionMagicAcceleration(kMaxPivotSpeed.times(0.2).per(Second))
+                    // Set to 40% of max speed for faster position seeking
+                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed.times(0.3))
+                    .withMotionMagicAcceleration(kMaxPivotSpeed.times(0.3).per(Second))
             )
             .withSlot0(
                 new Slot0Configs()
