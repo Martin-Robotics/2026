@@ -97,6 +97,8 @@ public class RobotContainer {
       
       // Climb commands
       NamedCommands.registerCommand("PrepareToClimb", new PrepareToClimb(hanger));
+      NamedCommands.registerCommand("PrepareToClimbLeft", new PrepareToClimbLeft(hanger));
+      NamedCommands.registerCommand("PrepareToClimbRight", new PrepareToClimbRight(hanger));
       NamedCommands.registerCommand("Climb", new Climb(hanger));
     }
 
@@ -113,7 +115,8 @@ public class RobotContainer {
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
       DriverController.mapXboxController(driver, drivetrain, null);
-      OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor);
+      OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight);
+      // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
 
       new Trigger(m_hubMonitor::isHubActive)
         .whileTrue(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), m_leds))

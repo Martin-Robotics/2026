@@ -2,14 +2,15 @@ package frc.robot.commands.auto;
 
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Speed;
+import frc.robot.subsystems.Intake.Position;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
- * Autonomous command to run the intake rollers.
+ * Autonomous command to run the intake.
  * 
- * Spins up the intake rollers at full speed to collect notes.
- * The rollers continue running when the command ends.
- * This command runs indefinitely until interrupted.
+ * Extends the intake pivot arm to the INTAKE position and spins up the rollers
+ * at full speed to collect notes. The arm and rollers continue running when
+ * the command ends. This command runs indefinitely until interrupted.
  */
 public class RunIntake extends Command {
     private final Intake intake;
@@ -21,6 +22,8 @@ public class RunIntake extends Command {
 
     @Override
     public void initialize() {
+        // Extend intake arm to INTAKE position
+        intake.set(Position.INTAKE);
         // Start intake rollers spinning
         intake.set(Speed.INTAKE);
     }
