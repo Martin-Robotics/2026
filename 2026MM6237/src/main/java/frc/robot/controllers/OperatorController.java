@@ -6,7 +6,6 @@ import frc.robot.Constants;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
 import frc.robot.commands.auto.Fire;
 import frc.robot.commands.auto.PrepareToFire;
-import frc.robot.commands.auto.StopIntake;
 import frc.robot.commands.auto.PrepareToClimbLeft;
 import frc.robot.commands.auto.PrepareToClimbRight;
 import frc.robot.subsystems.Feeder;
@@ -289,14 +288,16 @@ public class OperatorController {
         // and starts rollers, then leaves them running
         operatorController.a()
             .onTrue(intake.runOnce(() -> {
-                intake.set(Intake.Position.INTAKE);
+                intake.setManualPosition(Intake.Position.INTAKE);
                 intake.set(Intake.Speed.INTAKE);
             }).withName("Run Intake"));
         
         // B Button: StopIntake command (retracts pivot arm and stops rollers)
         operatorController.b()
-            .onTrue(new StopIntake(intake)
-                .withName("Stop Intake"));
+            .onTrue(intake.runOnce(() -> {
+                intake.setManualPosition(Intake.Position.STOWED);
+                intake.set(Intake.Speed.STOP);
+            }).withName("Stop Intake"));
         
         // ======================== CLIMB PREPARATION ========================
         // Back Button: PrepareToClimbLeft
