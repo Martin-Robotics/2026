@@ -232,8 +232,10 @@ public class OperatorController {
      * - LT (Left Trigger): PrepareToFire command (determines distance to hub)
      * - RB (Right Bumper): Hanger extend
      * - LB (Left Bumper): Hanger retract
-     * - A: RunIntake command (extends pivot arm and runs intake rollers)
-     * - B: StopIntake command (retracts pivot arm and stops rollers)
+     * - A: Move intake arm to INTAKE position (independent of rollers)
+     * - B: Move intake arm to STOWED position (also stops rollers)
+     * - X: Run intake rollers
+     * - Y: Stop intake rollers
      * - Back: PrepareToClimbLeft
      * - Start: PrepareToClimbRight
      * 
@@ -259,7 +261,7 @@ public class OperatorController {
         // ======================== SHOOTING CONTROLS ========================
         // Right Trigger: Fire command
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(new Fire(feeder, shooter, limelight)
+            .whileTrue(new Fire(feeder, shooter, hood, limelight)
                 .withName("Fire"));
         
         // Left Trigger: PrepareToFire command (determines distance to hub)
@@ -283,21 +285,30 @@ public class OperatorController {
             ).withName("Hanger Retract"));
         
         // ======================== INTAKE CONTROLS ========================
-        // A Button: RunIntake command (extends pivot arm and runs intake rollers)
-        // Uses onTrue to start the command once, which moves arm to INTAKE position
-        // and starts rollers, then leaves them running
+        // A Button: Move intake arm to INTAKE position (does not run rollers)
         operatorController.a()
             .onTrue(intake.runOnce(() -> {
                 intake.setManualPosition(Intake.Position.INTAKE);
-                intake.set(Intake.Speed.INTAKE);
-            }).withName("Run Intake"));
+            }).withName("Extend Intake Arm"));
         
-        // B Button: StopIntake command (retracts pivot arm and stops rollers)
+        // B Button: Move intake arm to STOWED position (also stops rollers)
         operatorController.b()
             .onTrue(intake.runOnce(() -> {
                 intake.setManualPosition(Intake.Position.STOWED);
                 intake.set(Intake.Speed.STOP);
-            }).withName("Stop Intake"));
+            }).withName("Retract Intake Arm"));
+        
+        // X Button: Run intake rollers
+        operatorController.x()
+            .onTrue(intake.runOnce(() -> {
+                intake.set(Intake.Speed.INTAKE);
+            }).withName("Start Intake Rollers"));
+        
+        // Y Button: Stop intake rollers
+        operatorController.y()
+            .onTrue(intake.runOnce(() -> {
+                intake.set(Intake.Speed.STOP);
+            }).withName("Stop Intake Rollers"));
         
         // ======================== CLIMB PREPARATION ========================
         // Back Button: PrepareToClimbLeft

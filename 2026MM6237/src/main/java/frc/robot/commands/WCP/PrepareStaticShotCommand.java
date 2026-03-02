@@ -85,10 +85,10 @@ public class PrepareStaticShotCommand extends Command {
         shooter.setRPM(shot.shooterRPM);
         hood.setPosition(shot.hoodPosition);
         
-        // Check if shooter has reached speed
-        if (!shooterAtSpeed && shooter.isVelocityWithinTolerance()) {
+        // Check if both shooter has reached speed AND hood has reached position
+        if (!shooterAtSpeed && shooter.isVelocityWithinTolerance() && hood.isPositionWithinTolerance()) {
             shooterAtSpeed = true;
-            // Engage feeder and floor once shooter is at speed
+            // Engage feeder and floor once both shooter and hood are ready
             feeder.set(Feeder.Speed.FEED);
             floor.set(Floor.Speed.FEED);
         }
@@ -97,6 +97,7 @@ public class PrepareStaticShotCommand extends Command {
         SmartDashboard.putNumber("Target Shooter RPM", shot.shooterRPM);
         SmartDashboard.putNumber("Target Hood Position", shot.hoodPosition);
         SmartDashboard.putBoolean("Shooter At Speed", shooterAtSpeed);
+        SmartDashboard.putBoolean("Hood At Position", hood.isPositionWithinTolerance());
     }
 
     @Override

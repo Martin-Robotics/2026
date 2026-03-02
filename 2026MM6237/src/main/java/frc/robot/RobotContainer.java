@@ -93,7 +93,7 @@ public class RobotContainer {
       
       // Shooter commands
       NamedCommands.registerCommand("PrepareToFire", new PrepareToFire(shooter, limelight));
-      NamedCommands.registerCommand("Fire", new Fire(feeder, shooter, limelight));
+      NamedCommands.registerCommand("Fire", new Fire(feeder, shooter, hood, limelight));
       
       // Climb commands
       NamedCommands.registerCommand("PrepareToClimb", new PrepareToClimb(hanger));
