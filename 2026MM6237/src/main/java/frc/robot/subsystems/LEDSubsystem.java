@@ -23,11 +23,11 @@ public class LEDSubsystem extends SubsystemBase {
 
   // Pre-defined pattern constants for the 2026 game REBUILT
   public static final class Patterns {
-    public static final double TELEOP = -0.11;      //Strobe Gold
-    public static final double AUTONOMOUS = 0.87;   //Gold
-    public static final double ACTIVE_HUB = 0.77;   // Green
+    public static final double TELEOP = -0.07;      //Strobe Gold
+    public static final double AUTONOMOUS = 0.67;   //Gold
+    public static final double ACTIVE_HUB = 0.71;   // Green
     public static final double INACTIVE_HUB = 0.61; // Red
-    public static final double WARNING = -0.07;     // Strobe Red (3s warning before hub deactivates)
-    public static final double END_GAME = 0.99;    // Violet / Rainbow --Last 30 Seconds of match
+    public static final double WARNING = -0.11;     // Strobe Red (3s warning before hub deactivates)
+    public static final double END_GAME = -0.99;    // Violet / Rainbow --Last 30 Seconds of match
   }
 }
