@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
-import frc.robot.commands.auto.Fire;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.commands.auto.PrepareToClimbLeft;
 import frc.robot.commands.auto.PrepareToClimbRight;
@@ -228,13 +227,13 @@ public class OperatorController {
      * Maps Xbox controller inputs to subsystem commands for competition control scheme.
      * 
      * Button Mapping:
-     * - RT (Right Trigger): Fire command (shoots the note)
+     * - RT (Right Trigger): PrepareStaticShotCommand (prepares and shoots at static distance)
      * - LT (Left Trigger): PrepareToFire command (determines distance to hub)
      * - RB (Right Bumper): Hanger extend
      * - LB (Left Bumper): Hanger retract
      * - A: Move intake arm to INTAKE position (independent of rollers)
      * - B: Move intake arm to STOWED position (also stops rollers)
-     * - X: Run intake rollers
+     * - X: Run intake rollers (blocked if arm is in STOWED position)
      * - Y: Stop intake rollers
      * - Back: PrepareToClimbLeft
      * - Start: PrepareToClimbRight
@@ -259,10 +258,10 @@ public class OperatorController {
             LimelightSubsystem6237 limelight) {
         
         // ======================== SHOOTING CONTROLS ========================
-        // Right Trigger: Fire command
+        // Right Trigger: PrepareStaticShotCommand (prepares and shoots at static distance)
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(new Fire(feeder, shooter, hood, limelight)
-                .withName("Fire"));
+            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3)
+                .withName("Prepare Static Shot"));
         
         // Left Trigger: PrepareToFire command (determines distance to hub)
         new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)

@@ -356,6 +356,11 @@ public final class Constants {
         public static final double kRotationPIDKP = 7;
         public static final double kRotationPIDKI = 0;
         public static final double kRotationPIDKD = 0;
+        
+        // ======================== AUTONOMOUS SPEED SCALING ========================
+        // Scale factor for autonomous speeds (0.0 to 1.0)
+        // Set to 0.2 for 20% speed, 1.0 for full speed
+        public static final double kAutoSpeedScaleFactor = 0.2;
 
         // ======================== MOTOR CURRENT LIMITS ========================
         public static final double kSlipCurrentAmps = 120.0;

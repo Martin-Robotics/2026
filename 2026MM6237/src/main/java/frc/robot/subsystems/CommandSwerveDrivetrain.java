@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -148,11 +149,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 this::resetPose,         // Consumer for seeding pose against auto
                 () -> getState().Speeds, // Supplier of current robot speeds
                 // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                (speeds, feedforwards) -> setControl(
-                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
+                (speeds, feedforwards) -> {
+                    // Scale down autonomous speeds by the configured factor
+                    var scaledSpeeds = new ChassisSpeeds(
+                        speeds.vxMetersPerSecond * Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor,
+                        speeds.vyMetersPerSecond * Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor,
+                        speeds.omegaRadiansPerSecond * Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor
+                    );
+                    
+                    setControl(
+                        m_pathApplyRobotSpeeds.withSpeeds(scaledSpeeds)
+                            .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                            .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                    );
+                },
                 new PPHolonomicDriveController(
                     // PID constants for translation
                     new PIDConstants(Constants.CommandSwerveDrivetrain.kTranslationPIDKP, Constants.CommandSwerveDrivetrain.kTranslationPIDKI, Constants.CommandSwerveDrivetrain.kTranslationPIDKD),

@@ -26,8 +26,8 @@ public class RunIntake extends Command {
 
     @Override
     public void initialize() {
-        // Extend intake arm to INTAKE position
-        intake.set(Position.INTAKE);
+        // Extend intake arm to INTAKE position (using manual position for auto)
+        intake.setManualPosition(Position.INTAKE);
         armAtPosition = false;
     }
 

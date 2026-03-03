@@ -201,6 +201,18 @@ public class Intake extends SubsystemBase {
         );
     }
     public void set(Speed speed) {
+        // Safety: Don't run rollers if pivot is in or seeking stowed position
+        if (speed != Speed.STOP) {
+            double targetAngle = pivotMotionMagicRequest.getPositionMeasure().in(Degrees);
+            double stowedAngle = Position.STOWED.angle().in(Degrees);
+            
+            // Check if target position is stowed (within tolerance)
+            if (Math.abs(targetAngle - stowedAngle) < kPositionTolerance.in(Degrees)) {
+                System.err.println("WARNING: Rollers cannot run while intake is in STOWED position!");
+                return;
+            }
+        }
+        
         rollerMotor.setControl(
             rollerVoltageRequest
                 .withOutput(speed.voltage())
