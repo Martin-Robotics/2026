@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase {
         // This prevents any unintended motion on enable before calibration
         neutralizeMotors();
         
-        SmartDashboard.putData(this);
+        // SmartDashboard.putData(this); // Commented out to reduce dashboard clutter
     }
     private void configurePivotMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()

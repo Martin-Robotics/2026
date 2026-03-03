@@ -44,7 +44,7 @@ public class Hood extends SubsystemBase {
         // Servos will remain at neutral until explicitly commanded by operator
         // This prevents unintended hood movement on robot enable
         
-        SmartDashboard.putData(this);
+        // SmartDashboard.putData(this); // Commented out to reduce dashboard clutter
     }
 
     /** Expects a position between 0.0 and 1.0 */

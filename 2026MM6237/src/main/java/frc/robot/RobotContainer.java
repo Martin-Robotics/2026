@@ -8,7 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.controllers.DriverController;
 import frc.robot.controllers.OperatorController;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.SubsystemTuning;
+// import frc.robot.util.SubsystemTuning; // Commented out after testing phase
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -77,8 +77,22 @@ public class RobotContainer {
       autoChooser = AutoBuilder.buildAutoChooser("DefaultAuto");
       SmartDashboard.putData("Auto Mode", autoChooser);
       
-      // Initialize subsystem tuning displays
-      SubsystemTuning.initializeAllDashboards();
+      // Initialize PrepareToFire dashboard values so they appear immediately
+      initializePrepareToFireDashboard();
+      
+      // Initialize subsystem tuning displays (commented out after testing phase)
+      // SubsystemTuning.initializeAllDashboards();
+    }
+    
+    /**
+     * Initialize PrepareToFire dashboard values so they're visible before the command runs.
+     */
+    private void initializePrepareToFireDashboard() {
+      SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", 0.0);
+      SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
+      SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", 0);
+      SmartDashboard.putString("PrepareToFire/Status", "Waiting for command...");
+      SmartDashboard.putNumber("PrepareToFire/Calculated RPM", 0.0);
     }
 
     /**

@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
         // SAFETY: Ensure motors start with zero voltage output
         neutralizeMotors();
         
-        SmartDashboard.putData(this);
+        // SmartDashboard.putData(this); // Commented out to reduce dashboard clutter
     }
 
     private void configureMotor(TalonFX motor, InvertedValue invertDirection, double kP) {
@@ -120,10 +120,10 @@ public class Shooter extends SubsystemBase {
                 .withVelocity(RPM.of(rightTargetRPM))
         );
         
-        // Debug output to verify commands
-        SmartDashboard.putNumber("Shooter/Commanded Left RPM", leftTargetRPM);
-        SmartDashboard.putNumber("Shooter/Commanded Middle RPM", middleTargetRPM);
-        SmartDashboard.putNumber("Shooter/Commanded Right RPM", rightTargetRPM);
+        // Debug output to verify commands (commented out after testing)
+        // SmartDashboard.putNumber("Shooter/Commanded Left RPM", leftTargetRPM);
+        // SmartDashboard.putNumber("Shooter/Commanded Middle RPM", middleTargetRPM);
+        // SmartDashboard.putNumber("Shooter/Commanded Right RPM", rightTargetRPM);
     }
 
     public void setPercentOutput(double percentOutput) {

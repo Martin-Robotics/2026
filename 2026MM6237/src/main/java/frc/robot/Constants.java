@@ -175,6 +175,9 @@ public final class Constants {
         public static final double kStandardDeviationX = 0.1;
         public static final double kStandardDeviationY = 0.1;
         public static final double kStandardDeviationTheta = 10.0;
+        
+        // Pipeline index for AprilTag detection (set in Limelight web interface)
+        public static final int kAprilTagPipelineIndex = 0;
     }
 
     // public static class CommandSwerveDrivetrainOld {
@@ -421,6 +424,8 @@ public final class Constants {
 
     public static class Auto {
         // Hub identification for Limelight-based distance calculations
-        public static final int kHubAprilTagID = 4;
+        public static final int kRedHubAprilTagID = 10;      // Red alliance processor (center front)
+        public static final int kBlueHubAprilTagID = 26;     // Blue alliance processor (center front)
+        public static final int kHubAprilTagID = 4;          // Legacy - for backwards compatibility
     }
 }

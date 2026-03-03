@@ -48,6 +48,7 @@ public class PrepareStaticShotCommand extends Command {
     private final Feeder feeder;
     private final Floor floor;
     private final Distance targetDistance;
+    private final boolean useDetectedDistance;
     private boolean shooterAtSpeed = false;
 
     /**
@@ -60,11 +61,26 @@ public class PrepareStaticShotCommand extends Command {
      * @param distanceMeters The distance to the target in meters
      */
     public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double distanceMeters) {
+        this(shooter, hood, feeder, floor, distanceMeters, false);
+    }
+    
+    /**
+     * Creates a command to prepare for a shot, optionally using detected distance from Limelight.
+     * 
+     * @param shooter The shooter subsystem
+     * @param hood The hood subsystem
+     * @param feeder The feeder subsystem
+     * @param floor The floor subsystem
+     * @param fallbackDistanceMeters The fallback distance if no detected distance available
+     * @param useDetectedDistance If true, uses last detected distance from PrepareToFire command
+     */
+    public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double fallbackDistanceMeters, boolean useDetectedDistance) {
         this.shooter = shooter;
         this.hood = hood;
         this.feeder = feeder;
         this.floor = floor;
-        this.targetDistance = Meters.of(distanceMeters);
+        this.targetDistance = Meters.of(fallbackDistanceMeters);
+        this.useDetectedDistance = useDetectedDistance;
         addRequirements(shooter, hood, feeder, floor);
     }
 
@@ -79,7 +95,26 @@ public class PrepareStaticShotCommand extends Command {
 
     @Override
     public void execute() {
-        final Shot shot = distanceToShotMap.get(targetDistance);
+        // Determine which distance to use
+        Distance actualDistance = targetDistance;
+        
+        if (useDetectedDistance) {
+            // Try to read the last detected distance from PrepareToFire
+            double detectedDistance = SmartDashboard.getNumber("PrepareToFire/Distance To Hub (m)", -1.0);
+            
+            if (detectedDistance > 0) {
+                actualDistance = Meters.of(detectedDistance);
+                SmartDashboard.putString("Static Shot/Source", "Limelight Detected");
+            } else {
+                SmartDashboard.putString("Static Shot/Source", "Fallback Distance");
+            }
+        } else {
+            SmartDashboard.putString("Static Shot/Source", "Manual Distance");
+        }
+        
+        SmartDashboard.putNumber("Static Shot/Using Distance (m)", actualDistance.in(Meters));
+        
+        final Shot shot = distanceToShotMap.get(actualDistance);
         
         // Always spin up shooter and position hood
         shooter.setRPM(shot.shooterRPM);
@@ -93,11 +128,12 @@ public class PrepareStaticShotCommand extends Command {
             floor.set(Floor.Speed.FEED);
         }
         
-        SmartDashboard.putNumber("Static Distance to Target (inches)", targetDistance.in(Inches));
-        SmartDashboard.putNumber("Target Shooter RPM", shot.shooterRPM);
-        SmartDashboard.putNumber("Target Hood Position", shot.hoodPosition);
-        SmartDashboard.putBoolean("Shooter At Speed", shooterAtSpeed);
-        SmartDashboard.putBoolean("Hood At Position", hood.isPositionWithinTolerance());
+        // Debug outputs (commented out after testing)
+        // SmartDashboard.putNumber("Static Distance to Target (inches)", targetDistance.in(Inches));
+        // SmartDashboard.putNumber("Target Shooter RPM", shot.shooterRPM);
+        // SmartDashboard.putNumber("Target Hood Position", shot.hoodPosition);
+        // SmartDashboard.putBoolean("Shooter At Speed", shooterAtSpeed);
+        // SmartDashboard.putBoolean("Hood At Position", hood.isPositionWithinTolerance());
     }
 
     @Override

@@ -258,10 +258,12 @@ public class OperatorController {
             LimelightSubsystem6237 limelight) {
         
         // ======================== SHOOTING CONTROLS ========================
-        // Right Trigger: PrepareStaticShotCommand (prepares and shoots at static distance)
+        // Right Trigger: PrepareStaticShotCommand (uses last detected Limelight distance)
+        // This will use the distance detected by PrepareToFire (Left Trigger)
+        // If no distance detected, falls back to 3 meters
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3)
-                .withName("Prepare Static Shot"));
+            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true)
+                .withName("Prepare Static Shot (Auto Distance)"));
         
         // Left Trigger: PrepareToFire command (determines distance to hub)
         new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
