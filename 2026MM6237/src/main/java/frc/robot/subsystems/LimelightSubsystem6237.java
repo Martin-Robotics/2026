@@ -37,6 +37,13 @@ public class LimelightSubsystem6237 implements Subsystem {
      */
     public LimelightSubsystem6237(String name) {
         this.limelightName = name;
+        
+        // Set Limelight to AprilTag pipeline
+        // This ensures the Limelight is configured for fiducial detection
+        LimelightHelpers.setPipelineIndex(limelightName, frc.robot.Constants.Limelight.kAprilTagPipelineIndex);
+        
+        // Set LED mode to pipeline default
+        LimelightHelpers.setLEDMode_PipelineControl(limelightName);
     }
 
     @Override
@@ -64,7 +71,13 @@ public class LimelightSubsystem6237 implements Subsystem {
     private void updateDashboard() {
         SmartDashboard.putBoolean("Limelight/Connected", limelightConnected);
         SmartDashboard.putBoolean("Limelight/Has Target", hasValidTarget());
+        SmartDashboard.putBoolean("Limelight/Any AprilTag Detected", getDetectedFiducialCount() > 0);
         SmartDashboard.putNumber("Limelight/Fiducials Detected", getDetectedFiducialCount());
+        SmartDashboard.putNumber("Limelight/Current Pipeline", LimelightHelpers.getCurrentPipelineIndex(limelightName));
+        
+        // Debug: Show raw NetworkTables values
+        SmartDashboard.putBoolean("Limelight/DEBUG TV", LimelightHelpers.getTV(limelightName));
+        SmartDashboard.putNumber("Limelight/DEBUG TID", LimelightHelpers.getFiducialID(limelightName));
     }
 
     // ======================== TARGET DETECTION ========================
@@ -345,6 +358,50 @@ public class LimelightSubsystem6237 implements Subsystem {
      */
     public double getCaptureLatency() {
         return LimelightHelpers.getLatency_Capture(limelightName);
+    }
+
+    // ======================== SIMPLE DISTANCE CALCULATION ========================
+    
+    /**
+     * Gets a simple distance estimate using basic trigonometry.
+     * This is a fallback method when full 3D pose isn't available.
+     * 
+     * REQUIRES: Camera height and angle must be configured in Constants
+     * 
+     * @return Distance in meters, or -1 if no target
+     */
+    public double getSimpleDistance() {
+        if (!hasValidTarget()) {
+            return -1;
+        }
+        
+        // Get the vertical angle to target (ty)
+        double ty = LimelightHelpers.getTY(limelightName);
+        
+        // TODO: Add camera mounting height and angle to Constants
+        // For now, use placeholder values
+        // Distance = (targetHeight - cameraHeight) / tan(cameraAngle + ty)
+        double cameraHeightMeters = 0.5; // PLACEHOLDER - measure your camera height
+        double cameraAngleDegrees = 25.0; // PLACEHOLDER - measure your camera angle
+        double targetHeightMeters = 1.5;  // PLACEHOLDER - measure AprilTag height
+        
+        double angleToTargetDegrees = cameraAngleDegrees + ty;
+        double angleToTargetRadians = Math.toRadians(angleToTargetDegrees);
+        
+        double distance = (targetHeightMeters - cameraHeightMeters) / Math.tan(angleToTargetRadians);
+        
+        return distance > 0 ? distance : -1;
+    }
+    
+    /**
+     * Gets the currently visible AprilTag ID using simple NetworkTables access.
+     * @return The fiducial ID, or -1 if no target visible
+     */
+    public int getVisibleTagID() {
+        if (!hasValidTarget()) {
+            return -1;
+        }
+        return (int)LimelightHelpers.getFiducialID(limelightName);
     }
 
     // ======================== HELPER CLASS ========================

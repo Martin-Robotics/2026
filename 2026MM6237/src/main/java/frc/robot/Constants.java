@@ -138,7 +138,7 @@ public final class Constants {
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;
         public static final double kSupplyCurrentLimit = 70;
-        public static final double kPivotKP = 0.1;  // Very low gain for safe testing (similar to 6% manual voltage)
+        public static final double kPivotKP = 5;//0.1;  // Very low gain for safe testing (similar to 6% manual voltage)
         public static final double kPivotKI = 0;
         public static final double kPivotKD = 0;
         public static final double kHomingPercentOutput = 0.1;
@@ -175,6 +175,9 @@ public final class Constants {
         public static final double kStandardDeviationX = 0.1;
         public static final double kStandardDeviationY = 0.1;
         public static final double kStandardDeviationTheta = 10.0;
+        
+        // Pipeline index for AprilTag detection (set in Limelight web interface)
+        public static final int kAprilTagPipelineIndex = 0;
     }
 
     // public static class CommandSwerveDrivetrainOld {
@@ -356,6 +359,11 @@ public final class Constants {
         public static final double kRotationPIDKP = 7;
         public static final double kRotationPIDKI = 0;
         public static final double kRotationPIDKD = 0;
+        
+        // ======================== AUTONOMOUS SPEED SCALING ========================
+        // Scale factor for autonomous speeds (0.0 to 1.0)
+        // Set to 0.2 for 20% speed, 1.0 for full speed
+        public static final double kAutoSpeedScaleFactor = 0.2;
 
         // ======================== MOTOR CURRENT LIMITS ========================
         public static final double kSlipCurrentAmps = 120.0;
@@ -416,6 +424,8 @@ public final class Constants {
 
     public static class Auto {
         // Hub identification for Limelight-based distance calculations
-        public static final int kHubAprilTagID = 4;
+        public static final int kRedHubAprilTagID = 10;      // Red alliance processor (center front)
+        public static final int kBlueHubAprilTagID = 26;     // Blue alliance processor (center front)
+        public static final int kHubAprilTagID = 4;          // Legacy - for backwards compatibility
     }
 }

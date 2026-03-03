@@ -4,26 +4,31 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.LimelightSubsystem6237;
 
 /**
  * Autonomous command to fire the note at the hub.
  * 
- * Runs the feeder motor for a set amount of time to feed the note through the shooter.
+ * Waits for the shooter to reach speed and hood to reach position,
+ * then runs the feeder motor for a set amount of time to feed the note through the shooter.
  * The feeder speed is determined by distance from the hub.
  * After firing, stops both the feeder and shooter rollers.
  */
 public class Fire extends Command {
     private final Feeder feeder;
     private final Shooter shooter;
+    private final Hood hood;
     private final LimelightSubsystem6237 limelight;
     
     private final Timer fireTimer = new Timer();
+    private boolean readyToFire = false;
 
-    public Fire(Feeder feeder, Shooter shooter, LimelightSubsystem6237 limelight) {
+    public Fire(Feeder feeder, Shooter shooter, Hood hood, LimelightSubsystem6237 limelight) {
         this.feeder = feeder;
         this.shooter = shooter;
+        this.hood = hood;
         this.limelight = limelight;
         addRequirements(feeder, shooter);
     }
@@ -31,32 +36,39 @@ public class Fire extends Command {
     @Override
     public void initialize() {
         fireTimer.reset();
-        fireTimer.start();
-        
-        // Determine feeder speed based on distance
-        double feederPercentOutput = Constants.Feeder.kAutoDefaultFeederPercentOutput;
-        
-        if (limelight.hasValidTarget()) {
-            double distanceToHub = limelight.getDistanceToTag(Constants.Auto.kHubAprilTagID);
-            if (distanceToHub > 0) {
-                // Calculate feeder speed based on distance
-                feederPercentOutput = calculateFeederSpeed(distanceToHub);
-            }
-        }
-        
-        // Start feeder at calculated speed
-        feeder.setPercentOutput(feederPercentOutput);
+        readyToFire = false;
     }
 
     @Override
     public void execute() {
-        // Feeder is running, shooter is already spinning from PrepareToFire
+        // Wait for both shooter to be at speed AND hood to be at position
+        if (!readyToFire) {
+            if (shooter.isVelocityWithinTolerance() && hood.isPositionWithinTolerance()) {
+                // Both shooter and hood are ready, start firing
+                readyToFire = true;
+                fireTimer.start();
+                
+                // Determine feeder speed based on distance
+                double feederPercentOutput = Constants.Feeder.kAutoDefaultFeederPercentOutput;
+                
+                if (limelight.hasValidTarget()) {
+                    double distanceToHub = limelight.getDistanceToTag(Constants.Auto.kHubAprilTagID);
+                    if (distanceToHub > 0) {
+                        // Calculate feeder speed based on distance
+                        feederPercentOutput = calculateFeederSpeed(distanceToHub);
+                    }
+                }
+                
+                // Start feeder at calculated speed
+                feeder.setPercentOutput(feederPercentOutput);
+            }
+        }
     }
 
     @Override
     public boolean isFinished() {
-        // Command finishes after firing duration has elapsed
-        return fireTimer.hasElapsed(Constants.Feeder.kAutoFireDurationSeconds);
+        // Command finishes after firing duration has elapsed (only after we started firing)
+        return readyToFire && fireTimer.hasElapsed(Constants.Feeder.kAutoFireDurationSeconds);
     }
 
     @Override

@@ -4,11 +4,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
+import frc.robot.commands.auto.PrepareToFire;
+import frc.robot.commands.auto.PrepareToClimbLeft;
+import frc.robot.commands.auto.PrepareToClimbRight;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
 
 /**
@@ -58,7 +62,8 @@ public class OperatorController {
     private static final double RIGHT_STICK_THRESHOLD = 0.15;    // Deadband for stick input
     
     /**
-     * Maps Xbox controller inputs to subsystem commands.
+     * Maps Xbox controller inputs to subsystem commands for testing and exercising subsystems.
+     * This is the original test control scheme.
      * 
      * @param operatorController The Xbox controller for the operator
      * @param feeder The Feeder subsystem
@@ -68,7 +73,7 @@ public class OperatorController {
      * @param hanger The Hanger subsystem
      * @param floor The Floor subsystem
      */
-    public static void mapXboxController(
+    public static void mapXboxControllerTestInputs(
             CommandXboxController operatorController,
             Feeder feeder,
             Shooter shooter,
@@ -216,5 +221,105 @@ public class OperatorController {
         operatorController.start()
             .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3) 
                 .withName("Prepare Static Shot"));
+    }
+
+    /**
+     * Maps Xbox controller inputs to subsystem commands for competition control scheme.
+     * 
+     * Button Mapping:
+     * - RT (Right Trigger): PrepareStaticShotCommand (prepares and shoots at static distance)
+     * - LT (Left Trigger): PrepareToFire command (determines distance to hub)
+     * - RB (Right Bumper): Hanger extend
+     * - LB (Left Bumper): Hanger retract
+     * - A: Move intake arm to INTAKE position (independent of rollers)
+     * - B: Move intake arm to STOWED position (also stops rollers)
+     * - X: Run intake rollers (blocked if arm is in STOWED position)
+     * - Y: Stop intake rollers
+     * - Back: PrepareToClimbLeft
+     * - Start: PrepareToClimbRight
+     * 
+     * @param operatorController The Xbox controller for the operator
+     * @param feeder The Feeder subsystem
+     * @param shooter The Shooter subsystem
+     * @param intake The Intake subsystem
+     * @param hood The Hood subsystem
+     * @param hanger The Hanger subsystem
+     * @param floor The Floor subsystem
+     * @param limelight The Limelight subsystem
+     */
+    public static void mapXboxController(
+            CommandXboxController operatorController,
+            Feeder feeder,
+            Shooter shooter,
+            Intake intake,
+            Hood hood,
+            Hanger hanger,
+            Floor floor,
+            LimelightSubsystem6237 limelight) {
+        
+        // ======================== SHOOTING CONTROLS ========================
+        // Right Trigger: PrepareStaticShotCommand (uses last detected Limelight distance)
+        // This will use the distance detected by PrepareToFire (Left Trigger)
+        // If no distance detected, falls back to 3 meters
+        new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
+            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true)
+                .withName("Prepare Static Shot (Auto Distance)"));
+        
+        // Left Trigger: PrepareToFire command (determines distance to hub)
+        new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
+            .whileTrue(new PrepareToFire(shooter, limelight)
+                .withName("Prepare To Fire"));
+        
+        // ======================== HANGER CONTROLS ========================
+        // Right Bumper: Hanger extend
+        operatorController.rightBumper()
+            .whileTrue(hanger.runEnd(
+                () -> hanger.setPercentOutput(HANGER_SPEED_PERCENT),
+                () -> hanger.setPercentOutput(0.0)
+            ).withName("Hanger Extend"));
+        
+        // Left Bumper: Hanger retract
+        operatorController.leftBumper()
+            .whileTrue(hanger.runEnd(
+                () -> hanger.setPercentOutput(-HANGER_SPEED_PERCENT),
+                () -> hanger.setPercentOutput(0.0)
+            ).withName("Hanger Retract"));
+        
+        // ======================== INTAKE CONTROLS ========================
+        // A Button: Move intake arm to INTAKE position (does not run rollers)
+        operatorController.a()
+            .onTrue(intake.runOnce(() -> {
+                intake.setManualPosition(Intake.Position.INTAKE);
+            }).withName("Extend Intake Arm"));
+        
+        // B Button: Move intake arm to STOWED position (also stops rollers)
+        operatorController.b()
+            .onTrue(intake.runOnce(() -> {
+                intake.setManualPosition(Intake.Position.STOWED);
+                intake.set(Intake.Speed.STOP);
+            }).withName("Retract Intake Arm"));
+        
+        // X Button: Run intake rollers
+        operatorController.x()
+            .onTrue(intake.runOnce(() -> {
+                intake.set(Intake.Speed.INTAKE);
+            }).withName("Start Intake Rollers"));
+        
+        // Y Button: Stop intake rollers
+        operatorController.y()
+            .onTrue(intake.runOnce(() -> {
+                intake.set(Intake.Speed.STOP);
+            }).withName("Stop Intake Rollers"));
+        
+        // ======================== CLIMB PREPARATION ========================
+        // Back Button: PrepareToClimbLeft
+        operatorController.back()
+            .onTrue(new PrepareToClimbLeft(hanger)
+                .withName("Prepare To Climb Left"));
+        
+        // Start Button: PrepareToClimbRight
+        operatorController.start()
+            .onTrue(new PrepareToClimbRight(hanger)
+                .withName("Prepare To Climb Right"));
     }
 }

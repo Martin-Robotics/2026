@@ -24,9 +24,9 @@ public class StopIntake extends Command {
 
     @Override
     public void initialize() {
-        // Stop rollers and retract arm
+        // Stop rollers and retract arm (using manual position for auto)
         intake.set(Speed.STOP);
-        intake.set(Position.STOWED);
+        intake.setManualPosition(Position.STOWED);
     }
 
     @Override

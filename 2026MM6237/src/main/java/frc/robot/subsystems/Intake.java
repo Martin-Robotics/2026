@@ -72,7 +72,7 @@ public class Intake extends SubsystemBase {
         // This prevents any unintended motion on enable before calibration
         neutralizeMotors();
         
-        SmartDashboard.putData(this);
+        // SmartDashboard.putData(this); // Commented out to reduce dashboard clutter
     }
     private void configurePivotMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
@@ -95,9 +95,9 @@ public class Intake extends SubsystemBase {
             )
             .withMotionMagic(
                 new MotionMagicConfigs()
-                    // Reduced to 20% of max speed for safe testing
-                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed.times(0.2))
-                    .withMotionMagicAcceleration(kMaxPivotSpeed.times(0.2).per(Second))
+                    // Set to 40% of max speed for faster position seeking
+                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed.times(0.3))
+                    .withMotionMagicAcceleration(kMaxPivotSpeed.times(0.3).per(Second))
             )
             .withSlot0(
                 new Slot0Configs()
@@ -201,6 +201,18 @@ public class Intake extends SubsystemBase {
         );
     }
     public void set(Speed speed) {
+        // Safety: Don't run rollers if pivot is in or seeking stowed position
+        if (speed != Speed.STOP) {
+            double targetAngle = pivotMotionMagicRequest.getPositionMeasure().in(Degrees);
+            double stowedAngle = Position.STOWED.angle().in(Degrees);
+            
+            // Check if target position is stowed (within tolerance)
+            if (Math.abs(targetAngle - stowedAngle) < kPositionTolerance.in(Degrees)) {
+                System.err.println("WARNING: Rollers cannot run while intake is in STOWED position!");
+                return;
+            }
+        }
+        
         rollerMotor.setControl(
             rollerVoltageRequest
                 .withOutput(speed.voltage())

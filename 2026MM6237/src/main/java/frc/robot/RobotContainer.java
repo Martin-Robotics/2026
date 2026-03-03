@@ -8,7 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.controllers.DriverController;
 import frc.robot.controllers.OperatorController;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.SubsystemTuning;
+// import frc.robot.util.SubsystemTuning; // Commented out after testing phase
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -77,8 +77,22 @@ public class RobotContainer {
       autoChooser = AutoBuilder.buildAutoChooser("DefaultAuto");
       SmartDashboard.putData("Auto Mode", autoChooser);
       
-      // Initialize subsystem tuning displays
-      SubsystemTuning.initializeAllDashboards();
+      // Initialize PrepareToFire dashboard values so they appear immediately
+      initializePrepareToFireDashboard();
+      
+      // Initialize subsystem tuning displays (commented out after testing phase)
+      // SubsystemTuning.initializeAllDashboards();
+    }
+    
+    /**
+     * Initialize PrepareToFire dashboard values so they're visible before the command runs.
+     */
+    private void initializePrepareToFireDashboard() {
+      SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", 0.0);
+      SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
+      SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", 0);
+      SmartDashboard.putString("PrepareToFire/Status", "Waiting for command...");
+      SmartDashboard.putNumber("PrepareToFire/Calculated RPM", 0.0);
     }
 
     /**
@@ -93,10 +107,12 @@ public class RobotContainer {
       
       // Shooter commands
       NamedCommands.registerCommand("PrepareToFire", new PrepareToFire(shooter, limelight));
-      NamedCommands.registerCommand("Fire", new Fire(feeder, shooter, limelight));
+      NamedCommands.registerCommand("Fire", new Fire(feeder, shooter, hood, limelight));
       
       // Climb commands
       NamedCommands.registerCommand("PrepareToClimb", new PrepareToClimb(hanger));
+      NamedCommands.registerCommand("PrepareToClimbLeft", new PrepareToClimbLeft(hanger));
+      NamedCommands.registerCommand("PrepareToClimbRight", new PrepareToClimbRight(hanger));
       NamedCommands.registerCommand("Climb", new Climb(hanger));
     }
 
@@ -113,7 +129,8 @@ public class RobotContainer {
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
       DriverController.mapXboxController(driver, drivetrain, null);
-      OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor);
+      OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight);
+      // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
 
       new Trigger(m_hubMonitor::isHubActive)
         .whileTrue(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), m_leds))

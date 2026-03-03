@@ -87,7 +87,7 @@ public class Hanger extends SubsystemBase {
         // SAFETY: Ensure motor starts with zero voltage output
         neutralizeMotor();
         
-        SmartDashboard.putData(this);
+        // SmartDashboard.putData(this); // Commented out to reduce dashboard clutter
     }
 
     /**
