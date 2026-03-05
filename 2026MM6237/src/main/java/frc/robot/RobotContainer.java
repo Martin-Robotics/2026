@@ -106,7 +106,7 @@ public class RobotContainer {
       NamedCommands.registerCommand("StopIntake", new StopIntake(intake));
       
       // Shooter commands
-      NamedCommands.registerCommand("PrepareToFire", new PrepareToFire(shooter, limelight));
+      NamedCommands.registerCommand("PrepareToFire", new PrepareToFire(shooter, limelight, drivetrain, driver));
       NamedCommands.registerCommand("Fire", new Fire(feeder, shooter, hood, limelight));
       
       // Climb commands
@@ -129,7 +129,7 @@ public class RobotContainer {
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
       DriverController.mapXboxController(driver, drivetrain, null);
-      OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight);
+      OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight, drivetrain, driver);
       // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
 
       new Trigger(m_hubMonitor::isHubActive)

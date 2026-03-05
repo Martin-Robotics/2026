@@ -228,7 +228,7 @@ public class OperatorController {
      * 
      * Button Mapping:
      * - RT (Right Trigger): PrepareStaticShotCommand (prepares and shoots at static distance)
-     * - LT (Left Trigger): PrepareToFire command (determines distance to hub)
+     * - LT (Left Trigger): PrepareToFire command (determines distance to hub and rotates robot to face it)
      * - RB (Right Bumper): Hanger extend
      * - LB (Left Bumper): Hanger retract
      * - A: Move intake arm to INTAKE position (independent of rollers)
@@ -246,6 +246,8 @@ public class OperatorController {
      * @param hanger The Hanger subsystem
      * @param floor The Floor subsystem
      * @param limelight The Limelight subsystem
+     * @param drivetrain The CommandSwerveDrivetrain for robot rotation
+     * @param driverController The driver's Xbox controller for reading strafe inputs
      */
     public static void mapXboxController(
             CommandXboxController operatorController,
@@ -255,7 +257,9 @@ public class OperatorController {
             Hood hood,
             Hanger hanger,
             Floor floor,
-            LimelightSubsystem6237 limelight) {
+            LimelightSubsystem6237 limelight,
+            frc.robot.subsystems.CommandSwerveDrivetrain drivetrain,
+            CommandXboxController driverController) {
         
         // ======================== SHOOTING CONTROLS ========================
         // Right Trigger: PrepareStaticShotCommand (uses last detected Limelight distance)
@@ -265,9 +269,9 @@ public class OperatorController {
             .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true)
                 .withName("Prepare Static Shot (Auto Distance)"));
         
-        // Left Trigger: PrepareToFire command (determines distance to hub)
+        // Left Trigger: PrepareToFire command (determines distance to hub and rotates robot to face it)
         new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(new PrepareToFire(shooter, limelight)
+            .whileTrue(new PrepareToFire(shooter, limelight, drivetrain, driverController)
                 .withName("Prepare To Fire"));
         
         // ======================== HANGER CONTROLS ========================

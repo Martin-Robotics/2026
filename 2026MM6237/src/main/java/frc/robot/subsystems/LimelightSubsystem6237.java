@@ -403,6 +403,61 @@ public class LimelightSubsystem6237 implements Subsystem {
         }
         return (int)LimelightHelpers.getFiducialID(limelightName);
     }
+    
+    /**
+     * Gets the best hub tag ID to use, prioritizing center tags (10 and 26).
+     * If multiple tags are visible, prefers the one closest to center of vision (smallest tx).
+     * 
+     * @return The preferred hub tag ID (10 or 26), or -1 if no hub tag visible
+     */
+    public int getBestHubTagID() {
+        LimelightTarget_Fiducial[] fiducials = getDetectedFiducials();
+        
+        if (fiducials.length == 0) {
+            return -1;
+        }
+        
+        // Look for hub tags (10 or 26)
+        LimelightTarget_Fiducial bestTag = null;
+        double bestTx = Double.MAX_VALUE; // Smallest tx (closest to center) is best
+        
+        for (LimelightTarget_Fiducial fiducial : fiducials) {
+            int tagId = (int)fiducial.fiducialID;
+            
+            // Only consider hub tags
+            if (tagId == frc.robot.Constants.Auto.kRedHubAprilTagID || 
+                tagId == frc.robot.Constants.Auto.kBlueHubAprilTagID) {
+                
+                double tx = Math.abs(fiducial.tx); // Use absolute value - closest to center
+                
+                if (bestTag == null || tx < bestTx) {
+                    bestTag = fiducial;
+                    bestTx = tx;
+                }
+            }
+        }
+        
+        return bestTag != null ? (int)bestTag.fiducialID : -1;
+    }
+    
+    /**
+     * Gets the horizontal angle (tx) to a specific tag.
+     * Positive is right, negative is left.
+     * 
+     * @param tagId The AprilTag ID
+     * @return Angle in degrees, or 0 if tag not visible
+     */
+    public double getTxToTag(int tagId) {
+        LimelightTarget_Fiducial[] fiducials = getDetectedFiducials();
+        
+        for (LimelightTarget_Fiducial fiducial : fiducials) {
+            if ((int)fiducial.fiducialID == tagId) {
+                return fiducial.tx;
+            }
+        }
+        
+        return 0;
+    }
 
     // ======================== HELPER CLASS ========================
 
