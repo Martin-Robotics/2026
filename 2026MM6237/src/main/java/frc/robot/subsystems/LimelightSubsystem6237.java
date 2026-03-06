@@ -4,7 +4,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
@@ -19,24 +19,44 @@ import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
  * The subsystem is designed to be independent of drivetrain implementation,
  * allowing it to persist across drivetrain generation/replacement cycles.
  */
-public class LimelightSubsystem6237 implements Subsystem {
+public class LimelightSubsystem6237 extends SubsystemBase {
     private final String limelightName;
     private boolean limelightConnected = false;
+    
+    // Continuous tracking of hub distance and heading
+    private double lastHubDistance = -1.0;  // meters, -1 if no target
+    private int lastHubTagID = -1;          // tag ID, -1 if no target
+    private double lastHubTx = 0.0;         // horizontal angle to hub
+    private boolean hasEverSeenHub = false;
+    
+    // Odometry-based tracking when vision is lost
+    private edu.wpi.first.math.geometry.Pose2d lastKnownHubPose = null;  // Field position when hub was last seen
+    private final frc.robot.subsystems.CommandSwerveDrivetrain drivetrain;
 
     /**
      * Constructs a LimelightSubsystem with the default Limelight name.
      * Uses empty string "" which corresponds to "limelight" on the network.
      */
     public LimelightSubsystem6237() {
-        this("");
+        this("", null);
+    }
+    
+    /**
+     * Constructs a LimelightSubsystem with drivetrain for odometry-based distance updates.
+     * @param drivetrain The swerve drivetrain for odometry
+     */
+    public LimelightSubsystem6237(frc.robot.subsystems.CommandSwerveDrivetrain drivetrain) {
+        this("", drivetrain);
     }
 
     /**
-     * Constructs a LimelightSubsystem with a specific Limelight name.
+     * Constructs a LimelightSubsystem with a specific Limelight name and optional drivetrain.
      * @param name The network name of the Limelight (e.g., "limelight-front", "limelight")
+     * @param drivetrain The swerve drivetrain for odometry (can be null)
      */
-    public LimelightSubsystem6237(String name) {
+    public LimelightSubsystem6237(String name, frc.robot.subsystems.CommandSwerveDrivetrain drivetrain) {
         this.limelightName = name;
+        this.drivetrain = drivetrain;
         
         // Set Limelight to AprilTag pipeline
         // This ensures the Limelight is configured for fiducial detection
@@ -51,8 +71,124 @@ public class LimelightSubsystem6237 implements Subsystem {
         // Check Limelight connection status periodically
         updateConnectionStatus();
         
+        // Continuously track hub distance and angle in the background
+        updateHubTracking();
+        
         // Update SmartDashboard with current status
         updateDashboard();
+    }
+    
+    /**
+     * Continuously updates hub tracking information in the background.
+     * This runs every robot loop to keep distance/angle data fresh.
+     */
+    private void updateHubTracking() {
+        // Use simple visible tag ID method (reads directly from NetworkTables)
+        int visibleTagID = getVisibleTagID();
+        
+        // Debug outputs
+        SmartDashboard.putBoolean("Limelight/DEBUG Has Valid Target", hasValidTarget());
+        SmartDashboard.putNumber("Limelight/DEBUG Visible Tag ID", visibleTagID);
+        SmartDashboard.putNumber("Limelight/DEBUG TID from NetworkTables", LimelightHelpers.getFiducialID(limelightName));
+        SmartDashboard.putNumber("Limelight/DEBUG TY angle", LimelightHelpers.getTY(limelightName));
+        SmartDashboard.putNumber("Limelight/DEBUG TX angle", LimelightHelpers.getTX(limelightName));
+        
+        // Check if we see a hub tag
+        if (hasValidTarget() && (visibleTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
+                                 visibleTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID)) {
+            // Update tracking data
+            lastHubTagID = visibleTagID;
+            lastHubTx = getTxToTag(visibleTagID);
+            hasEverSeenHub = true;
+            
+            // Calculate distance using simple method as fallback
+            double simpleDistance = getSimpleDistance();
+            double complexDistance = getDistanceToTag(visibleTagID);
+            
+            // Debug distance calculations
+            SmartDashboard.putNumber("Limelight/DEBUG Simple Distance", simpleDistance);
+            SmartDashboard.putNumber("Limelight/DEBUG Complex Distance", complexDistance);
+            
+            // Use whichever method works
+            lastHubDistance = complexDistance > 0 ? complexDistance : simpleDistance;
+            
+            SmartDashboard.putNumber("Limelight/DEBUG Last Hub Distance", lastHubDistance);
+            
+            // Store robot pose when hub is visible (for odometry fallback)
+            if (drivetrain != null && lastHubDistance > 0) {
+                // Store the hub's position based on robot pose and distance
+                edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;
+                double robotHeading = robotPose.getRotation().getRadians();
+                double angleToHub = robotHeading + Math.toRadians(lastHubTx);
+                
+                // Calculate hub position
+                double hubX = robotPose.getX() + lastHubDistance * Math.cos(angleToHub);
+                double hubY = robotPose.getY() + lastHubDistance * Math.sin(angleToHub);
+                lastKnownHubPose = new edu.wpi.first.math.geometry.Pose2d(
+                    hubX, hubY, new edu.wpi.first.math.geometry.Rotation2d());
+            }
+            
+            // Update SmartDashboard with all hub tracking data
+            if (lastHubDistance > 0) {
+                SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
+                SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
+                SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
+                SmartDashboard.putBoolean("Limelight/Hub Visible", true);
+                SmartDashboard.putString("Limelight/Hub Status", "Tracking Tag " + lastHubTagID);
+                SmartDashboard.putString("Limelight/Distance Source", "Vision");
+                
+                // Also output in PrepareToFire format for compatibility
+                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", lastHubDistance);
+                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
+                SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", lastHubTagID);
+            } else {
+                SmartDashboard.putString("Limelight/Hub Status", "Tag visible but distance calc failed");
+            }
+        } else {
+            // No hub visible - use odometry if available
+            SmartDashboard.putBoolean("Limelight/Hub Visible", false);
+            
+            // If we have drivetrain and have seen hub before, calculate distance from odometry
+            if (drivetrain != null && hasEverSeenHub && lastKnownHubPose != null) {
+                edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;
+                double odometryDistance = Math.hypot(
+                    robotPose.getX() - lastKnownHubPose.getX(),
+                    robotPose.getY() - lastKnownHubPose.getY()
+                );
+                
+                // Update distance with odometry calculation
+                lastHubDistance = odometryDistance;
+                
+                // Calculate TX from odometry
+                double angleToHub = Math.atan2(
+                    lastKnownHubPose.getY() - robotPose.getY(),
+                    lastKnownHubPose.getX() - robotPose.getX()
+                );
+                double robotHeading = robotPose.getRotation().getRadians();
+                lastHubTx = Math.toDegrees(angleToHub - robotHeading);
+                
+                // Normalize to -180 to 180
+                while (lastHubTx > 180) lastHubTx -= 360;
+                while (lastHubTx < -180) lastHubTx += 360;
+                
+                // Update dashboard with odometry-based tracking
+                SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
+                SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
+                SmartDashboard.putString("Limelight/Hub Status", "Odometry Tracking (last: Tag " + lastHubTagID + ")");
+                SmartDashboard.putString("Limelight/Distance Source", "Odometry");
+                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
+                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", lastHubDistance);
+            } else {
+                // No vision and no odometry fallback available
+                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
+                if (hasEverSeenHub) {
+                    SmartDashboard.putString("Limelight/Hub Status", "Lost (last: Tag " + lastHubTagID + ")");
+                } else {
+                    SmartDashboard.putString("Limelight/Hub Status", "Searching for hub tags");
+                }
+                SmartDashboard.putString("Limelight/Distance Source", "None");
+            }
+        }
     }
 
     /**
@@ -124,6 +260,51 @@ public class LimelightSubsystem6237 implements Subsystem {
             }
         }
         return false;
+    }
+    
+    // ======================== HUB TRACKING (BACKGROUND) ========================
+    
+    /**
+     * Gets the last tracked distance to the hub.
+     * This is updated continuously in the background by periodic().
+     * @return Distance to hub in meters, or -1.0 if no hub has been seen
+     */
+    public double getLastHubDistance() {
+        return lastHubDistance;
+    }
+    
+    /**
+     * Gets the last tracked hub tag ID.
+     * @return Hub tag ID (10 or 26), or -1 if no hub has been seen
+     */
+    public int getLastHubTagID() {
+        return lastHubTagID;
+    }
+    
+    /**
+     * Gets the last tracked horizontal angle to the hub.
+     * @return TX angle in degrees, or 0.0 if no hub has been seen
+     */
+    public double getLastHubTx() {
+        return lastHubTx;
+    }
+    
+    /**
+     * Checks if the hub is currently visible.
+     * @return true if a hub tag is currently visible, false otherwise
+     */
+    public boolean isHubCurrentlyVisible() {
+        int visibleTagID = getBestHubTagID();
+        return hasValidTarget() && (visibleTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
+                                     visibleTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID);
+    }
+    
+    /**
+     * Checks if the hub has ever been seen since robot startup.
+     * @return true if hub has been detected at least once, false otherwise
+     */
+    public boolean hasEverSeenHub() {
+        return hasEverSeenHub;
     }
 
     // ======================== POSE ESTIMATION ========================

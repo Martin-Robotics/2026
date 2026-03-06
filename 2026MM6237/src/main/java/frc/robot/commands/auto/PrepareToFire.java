@@ -14,10 +14,10 @@ import frc.robot.subsystems.LimelightSubsystem6237;
 /**
  * Autonomous command to prepare the robot to fire.
  * 
- * Reads distance from the hub using the Limelight and displays it on SmartDashboard.
  * Rotates the robot to face the hub AprilTag while allowing driver to strafe.
+ * Uses background-tracked distance from LimelightSubsystem (no button press needed).
  * Maintains last known target heading even if tag is temporarily lost.
- * Does NOT spin up shooter - only reads distance and aims for testing.
+ * Does NOT spin up shooter - only aims the robot for testing.
  */
 public class PrepareToFire extends Command {
     private final LimelightSubsystem6237 limelight;
@@ -25,9 +25,9 @@ public class PrepareToFire extends Command {
     private final CommandXboxController driverController;
     private final SwerveRequest.FieldCentricFacingAngle aimRequest;
     
-    // Rotation control constants
-    private static final double ROTATION_kP = 8.0;  // Proportional gain for rotation
-    private static final double ROTATION_kD = 0.5;  // Derivative gain for rotation
+    // Rotation control constants - tuned for smooth, stable aiming
+    private static final double ROTATION_kP = 3.0;  // Proportional gain for rotation (reduced from 5.0 to eliminate jerking)
+    private static final double ROTATION_kD = 0.1;  // Derivative gain for rotation (reduced from 0.3 to reduce oscillation)
     
     // State tracking
     private double lastTargetHeadingRadians;
@@ -57,128 +57,51 @@ public class PrepareToFire extends Command {
         hasEverSeenTarget = false;
         lastTargetHeadingRadians = drivetrain.getRotation3d().toRotation2d().getRadians();
         
-        // Just read distance - don't calculate RPM or spin up shooter
-        double distanceToHub = -1.0; // Default to -1 if no target detected
-        int detectedTagID = -1;
-        
-        if (limelight.hasValidTarget()) {
-            // Try red alliance hub first (ID 10)
-            distanceToHub = limelight.getDistanceToTag(Constants.Auto.kRedHubAprilTagID);
-            if (distanceToHub > 0) {
-                detectedTagID = Constants.Auto.kRedHubAprilTagID;
-            } else {
-                // Try blue alliance hub (ID 26)
-                distanceToHub = limelight.getDistanceToTag(Constants.Auto.kBlueHubAprilTagID);
-                if (distanceToHub > 0) {
-                    detectedTagID = Constants.Auto.kBlueHubAprilTagID;
-                }
-            }
-            
-            if (distanceToHub > 0) {
-                // Output distance to SmartDashboard
-                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distanceToHub);
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
-                SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", detectedTagID);
-                SmartDashboard.putString("PrepareToFire/Status", "Target locked - Tag " + detectedTagID);
-                
-                // Calculate what RPM would be (but don't use it)
-                double calculatedRPM = calculateShooterRPM(distanceToHub);
-                SmartDashboard.putNumber("PrepareToFire/Calculated RPM", calculatedRPM);
-            } else {
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-                SmartDashboard.putString("PrepareToFire/Status", "Hub tags not visible (looking for 10 or 26)");
-            }
-        } else {
-            SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-            SmartDashboard.putString("PrepareToFire/Status", "No Limelight target");
-        }
-        
-        // DO NOT spin up shooter - just reading distance
+        SmartDashboard.putString("PrepareToFire/Status", "Aiming started");
     }
 
     @Override
     public void execute() {
-        // Get driver strafe inputs (scaled with speed multipliers like DriverController)
-        double speedMultiplier = 1.0; // Default 35% speed
-        boolean slowSpeed = driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold;
-        boolean fastSpeed = driverController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold;
+        // NO driver strafe inputs - PrepareToFire only rotates, doesn't translate
+        // Driver maintains normal control of translation via default command
         
-        if (slowSpeed) {
-            speedMultiplier = 15.0 / 35.0; // Scale to 15%
-        } else if (fastSpeed) {
-            speedMultiplier = 55.0 / 35.0; // Scale to 55%
-        }
+        // Check if hub is currently visible (background tracking handles detection)
+        boolean hubVisible = limelight.isHubCurrentlyVisible();
         
-        // Read driver strafe inputs (inverted to match DriverController)
-        double strafeX = -1.0 * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
-        double strafeY = -1.0 * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
-        
-        // Debug: Show if Limelight has any target at all
-        boolean hasTarget = limelight.hasValidTarget();
-        SmartDashboard.putBoolean("PrepareToFire/DEBUG HasValidTarget", hasTarget);
-        SmartDashboard.putNumber("PrepareToFire/DEBUG Fiducial Count", limelight.getDetectedFiducialCount());
-        
-        // Get the best hub tag (prioritizes center, closest to crosshair)
-        int visibleTagID = limelight.getBestHubTagID();
-        SmartDashboard.putNumber("PrepareToFire/DEBUG Visible Tag ID", visibleTagID);
-        
-        // Check if we see a hub tag and update target heading
-        if (hasTarget && (visibleTagID == Constants.Auto.kRedHubAprilTagID || visibleTagID == Constants.Auto.kBlueHubAprilTagID)) {
-            // Get the horizontal angle to the tag
-            double tx = limelight.getTxToTag(visibleTagID);
-            SmartDashboard.putNumber("PrepareToFire/DEBUG TX to Tag", tx);
-            
-            // Calculate target heading (current heading + tx offset)
+        // Update target heading if hub is visible
+        if (hubVisible) {
+            // Get the tracked hub data (updated in background by periodic())
+            double tx = limelight.getLastHubTx();
+            int tagID = limelight.getLastHubTagID();
             double currentHeadingRadians = drivetrain.getRotation3d().toRotation2d().getRadians();
+            
+            // Only update target if tx has changed significantly (reduce jitter)
+            // Calculate what the absolute field-relative target should be
             double txRadians = Math.toRadians(tx);
-            lastTargetHeadingRadians = currentHeadingRadians + txRadians;
+            double newTargetHeadingRadians = currentHeadingRadians + txRadians;
+            
+            // Update target heading (this will smoothly converge as robot rotates)
+            lastTargetHeadingRadians = newTargetHeadingRadians;
             hasEverSeenTarget = true;
             
             SmartDashboard.putNumber("PrepareToFire/Target Heading (deg)", Math.toDegrees(lastTargetHeadingRadians));
             SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", Math.toDegrees(currentHeadingRadians));
             SmartDashboard.putNumber("PrepareToFire/Heading Error (deg)", tx);
-            
-            // Use simple distance calculation as fallback
-            double simpleDistance = limelight.getSimpleDistance();
-            SmartDashboard.putNumber("PrepareToFire/DEBUG Simple Distance", simpleDistance);
-            
-            // Try the complex method too
-            double complexDistance = limelight.getDistanceToTag(visibleTagID);
-            SmartDashboard.putNumber("PrepareToFire/DEBUG Complex Distance", complexDistance);
-            
-            // Use whichever method works
-            double distanceToHub = complexDistance > 0 ? complexDistance : simpleDistance;
-            
-            if (distanceToHub > 0) {
-                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distanceToHub);
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
-                SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", visibleTagID);
-                SmartDashboard.putString("PrepareToFire/Status", "Aiming at Tag " + visibleTagID);
-                
-                // Calculate what RPM would be (but don't use it)
-                double calculatedRPM = calculateShooterRPM(distanceToHub);
-                SmartDashboard.putNumber("PrepareToFire/Calculated RPM", calculatedRPM);
-            } else {
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-                SmartDashboard.putString("PrepareToFire/Status", "Cannot calculate distance");
-            }
+            SmartDashboard.putString("PrepareToFire/Status", "Aiming at Tag " + tagID);
         } else {
-            // No hub tag visible - maintain last known heading or show warning
+            // No hub visible - maintain last known heading or show warning
             if (hasEverSeenTarget) {
                 SmartDashboard.putString("PrepareToFire/Status", "Maintaining last heading (tag lost)");
             } else {
-                SmartDashboard.putString("PrepareToFire/Status", "Searching for hub tags (10 or 26)");
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
+                SmartDashboard.putString("PrepareToFire/Status", "Waiting for hub detection...");
             }
         }
         
-        // Always apply rotation control with driver strafe, using last known target heading
+        // Apply ONLY rotation control - no translation at all
         drivetrain.setControl(aimRequest
-            .withVelocityX(strafeX)  // Driver forward/back
-            .withVelocityY(strafeY)  // Driver left/right
+            .withVelocityX(0)  // No translation
+            .withVelocityY(0)  // No translation
             .withTargetDirection(new edu.wpi.first.math.geometry.Rotation2d(lastTargetHeadingRadians)));
-        
-        // DO NOT update shooter status - we're not running the shooter
     }
 
     @Override

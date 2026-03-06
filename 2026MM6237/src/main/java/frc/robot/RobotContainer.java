@@ -57,7 +57,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
       private final SendableChooser<Command> autoChooser;
 
-    private final LimelightSubsystem6237 limelight = new LimelightSubsystem6237();
+    private final LimelightSubsystem6237 limelight = new LimelightSubsystem6237(drivetrain);
     private final LEDSubsystem m_leds = new LEDSubsystem();
     private final HubMonitor m_hubMonitor = new HubMonitor();
 
@@ -128,7 +128,7 @@ public class RobotContainer {
      */
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
-      DriverController.mapXboxController(driver, drivetrain, null);
+      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight);
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight, drivetrain, driver);
       // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
 

@@ -10,7 +10,10 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.SnapToNearestAngleCommand;
+import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LimelightSubsystem6237;
+import frc.robot.subsystems.Shooter;
 
 public class DriverController {
     
@@ -32,7 +35,8 @@ public class DriverController {
         .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband).withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    public static void mapXboxController(CommandXboxController driverController, CommandSwerveDrivetrain drivetrain, NetworkTable limelight) {
+    public static void mapXboxController(CommandXboxController driverController, CommandSwerveDrivetrain drivetrain, NetworkTable limelight, 
+                                         Shooter shooter, LimelightSubsystem6237 limelightSubsystem) {
         robotCentricControl = new Trigger(() -> driverController.leftBumper().getAsBoolean());
         slowSpeedControl = new Trigger(() -> driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
         fastSpeedControl = new Trigger(() -> driverController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
@@ -69,5 +73,8 @@ public class DriverController {
 
         // A button: Snap to nearest 45-degree increment
         driverController.a().whileTrue(new SnapToNearestAngleCommand(drivetrain));
+        
+        // Y button: PrepareToFire - Aim at hub and read distance
+        driverController.y().whileTrue(new PrepareToFire(shooter, limelightSubsystem, drivetrain, driverController));
     }
 }
