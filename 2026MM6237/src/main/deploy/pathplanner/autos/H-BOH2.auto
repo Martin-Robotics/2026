@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBOutpostHub"
+            "pathName": "HB-OutpostHub"
           }
         },
         {
@@ -49,13 +49,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBHubRightBump"
+            "pathName": "HB-HubRight32"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HB32RightNuteral"
+            "pathName": "HB-32RightNuteral"
           }
         }
       ]

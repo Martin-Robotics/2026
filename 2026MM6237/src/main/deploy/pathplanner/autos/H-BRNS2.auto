@@ -13,25 +13,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchOutpost"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
+            "pathName": "HB-Bump32"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HBOutpost15"
+            "pathName": "HB-32RightNuteral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HBRightNuteral40"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB40-16"
           }
         },
         {
@@ -44,24 +50,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "HB-15Right32"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "HB-32RightNuteral"
           }
         }
       ]

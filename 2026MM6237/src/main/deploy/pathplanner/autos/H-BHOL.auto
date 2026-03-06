@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBHubOutpost"
+            "pathName": "HB-HubOutpost"
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBOutpostLong"
+            "pathName": "HBOutpost15"
           }
         },
         {

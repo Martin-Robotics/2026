@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBDepotHub"
+            "pathName": "HB-DepotHub"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBHubLeftRamp"
+            "pathName": "HB-HubLeft35"
           }
         },
         {

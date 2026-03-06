@@ -25,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBDepotHub"
+            "pathName": "HB-DepotHub"
           }
         },
         {
@@ -55,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBHubOutpost"
+            "pathName": "HB-HubOutpost"
           }
         },
         {
@@ -73,7 +73,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBOutpostHub"
+            "pathName": "HB-OutpostHub"
           }
         },
         {

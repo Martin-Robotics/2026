@@ -55,13 +55,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBShortRightBump"
+            "pathName": "HBShortRight32"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HB32RightNuteral"
+            "pathName": "HB-32RightNuteral"
           }
         }
       ]
