@@ -184,9 +184,9 @@ public class SubsystemTuning {
         }
         
         public static void update(Hood hood) {
-            // Display current status
+            // Display current status (read-only displays)
             SmartDashboard.putNumber("Hood/Current Position", hood.getCurrentPosition());
-            SmartDashboard.putNumber("Hood/Target Position", hood.getTargetPosition());
+            SmartDashboard.putNumber("Hood/Target Position (readout)", hood.getTargetPosition());
             SmartDashboard.putBoolean("Hood/Within Tolerance", hood.isPositionWithinTolerance());
             
             // Read tunable values from dashboard

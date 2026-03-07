@@ -269,7 +269,10 @@ public class OperatorController {
         // Right Trigger: PrepareStaticShotCommand (uses background-tracked Limelight distance)
         // Distance is continuously tracked by LimelightSubsystem in the background
         // If no distance detected, falls back to 3 meters
-        new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
+        // IMPORTANT: Only fires when DPad UP is NOT held. When DPad UP is held,
+        // ShooterTuningCommand owns all shooting subsystems and handles RT internally.
+        new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
+                         && operatorController.getHID().getPOV() != 0)
             .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true, limelight)
                 .withName("Prepare Static Shot (Auto Distance)"));
         

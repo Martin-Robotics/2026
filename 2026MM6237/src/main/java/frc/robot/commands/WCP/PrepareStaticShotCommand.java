@@ -35,12 +35,17 @@ public class PrepareStaticShotCommand extends Command {
     );
 
     static {
-        // Interpolation table - adjusted for trajectory and power
-        // RPMs increased by ~350-400 total for additional distance
-        // Hood angles raised to flatten trajectory (hood mechanism is inverted)
-        distanceToShotMap.put(Inches.of(52.0), new Shot(3150, 0.24));  // Was 2800, now +350
-        distanceToShotMap.put(Inches.of(114.4), new Shot(3675, 0.48)); // Was 3275, now +400
-        distanceToShotMap.put(Inches.of(165.5), new Shot(4050, 0.56)); // Was 3650, now +400
+        // Interpolation table - tuned 2026-03-07 using ShooterTuningCommand
+        // Distances are ACTUAL Limelight-reported values (not physical tape measure)
+        //
+        // CALIBRATION NOTE: These values were tuned with RIGHT SHOOTER ONLY
+        // (correct roller wheel installed). Left and middle are awaiting parts.
+        // RPM values will likely need adjustment once all three wheels are installed.
+        distanceToShotMap.put(Inches.of(70.9),  new Shot(2700, 0.25));  // ~1.5m physical, LL reads 1.8m
+        distanceToShotMap.put(Inches.of(114.2), new Shot(3000, 0.40));  // ~2.5m physical, LL reads 2.9m
+        distanceToShotMap.put(Inches.of(149.6), new Shot(3400, 0.50));  // ~3.5m physical, LL reads 3.8m
+        distanceToShotMap.put(Inches.of(185.0), new Shot(3800, 0.50));  // ~4.5m physical, LL reads 4.7m
+        distanceToShotMap.put(Inches.of(212.6), new Shot(4100, 0.62));  // ~5.0m physical, LL reads 5.4m
     }
 
     private final Shooter shooter;
