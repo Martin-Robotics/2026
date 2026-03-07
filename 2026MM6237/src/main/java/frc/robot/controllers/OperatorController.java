@@ -331,8 +331,9 @@ public class OperatorController {
         // DPad Up (POV 0): Hold for Shooter Tuning Mode
         // Adjust RPM and Hood via SmartDashboard while this is held
         // Use RT (Right Trigger) to fire test shots while in tuning mode
+        // This command requires shooter, hood, feeder, AND floor so RT won't trigger PrepareStaticShot
         new Trigger(() -> operatorController.getHID().getPOV() == 0)
-            .whileTrue(new ShooterTuningCommand(shooter, hood, feeder, limelight)
+            .whileTrue(new ShooterTuningCommand(shooter, hood, feeder, floor, limelight, operatorController)
                 .withName("Shooter Tuning Mode"));
         
         // ======================== MANUAL HOOD CONTROLS (FOR TESTING) ========================
