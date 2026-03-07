@@ -433,5 +433,9 @@ public final class Constants {
         public static final int kRedHubAprilTagID = 10;      // Red alliance processor (center front)
         public static final int kBlueHubAprilTagID = 26;     // Blue alliance processor (center front)
         public static final int kHubAprilTagID = 4;          // Legacy - for backwards compatibility
+        
+        // Autonomous firing timing
+        public static final double kAutoFireRunTimeSeconds = 2.0;      // Time to run feeder after shooter at speed
+        public static final double kAutoPrepareAimTimeSeconds = 0.5;   // Time to attempt aiming before giving up
     }
 }
