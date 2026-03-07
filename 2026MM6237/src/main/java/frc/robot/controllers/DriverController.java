@@ -1,6 +1,7 @@
 package frc.robot.controllers;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.networktables.NetworkTable;
@@ -27,12 +28,17 @@ public class DriverController {
     public static Trigger slowSpeedControl;
     public static Trigger fastSpeedControl;
 
+    // Field-centric drive with OperatorPerspective - automatically adjusts for Red vs Blue alliance
     private static final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-        .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband).withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband)
+        .withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);  // Respects alliance!
 
+    // Robot-centric drive - no perspective adjustment needed (always relative to robot)
     private static final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
-        .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband).withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
+        .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband)
+        .withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public static void mapXboxController(CommandXboxController driverController, CommandSwerveDrivetrain drivetrain, NetworkTable limelight, 

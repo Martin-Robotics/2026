@@ -181,9 +181,9 @@ public final class Constants {
         
         // Camera mounting parameters for distance calculation
         // TODO: Measure and update these values for your robot
-        public static final double kCameraHeightMeters = 0.5;        // Height of camera lens from floor
-        public static final double kCameraMountAngleDegrees = 25.0;  // Angle of camera from horizontal (positive = tilted up)
-        public static final double kHubAprilTagHeightMeters = 1.45;  // Height of hub AprilTag center from floor
+        public static final double kCameraHeightMeters = 0.6;        // Height of camera lens from floor
+        public static final double kCameraMountAngleDegrees = 13.0;  // Angle of camera from horizontal (positive = tilted up)
+        public static final double kHubAprilTagHeightMeters = 1.2;  // Height of hub AprilTag center from floor
     }
 
     // public static class CommandSwerveDrivetrainOld {

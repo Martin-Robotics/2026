@@ -2,11 +2,8 @@ package frc.robot.commands.auto;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -14,159 +11,152 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem6237;
-import frc.robot.commands.WCP.Landmarks;
 
 /**
- * Command to prepare the robot to fire by aiming at the hub.
+ * Command to prepare the robot to fire by aiming at the hub AprilTag.
  * 
- * Uses the WCP-style FieldCentricFacingAngle approach:
- * - Calculates hub direction from field coordinates (using Landmarks.hubPosition())
- * - Uses CTRE's built-in heading PID controller for smooth, stable rotation
- * - Maintains aim even if Limelight temporarily loses the target
+ * Uses DIRECT Limelight TX feedback to rotate toward the target:
+ * - When Limelight sees the hub tag, uses TX to calculate rotation needed
+ * - Maintains last known target heading if tag is temporarily lost
+ * - Simple proportional control for smooth, predictable aiming
  * 
- * The Limelight is used for:
- * - Confirming we're pointed at the right target
- * - Providing accurate distance measurements for shooter RPM calculations
- * 
- * Does NOT spin up shooter - only aims the robot for the Fire command.
+ * This approach works regardless of odometry accuracy or field setup.
+ * The robot will point directly at whatever AprilTag the Limelight detects.
  */
 public class PrepareToFire extends Command {
     private final LimelightSubsystem6237 limelight;
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
     
-    // Use FieldCentricFacingAngle - CTRE's built-in heading PID (same as WCP AimAndDriveCommand)
-    private final SwerveRequest.FieldCentricFacingAngle aimRequest = new SwerveRequest.FieldCentricFacingAngle()
-        .withRotationalDeadband(Constants.Driving.kPIDRotationDeadband)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-        .withHeadingPID(5, 0, 0);  // P=5 works well for snappy response without oscillation
+    // Simple field-centric request for manual rotation control
+    private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+        .withDeadband(Constants.TempSwerve.MaxSpeed * Constants.OperatorConstants.driverStickDeadband)
+        .withRotationalDeadband(0) // We handle our own deadband
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     
-    // Aim tolerance - how close we need to be to consider "aimed"
-    private static final double AIM_TOLERANCE_DEGREES = 3.0;
+    // Rotation control - tuned for smooth aiming
+    private static final double PROPORTIONAL_GAIN = 0.05;  // rad/s per degree of TX error
+    private static final double MIN_ROTATION_SPEED = 0.3;  // rad/s minimum to overcome friction
+    private static final double AIM_TOLERANCE_DEGREES = 2.0; // Stop rotating when within this
+    
+    // State tracking
+    private Rotation2d lastTargetHeading = null;
+    private boolean hasEverSeenTarget = false;
 
     public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController) {
         this.limelight = limelight;
         this.drivetrain = drivetrain;
         this.driverController = driverController;
         
-        // Require drivetrain so we can control rotation
         addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        SmartDashboard.putString("PrepareToFire/Status", "Aiming started");
+        lastTargetHeading = null;
+        hasEverSeenTarget = false;
+        SmartDashboard.putString("PrepareToFire/Status", "Searching for hub...");
         SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
-    }
-
-    /**
-     * Calculates the direction from the robot to the hub in operator perspective.
-     * This is the same approach used by WCP's AimAndDriveCommand.
-     * 
-     * Key insight: The swerve pose is in Blue Alliance perspective (field coordinates).
-     * We need to convert to Operator perspective for FieldCentricFacingAngle.
-     */
-    private Rotation2d getDirectionToHub() {
-        // Get hub position based on alliance (from WCP Landmarks)
-        final Translation2d hubPosition = Landmarks.hubPosition();
-        
-        // Get robot position from odometry (in Blue Alliance / field coordinates)
-        final Translation2d robotPosition = drivetrain.getState().Pose.getTranslation();
-        
-        // Calculate direction from robot to hub (in Blue Alliance perspective)
-        // hubPosition - robotPosition gives vector pointing toward hub
-        // .getAngle() returns the angle of that vector
-        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(robotPosition).getAngle();
-        
-        // Convert to Operator perspective (what the driver sees)
-        // getOperatorForwardDirection() returns the rotation needed to convert
-        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective
-            .rotateBy(drivetrain.getOperatorForwardDirection());
-        
-        return hubDirectionInOperatorPerspective;
-    }
-
-    /**
-     * Checks if the robot is currently aimed at the hub within tolerance.
-     */
-    public boolean isAimed() {
-        final Rotation2d targetHeading = getDirectionToHub();
-        final Rotation2d currentHeadingInBlueAlliancePerspective = drivetrain.getState().Pose.getRotation();
-        final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective
-            .rotateBy(drivetrain.getOperatorForwardDirection());
-        
-        double errorDegrees = Math.abs(targetHeading.minus(currentHeadingInOperatorPerspective).getDegrees());
-        return errorDegrees <= AIM_TOLERANCE_DEGREES;
     }
 
     @Override
     public void execute() {
-        // Calculate the target direction to the hub
-        Rotation2d targetDirection = getDirectionToHub();
+        // Get current robot heading
+        Rotation2d currentHeading = drivetrain.getState().Pose.getRotation();
         
-        // Get current robot state for debugging
-        Rotation2d currentRotation = drivetrain.getState().Pose.getRotation();
-        Translation2d robotPosition = drivetrain.getState().Pose.getTranslation();
-        Translation2d hubPosition = Landmarks.hubPosition();
-        
-        // Calculate distance to hub from odometry
-        double distanceToHub = robotPosition.getDistance(hubPosition);
-        
-        // Check if Limelight sees the hub (for confirmation and fine distance)
+        // Check if Limelight sees the hub
         boolean hubVisible = limelight.isHubCurrentlyVisible();
-        double limelightDistance = limelight.getLastHubDistance();
+        double tx = limelight.getLastHubTx();  // Degrees offset from crosshair
+        double distance = limelight.getLastHubDistance();
         int tagID = limelight.getLastHubTagID();
-        double tx = limelight.getLastHubTx();
         
-        // Use Limelight distance if available, otherwise use odometry
-        double reportedDistance = (hubVisible && limelightDistance > 0) ? limelightDistance : distanceToHub;
-        String distanceSource = (hubVisible && limelightDistance > 0) ? "Limelight" : "Odometry";
-        
-        // Check if we're aimed
-        boolean aimed = isAimed();
-        
-        // Update SmartDashboard
-        SmartDashboard.putNumber("PrepareToFire/Target Heading (deg)", targetDirection.getDegrees());
-        SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", currentRotation.getDegrees());
-        SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", reportedDistance);
-        SmartDashboard.putString("PrepareToFire/Distance Source", distanceSource);
-        SmartDashboard.putBoolean("PrepareToFire/Hub Visible", hubVisible);
-        SmartDashboard.putBoolean("PrepareToFire/Aimed", aimed);
+        double rotationalRate = 0;
         
         if (hubVisible) {
-            SmartDashboard.putNumber("PrepareToFire/Limelight TX (deg)", tx);
+            hasEverSeenTarget = true;
+            
+            // TX is the angle from crosshair to target
+            // Positive TX = target is to the RIGHT of crosshair
+            // We need to rotate RIGHT (negative in FRC convention) to center it
+            
+            // Calculate target heading: where we need to point to center the tag
+            // Current heading + TX = heading that would center the tag
+            lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
+            
+            // Use TX directly for proportional control
+            // If TX is positive (target right), we rotate right (negative rate in FRC)
+            if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
+                rotationalRate = -tx * PROPORTIONAL_GAIN;
+                
+                // Apply minimum speed to overcome friction
+                if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                    rotationalRate = MIN_ROTATION_SPEED;
+                } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                    rotationalRate = -MIN_ROTATION_SPEED;
+                }
+            }
+            
+            SmartDashboard.putNumber("PrepareToFire/TX (deg)", tx);
             SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", tagID);
-            SmartDashboard.putString("PrepareToFire/Status", aimed ? "AIMED at Tag " + tagID : "Aiming at Tag " + tagID);
+            SmartDashboard.putString("PrepareToFire/Status", 
+                Math.abs(tx) <= AIM_TOLERANCE_DEGREES ? "AIMED at Tag " + tagID : "Aiming at Tag " + tagID);
+            SmartDashboard.putBoolean("PrepareToFire/Aimed", Math.abs(tx) <= AIM_TOLERANCE_DEGREES);
+            
+        } else if (hasEverSeenTarget && lastTargetHeading != null) {
+            // Lost the target - rotate toward last known heading
+            Rotation2d error = lastTargetHeading.minus(currentHeading);
+            double errorDegrees = error.getDegrees();
+            
+            if (Math.abs(errorDegrees) > AIM_TOLERANCE_DEGREES) {
+                rotationalRate = errorDegrees * PROPORTIONAL_GAIN;
+                
+                if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                    rotationalRate = MIN_ROTATION_SPEED;
+                } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                    rotationalRate = -MIN_ROTATION_SPEED;
+                }
+            }
+            
+            SmartDashboard.putString("PrepareToFire/Status", "Target lost - holding heading");
+            SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
         } else {
-            SmartDashboard.putString("PrepareToFire/Status", aimed ? "AIMED (using odometry)" : "Aiming (using odometry)");
+            // Never seen target
+            SmartDashboard.putString("PrepareToFire/Status", "Searching for hub...");
+            SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
         }
         
-        // Apply the aim request - CTRE's FieldCentricFacingAngle handles all the rotation PID
-        // No translation (VelocityX=0, VelocityY=0), only rotation to face the hub
+        // Clamp rotation rate
+        rotationalRate = Math.max(-Constants.TempSwerve.MaxAngularRate, 
+                        Math.min(Constants.TempSwerve.MaxAngularRate, rotationalRate));
+        
+        // Debug outputs
+        SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", currentHeading.getDegrees());
+        SmartDashboard.putNumber("PrepareToFire/Rotation Rate (rad/s)", rotationalRate);
+        SmartDashboard.putBoolean("PrepareToFire/Hub Visible", hubVisible);
+        SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distance > 0 ? distance : -1);
+        
+        // Apply rotation only - no translation
         drivetrain.setControl(
-            aimRequest
+            driveRequest
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withTargetDirection(targetDirection)
+                .withRotationalRate(rotationalRate)
         );
     }
 
     @Override
     public boolean isFinished() {
-        // Never finish automatically - operator holds button to aim and read distance
         return false;
     }
 
     @Override
     public void end(boolean interrupted) {
-        // Stop the drivetrain
+        // Stop all motion
         drivetrain.setControl(
-            aimRequest
+            driveRequest
                 .withVelocityX(0)
                 .withVelocityY(0)
-                .withTargetDirection(drivetrain.getState().Pose.getRotation()) // Hold current heading
+                .withRotationalRate(0)
         );
         SmartDashboard.putString("PrepareToFire/Status", "Command ended");
         SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
