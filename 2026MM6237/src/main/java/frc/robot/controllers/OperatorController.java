@@ -3,6 +3,7 @@ package frc.robot.controllers;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.commands.ShooterTuningCommand;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.commands.auto.PrepareToClimbLeft;
@@ -14,6 +15,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * Operator Controller mapping for testing and exercising subsystems.
@@ -323,5 +325,13 @@ public class OperatorController {
         operatorController.start()
             .onTrue(new PrepareToClimbRight(hanger)
                 .withName("Prepare To Climb Right"));
+        
+        // ======================== SHOOTER TUNING MODE ========================
+        // DPad Up (POV 0): Hold for Shooter Tuning Mode
+        // Adjust RPM and Hood via SmartDashboard while this is held
+        // Use RT (Right Trigger) to fire test shots while in tuning mode
+        new Trigger(() -> operatorController.getHID().getPOV() == 0)
+            .whileTrue(new ShooterTuningCommand(shooter, hood, feeder, limelight)
+                .withName("Shooter Tuning Mode"));
     }
 }

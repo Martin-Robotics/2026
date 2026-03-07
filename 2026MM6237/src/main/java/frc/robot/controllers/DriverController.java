@@ -40,12 +40,13 @@ public class DriverController {
     public static Trigger fastSpeedControl;
 
     // Field-centric drive with BlueAlliance perspective
-    // We'll manually flip for Red alliance in the command
+    // CTRE's setOperatorPerspectiveForward() in CommandSwerveDrivetrain.periodic() 
+    // handles the alliance-based rotation automatically (180° for Red)
     private static final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband)
         .withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);  // Standard FRC coordinates
+        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);  // CTRE handles Red flip via setOperatorPerspectiveForward
 
     // Robot-centric drive - no perspective adjustment needed (always relative to robot)
     private static final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
@@ -69,23 +70,18 @@ public class DriverController {
                 speedMultiplier = 55.0 / 35.0; // Scale to 55%
             }
             
-            // Check alliance - Red drivers need inverted field-centric controls
-            boolean isRedAlliance = DriverStation.getAlliance()
-                .map(a -> a == DriverStation.Alliance.Red)
-                .orElse(false);
-            
-            // Alliance multiplier: Red = -1 (flip), Blue = +1 (normal)
-            double allianceMultiplier = isRedAlliance ? -1.0 : 1.0;
-            
-            // DEBUG: Alliance and control info
-            SmartDashboard.putString("Drive/Alliance", isRedAlliance ? "RED" : "BLUE");
-            SmartDashboard.putNumber("Drive/Alliance Multiplier", allianceMultiplier);
+            // DEBUG: Alliance and control info (for verification only)
+            String allianceStr = DriverStation.getAlliance()
+                .map(a -> a == DriverStation.Alliance.Red ? "RED" : "BLUE")
+                .orElse("UNKNOWN");
+            SmartDashboard.putString("Drive/Alliance", allianceStr);
             SmartDashboard.putNumber("Drive/Raw Left Y", driverController.getLeftY());
             SmartDashboard.putNumber("Drive/Raw Left X", driverController.getLeftX());
             
-            // Calculate velocities with alliance correction
-            double velocityX = allianceMultiplier * invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
-            double velocityY = allianceMultiplier * invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
+            // Calculate velocities - NO manual alliance flip needed!
+            // CTRE's setOperatorPerspectiveForward() handles Red alliance automatically
+            double velocityX = invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
+            double velocityY = invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
             
             SmartDashboard.putNumber("Drive/VelocityX Cmd", velocityX);
             SmartDashboard.putNumber("Drive/VelocityY Cmd", velocityY);
@@ -97,7 +93,7 @@ public class DriverController {
                     .withVelocityY(invertYNumberRobotCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
                     .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate * speedMultiplier);
             } else {
-                // Field-centric control with alliance correction
+                // Field-centric control - CTRE handles alliance perspective automatically
                 return drive
                     .withVelocityX(velocityX)
                     .withVelocityY(velocityY)

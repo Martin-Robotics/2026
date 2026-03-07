@@ -177,7 +177,8 @@ public final class Constants {
         public static final double kStandardDeviationTheta = 10.0;
         
         // Pipeline index for AprilTag detection (set in Limelight web interface)
-        public static final int kAprilTagPipelineIndex = 0;
+        // Pipeline 1 = "HubTarget" - configured to only track hub tags (10, 26)
+        public static final int kAprilTagPipelineIndex = 1;
         
         // Camera mounting parameters for distance calculation
         // TODO: Measure and update these values for your robot
