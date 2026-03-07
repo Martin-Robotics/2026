@@ -104,10 +104,14 @@ public class RobotContainer {
       NamedCommands.registerCommand("PrepareForIntake", new PrepareForIntake(intake));
       NamedCommands.registerCommand("RunIntake", new RunIntake(intake));
       NamedCommands.registerCommand("StopIntake", new StopIntake(intake));
+      NamedCommands.registerCommand("ExtendIntakeArm", new ExtendIntakeArm(intake));
+      NamedCommands.registerCommand("RetractIntakeArm", new RetractIntakeArm(intake));
       
-      // Shooter commands
-      NamedCommands.registerCommand("PrepareToFire", new PrepareToFire(shooter, limelight, drivetrain, driver));
-      NamedCommands.registerCommand("Fire", new Fire(feeder, shooter, hood, limelight));
+      // Shooter commands - use Autonomous versions with timeout/duration
+      // PrepareToFire: aims at hub using Limelight TX with PD control, auto-ends when aimed or timeout
+      NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain));
+      // Fire: spins up shooter/hood from interpolation table, feeds when at speed, auto-ends after duration
+      NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, limelight));
       
       // Climb commands
       NamedCommands.registerCommand("PrepareToClimb", new PrepareToClimb(hanger));

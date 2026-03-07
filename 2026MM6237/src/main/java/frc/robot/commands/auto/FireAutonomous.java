@@ -1,53 +1,106 @@
 package frc.robot.commands.auto;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.Interpolator;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.commands.WCP.PrepareShotCommand.Shot;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.LimelightSubsystem6237;
 
 /**
- * Autonomous command to fire the note at the hub.
+ * Autonomous command to fire at the hub.
  * 
- * Similar to Fire command but designed for autonomous use:
- * - Waits for shooter to reach speed and hood to reach position
- * - Runs the feeder for a fixed duration (kAutoFireRunTimeSeconds) after shooter is ready
- * - Automatically ends after the firing duration completes
+ * Uses the same interpolation table as PrepareStaticShotCommand (teleop RT fire):
+ * - Reads distance from Limelight background tracking
+ * - Looks up RPM and hood position from interpolation table
+ * - Spins up shooter and positions hood
+ * - Once both are ready, engages feeder and floor for a fixed duration
+ * - Automatically ends after firing duration completes
  * 
- * The feeder speed is determined by distance from the hub (from Limelight or default).
- * After firing, stops both the feeder and shooter rollers.
+ * Interpolation table tuned 2026-03-07 (right shooter only - awaiting parts for left/middle).
  */
 public class FireAutonomous extends Command {
+    // Same interpolation table as PrepareStaticShotCommand
+    private static final InterpolatingTreeMap<Distance, Shot> distanceToShotMap = new InterpolatingTreeMap<>(
+        (startValue, endValue, q) -> 
+            InverseInterpolator.forDouble()
+                .inverseInterpolate(startValue.in(Meters), endValue.in(Meters), q.in(Meters)),
+        (startValue, endValue, t) ->
+            new Shot(
+                Interpolator.forDouble()
+                    .interpolate(startValue.shooterRPM, endValue.shooterRPM, t),
+                Interpolator.forDouble()
+                    .interpolate(startValue.hoodPosition, endValue.hoodPosition, t)
+            )
+    );
+
+    static {
+        // Interpolation table - tuned 2026-03-07 using ShooterTuningCommand
+        // Distances are ACTUAL Limelight-reported values (not physical tape measure)
+        // CALIBRATION NOTE: Right shooter only - left/middle awaiting parts
+        distanceToShotMap.put(Inches.of(70.9),  new Shot(2700, 0.25));  // ~1.5m physical, LL reads 1.8m
+        distanceToShotMap.put(Inches.of(114.2), new Shot(3000, 0.40));  // ~2.5m physical, LL reads 2.9m
+        distanceToShotMap.put(Inches.of(149.6), new Shot(3400, 0.50));  // ~3.5m physical, LL reads 3.8m
+        distanceToShotMap.put(Inches.of(185.0), new Shot(3800, 0.50));  // ~4.5m physical, LL reads 4.7m
+        distanceToShotMap.put(Inches.of(212.6), new Shot(4100, 0.62));  // ~5.0m physical, LL reads 5.4m
+    }
+
     private final Feeder feeder;
     private final Shooter shooter;
     private final Hood hood;
+    private final Floor floor;
     private final LimelightSubsystem6237 limelight;
     
     private final Timer fireTimer = new Timer();
-    private boolean readyToFire = false;
+    private boolean shooterAtSpeed = false;
 
-    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, LimelightSubsystem6237 limelight) {
+    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, LimelightSubsystem6237 limelight) {
         this.feeder = feeder;
         this.shooter = shooter;
         this.hood = hood;
+        this.floor = floor;
         this.limelight = limelight;
-        addRequirements(feeder, shooter);
+        addRequirements(feeder, shooter, hood, floor);
     }
 
     @Override
     public void initialize() {
         fireTimer.reset();
-        readyToFire = false;
-        SmartDashboard.putString("FireAutonomous/Status", "Waiting for shooter...");
+        shooterAtSpeed = false;
+        SmartDashboard.putString("FireAutonomous/Status", "Spinning up...");
     }
 
     @Override
     public void execute() {
-        // Wait for both shooter to be at speed AND hood to be at position
-        if (!readyToFire) {
+        // Get distance from Limelight background tracking
+        double detectedDistance = limelight.getLastHubDistance();
+        Distance actualDistance = detectedDistance > 0 
+            ? Meters.of(detectedDistance) 
+            : Meters.of(3.0); // Fallback to 3m if no hub seen
+        
+        // Look up RPM and hood from interpolation table
+        final Shot shot = distanceToShotMap.get(actualDistance);
+        
+        // Always spin up shooter and position hood
+        shooter.setRPM(shot.shooterRPM);
+        hood.setPosition(shot.hoodPosition);
+        
+        SmartDashboard.putNumber("FireAutonomous/Distance (m)", actualDistance.in(Meters));
+        SmartDashboard.putNumber("FireAutonomous/Target RPM", shot.shooterRPM);
+        SmartDashboard.putNumber("FireAutonomous/Target Hood", shot.hoodPosition);
+        
+        if (!shooterAtSpeed) {
             boolean shooterReady = shooter.isVelocityWithinTolerance();
             boolean hoodReady = hood.isPositionWithinTolerance();
             
@@ -55,23 +108,11 @@ public class FireAutonomous extends Command {
             SmartDashboard.putBoolean("FireAutonomous/Hood Ready", hoodReady);
             
             if (shooterReady && hoodReady) {
-                // Both shooter and hood are ready, start firing
-                readyToFire = true;
+                // Both ready — start firing
+                shooterAtSpeed = true;
                 fireTimer.start();
-                
-                // Determine feeder speed based on distance
-                double feederPercentOutput = Constants.Feeder.kAutoDefaultFeederPercentOutput;
-                
-                // Use cached distance from LimelightSubsystem (already tracked in background)
-                double distanceToHub = limelight.getLastHubDistance();
-                if (distanceToHub > 0) {
-                    feederPercentOutput = calculateFeederSpeed(distanceToHub);
-                    SmartDashboard.putNumber("FireAutonomous/Distance Used (m)", distanceToHub);
-                }
-                
-                // Start feeder at calculated speed
-                feeder.setPercentOutput(feederPercentOutput);
-                SmartDashboard.putNumber("FireAutonomous/Feeder Output", feederPercentOutput);
+                feeder.set(Feeder.Speed.FEED);
+                floor.set(Floor.Speed.FEED);
                 SmartDashboard.putString("FireAutonomous/Status", "FIRING!");
             }
         } else {
@@ -83,45 +124,20 @@ public class FireAutonomous extends Command {
 
     @Override
     public boolean isFinished() {
-        // Command finishes after firing duration has elapsed (only after we started firing)
-        return readyToFire && fireTimer.hasElapsed(Constants.Auto.kAutoFireRunTimeSeconds);
+        return shooterAtSpeed && fireTimer.hasElapsed(Constants.Auto.kAutoFireRunTimeSeconds);
     }
 
     @Override
     public void end(boolean interrupted) {
         fireTimer.stop();
-        // Stop feeder
-        feeder.setPercentOutput(0.0);
-        // Stop shooter rollers
         shooter.stop();
+        feeder.setPercentOutput(0);
+        floor.set(Floor.Speed.STOP);
         
         if (interrupted) {
             SmartDashboard.putString("FireAutonomous/Status", "Interrupted");
         } else {
             SmartDashboard.putString("FireAutonomous/Status", "Complete");
-        }
-    }
-
-    /**
-     * Calculates the required feeder speed based on distance from the hub.
-     * 
-     * @param distanceMeters Distance to the hub in meters
-     * @return Feeder percent output (0.0 to 1.0)
-     */
-    private double calculateFeederSpeed(double distanceMeters) {
-        double minDistance = Constants.Feeder.kAutoMinFeederDistanceMeters;
-        double maxDistance = Constants.Feeder.kAutoMaxFeederDistanceMeters;
-        double minPercentOutput = Constants.Feeder.kAutoMinFeederPercentOutput;
-        double maxPercentOutput = Constants.Feeder.kAutoMaxFeederPercentOutput;
-        
-        if (distanceMeters <= minDistance) {
-            return minPercentOutput;
-        } else if (distanceMeters >= maxDistance) {
-            return maxPercentOutput;
-        } else {
-            // Linear interpolation between min and max speeds
-            double fraction = (distanceMeters - minDistance) / (maxDistance - minDistance);
-            return minPercentOutput + (maxPercentOutput - minPercentOutput) * fraction;
         }
     }
 }

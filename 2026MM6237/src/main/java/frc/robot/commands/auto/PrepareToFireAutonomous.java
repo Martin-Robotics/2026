@@ -15,11 +15,11 @@ import frc.robot.subsystems.LimelightSubsystem6237;
  * Autonomous command to prepare the robot to fire by aiming at the hub AprilTag.
  * 
  * Uses DIRECT Limelight TX feedback to rotate toward the target:
- * - When Limelight sees the hub tag, uses TX to calculate rotation needed
+ * - When Limelight sees the hub tag, uses TX with PD control to calculate rotation
  * - Maintains last known target heading if tag is temporarily lost
  * - Automatically ends when aimed OR when timeout expires
  * 
- * This approach works regardless of odometry accuracy or field setup.
+ * Control gains match the teleop PrepareToFire command (tuned 2026-03-07).
  */
 public class PrepareToFireAutonomous extends Command {
     private final LimelightSubsystem6237 limelight;
@@ -31,14 +31,17 @@ public class PrepareToFireAutonomous extends Command {
         .withRotationalDeadband(0)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     
-    // Rotation control - tuned for smooth aiming
-    private static final double PROPORTIONAL_GAIN = 0.05;
-    private static final double MIN_ROTATION_SPEED = 0.3;
-    private static final double AIM_TOLERANCE_DEGREES = 2.0;
+    // Rotation control - matched to teleop PrepareToFire (tuned 2026-03-07)
+    private static final double PROPORTIONAL_GAIN = 0.03;
+    private static final double DERIVATIVE_GAIN = 0.005;
+    private static final double MIN_ROTATION_SPEED = 0.15;
+    private static final double AIM_TOLERANCE_DEGREES = 3.0;
+    private static final double FINE_AIM_THRESHOLD = 8.0;
     
     private final Timer aimTimer = new Timer();
     private Rotation2d lastTargetHeading = null;
     private boolean hasEverSeenTarget = false;
+    private double lastTx = 0;  // For derivative calculation
 
     public PrepareToFireAutonomous(LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain) {
         this.limelight = limelight;
@@ -52,6 +55,7 @@ public class PrepareToFireAutonomous extends Command {
         aimTimer.start();
         lastTargetHeading = null;
         hasEverSeenTarget = false;
+        lastTx = 0;
         SmartDashboard.putString("PrepareToFireAuto/Status", "Searching for hub...");
         SmartDashboard.putBoolean("PrepareToFireAuto/Aimed", false);
     }
@@ -81,14 +85,29 @@ public class PrepareToFireAutonomous extends Command {
             hasEverSeenTarget = true;
             lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
             
+            // Calculate derivative (rate of change of error) for damping
+            double txDerivative = tx - lastTx;
+            lastTx = tx;
+            
             if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
-                rotationalRate = -tx * PROPORTIONAL_GAIN;
+                // P term: proportional to error
+                double pTerm = -tx * PROPORTIONAL_GAIN;
                 
-                if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
-                    rotationalRate = MIN_ROTATION_SPEED;
-                } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
-                    rotationalRate = -MIN_ROTATION_SPEED;
+                // D term: resist rapid changes
+                double dTerm = -txDerivative * DERIVATIVE_GAIN;
+                
+                rotationalRate = pTerm + dTerm;
+                
+                // Only apply minimum speed if we're far from target (prevents oscillation when close)
+                if (Math.abs(tx) > FINE_AIM_THRESHOLD) {
+                    if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                        rotationalRate = MIN_ROTATION_SPEED;
+                    } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                        rotationalRate = -MIN_ROTATION_SPEED;
+                    }
                 }
+            } else {
+                lastTx = 0; // Reset derivative when aimed
             }
             
             SmartDashboard.putNumber("PrepareToFireAuto/TX (deg)", tx);
@@ -104,10 +123,12 @@ public class PrepareToFireAutonomous extends Command {
             if (Math.abs(errorDegrees) > AIM_TOLERANCE_DEGREES) {
                 rotationalRate = errorDegrees * PROPORTIONAL_GAIN;
                 
-                if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
-                    rotationalRate = MIN_ROTATION_SPEED;
-                } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
-                    rotationalRate = -MIN_ROTATION_SPEED;
+                if (Math.abs(errorDegrees) > FINE_AIM_THRESHOLD) {
+                    if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                        rotationalRate = MIN_ROTATION_SPEED;
+                    } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                        rotationalRate = -MIN_ROTATION_SPEED;
+                    }
                 }
             }
             
