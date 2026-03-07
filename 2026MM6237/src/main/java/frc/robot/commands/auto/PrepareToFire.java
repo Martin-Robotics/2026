@@ -35,13 +35,16 @@ public class PrepareToFire extends Command {
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     
     // Rotation control - tuned for smooth aiming
-    private static final double PROPORTIONAL_GAIN = 0.05;  // rad/s per degree of TX error
-    private static final double MIN_ROTATION_SPEED = 0.3;  // rad/s minimum to overcome friction
-    private static final double AIM_TOLERANCE_DEGREES = 2.0; // Stop rotating when within this
+    private static final double PROPORTIONAL_GAIN = 0.03;  // rad/s per degree of TX error (reduced from 0.05)
+    private static final double DERIVATIVE_GAIN = 0.005;   // Damping to reduce oscillation
+    private static final double MIN_ROTATION_SPEED = 0.15; // rad/s minimum to overcome friction (reduced)
+    private static final double AIM_TOLERANCE_DEGREES = 3.0; // Stop rotating when within this (increased)
+    private static final double FINE_AIM_THRESHOLD = 8.0;  // Below this, don't apply min speed (prevents oscillation)
     
     // State tracking
     private Rotation2d lastTargetHeading = null;
     private boolean hasEverSeenTarget = false;
+    private double lastTx = 0;  // For derivative calculation
 
     public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController) {
         this.limelight = limelight;
@@ -55,6 +58,7 @@ public class PrepareToFire extends Command {
     public void initialize() {
         lastTargetHeading = null;
         hasEverSeenTarget = false;
+        lastTx = 0;
         SmartDashboard.putString("PrepareToFire/Status", "Searching for hub...");
         SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
     }
@@ -85,20 +89,33 @@ public class PrepareToFire extends Command {
             // Current heading + TX = heading that would center the tag
             lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
             
-            // Use TX directly for proportional control
+            // Calculate derivative (rate of change of error) for damping
+            double txDerivative = tx - lastTx;
+            lastTx = tx;
+            
+            // Use TX directly for proportional control with derivative damping
             // If TX is positive (target right), we rotate right (negative rate in FRC)
             if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
-                rotationalRate = -tx * PROPORTIONAL_GAIN;
+                // P term: proportional to error
+                double pTerm = -tx * PROPORTIONAL_GAIN;
                 
-                // Apply minimum speed to overcome friction
-                if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
-                    rotationalRate = MIN_ROTATION_SPEED;
-                } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
-                    rotationalRate = -MIN_ROTATION_SPEED;
+                // D term: resist rapid changes (negative because we want to slow down as we approach)
+                double dTerm = -txDerivative * DERIVATIVE_GAIN;
+                
+                rotationalRate = pTerm + dTerm;
+                
+                // Only apply minimum speed if we're far from target (prevents oscillation when close)
+                if (Math.abs(tx) > FINE_AIM_THRESHOLD) {
+                    if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                        rotationalRate = MIN_ROTATION_SPEED;
+                    } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                        rotationalRate = -MIN_ROTATION_SPEED;
+                    }
                 }
                 aimState = "Rotating to target";
             } else {
                 aimState = "AIMED";
+                lastTx = 0; // Reset derivative when aimed
             }
             
             SmartDashboard.putString("PrepareToFire/Status", 
@@ -142,6 +159,14 @@ public class PrepareToFire extends Command {
         SmartDashboard.putNumber("PrepareToFire/TX (deg)", tx);
         SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", tagID);
         SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distance > 0 ? distance : -1);
+        
+        // DIRECTION DEBUG - Critical for diagnosing wrong-way rotation
+        String txDirection = tx > 0 ? "RIGHT" : (tx < 0 ? "LEFT" : "CENTER");
+        String rotDirection = rotationalRate > 0 ? "CCW (left)" : (rotationalRate < 0 ? "CW (right)" : "STOPPED");
+        SmartDashboard.putString("PrepareToFire/TX Direction", txDirection);
+        SmartDashboard.putString("PrepareToFire/Rotation Direction", rotDirection);
+        SmartDashboard.putString("PrepareToFire/Direction Logic", 
+            "TX=" + txDirection + " -> Rotating " + rotDirection);
         
         // Robot state
         SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", currentHeading.getDegrees());
