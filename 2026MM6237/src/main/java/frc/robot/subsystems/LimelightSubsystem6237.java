@@ -98,6 +98,15 @@ public class LimelightSubsystem6237 extends SubsystemBase {
         // Cache whether hub is currently visible for external queries
         hubCurrentlyVisible = isHubTag;
         
+        // === DEBUG: Raw Limelight values (always output for debugging) ===
+        SmartDashboard.putBoolean("Limelight/DEBUG/Has Any Target", hasTarget);
+        SmartDashboard.putNumber("Limelight/DEBUG/Raw Tag ID", visibleTagID);
+        SmartDashboard.putNumber("Limelight/DEBUG/Raw TX (deg)", tx);
+        SmartDashboard.putNumber("Limelight/DEBUG/Raw TY (deg)", ty);
+        SmartDashboard.putBoolean("Limelight/DEBUG/Is Hub Tag", isHubTag);
+        SmartDashboard.putNumber("Limelight/DEBUG/Red Hub Tag ID", frc.robot.Constants.Auto.kRedHubAprilTagID);
+        SmartDashboard.putNumber("Limelight/DEBUG/Blue Hub Tag ID", frc.robot.Constants.Auto.kBlueHubAprilTagID);
+        
         if (isHubTag) {
             // Update tracking data
             lastHubTagID = visibleTagID;
@@ -119,11 +128,14 @@ public class LimelightSubsystem6237 extends SubsystemBase {
                     hubX, hubY, new edu.wpi.first.math.geometry.Rotation2d());
             }
             
-            // Update SmartDashboard (minimal outputs for competition)
+            // Update SmartDashboard
             SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
             SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
+            SmartDashboard.putNumber("Limelight/Hub TY (deg)", ty);
+            SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
             SmartDashboard.putBoolean("Limelight/Hub Visible", true);
             SmartDashboard.putString("Limelight/Distance Source", "Vision");
+            SmartDashboard.putString("Limelight/Status", "Tracking Tag " + lastHubTagID);
             
         } else {
             // No hub visible - use odometry fallback if available
@@ -153,13 +165,21 @@ public class LimelightSubsystem6237 extends SubsystemBase {
                 SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
                 SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
                 SmartDashboard.putString("Limelight/Distance Source", "Odometry");
+                SmartDashboard.putString("Limelight/Status", "Using Odometry (last: Tag " + lastHubTagID + ")");
             } else {
                 SmartDashboard.putString("Limelight/Distance Source", "None");
+                if (hasTarget) {
+                    SmartDashboard.putString("Limelight/Status", "Seeing Tag " + visibleTagID + " (not hub)");
+                } else {
+                    SmartDashboard.putString("Limelight/Status", "No target detected");
+                }
             }
         }
         
-        // Minimal status output
+        // Always output these
         SmartDashboard.putBoolean("Limelight/Connected", limelightConnected);
+        SmartDashboard.putBoolean("Limelight/Has Ever Seen Hub", hasEverSeenHub);
+        SmartDashboard.putNumber("Limelight/Last Hub Tag ID", lastHubTagID);
     }
     
     /**

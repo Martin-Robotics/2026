@@ -71,9 +71,11 @@ public class PrepareToFire extends Command {
         int tagID = limelight.getLastHubTagID();
         
         double rotationalRate = 0;
+        String aimState = "Unknown";
         
         if (hubVisible) {
             hasEverSeenTarget = true;
+            aimState = "Tracking";
             
             // TX is the angle from crosshair to target
             // Positive TX = target is to the RIGHT of crosshair
@@ -94,10 +96,11 @@ public class PrepareToFire extends Command {
                 } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
                     rotationalRate = -MIN_ROTATION_SPEED;
                 }
+                aimState = "Rotating to target";
+            } else {
+                aimState = "AIMED";
             }
             
-            SmartDashboard.putNumber("PrepareToFire/TX (deg)", tx);
-            SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", tagID);
             SmartDashboard.putString("PrepareToFire/Status", 
                 Math.abs(tx) <= AIM_TOLERANCE_DEGREES ? "AIMED at Tag " + tagID : "Aiming at Tag " + tagID);
             SmartDashboard.putBoolean("PrepareToFire/Aimed", Math.abs(tx) <= AIM_TOLERANCE_DEGREES);
@@ -106,6 +109,7 @@ public class PrepareToFire extends Command {
             // Lost the target - rotate toward last known heading
             Rotation2d error = lastTargetHeading.minus(currentHeading);
             double errorDegrees = error.getDegrees();
+            aimState = "Lost - Holding";
             
             if (Math.abs(errorDegrees) > AIM_TOLERANCE_DEGREES) {
                 rotationalRate = errorDegrees * PROPORTIONAL_GAIN;
@@ -115,25 +119,49 @@ public class PrepareToFire extends Command {
                 } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
                     rotationalRate = -MIN_ROTATION_SPEED;
                 }
+                aimState = "Lost - Rotating to last known";
             }
             
             SmartDashboard.putString("PrepareToFire/Status", "Target lost - holding heading");
             SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
         } else {
             // Never seen target
+            aimState = "Searching";
             SmartDashboard.putString("PrepareToFire/Status", "Searching for hub...");
             SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
         }
         
         // Clamp rotation rate
+        double rawRotationalRate = rotationalRate;
         rotationalRate = Math.max(-Constants.TempSwerve.MaxAngularRate, 
                         Math.min(Constants.TempSwerve.MaxAngularRate, rotationalRate));
         
-        // Debug outputs
-        SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", currentHeading.getDegrees());
-        SmartDashboard.putNumber("PrepareToFire/Rotation Rate (rad/s)", rotationalRate);
+        // === COMPREHENSIVE DEBUG OUTPUTS ===
+        // Limelight data
         SmartDashboard.putBoolean("PrepareToFire/Hub Visible", hubVisible);
+        SmartDashboard.putNumber("PrepareToFire/TX (deg)", tx);
+        SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", tagID);
         SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distance > 0 ? distance : -1);
+        
+        // Robot state
+        SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", currentHeading.getDegrees());
+        SmartDashboard.putNumber("PrepareToFire/Target Heading (deg)", 
+            lastTargetHeading != null ? lastTargetHeading.getDegrees() : 0);
+        
+        // Control outputs
+        SmartDashboard.putNumber("PrepareToFire/Rotation Rate (rad/s)", rotationalRate);
+        SmartDashboard.putNumber("PrepareToFire/Raw Rotation Rate (rad/s)", rawRotationalRate);
+        SmartDashboard.putNumber("PrepareToFire/Aim Error (deg)", hubVisible ? tx : 
+            (lastTargetHeading != null ? lastTargetHeading.minus(currentHeading).getDegrees() : 0));
+        
+        // State tracking
+        SmartDashboard.putBoolean("PrepareToFire/Has Ever Seen Target", hasEverSeenTarget);
+        SmartDashboard.putString("PrepareToFire/Aim State", aimState);
+        
+        // Control parameters (for tuning reference)
+        SmartDashboard.putNumber("PrepareToFire/PARAM P Gain", PROPORTIONAL_GAIN);
+        SmartDashboard.putNumber("PrepareToFire/PARAM Min Speed (rad/s)", MIN_ROTATION_SPEED);
+        SmartDashboard.putNumber("PrepareToFire/PARAM Tolerance (deg)", AIM_TOLERANCE_DEGREES);
         
         // Apply rotation only - no translation
         drivetrain.setControl(
