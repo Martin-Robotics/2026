@@ -28,6 +28,7 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     private int lastHubTagID = -1;          // tag ID, -1 if no target
     private double lastHubTx = 0.0;         // horizontal angle to hub
     private boolean hasEverSeenHub = false;
+    private boolean hubCurrentlyVisible = false;  // Updated each loop cycle
     
     // Odometry-based tracking when vision is lost
     private edu.wpi.first.math.geometry.Pose2d lastKnownHubPose = null;  // Field position when hub was last seen
@@ -68,96 +69,74 @@ public class LimelightSubsystem6237 extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Check Limelight connection status periodically
-        updateConnectionStatus();
-        
-        // Continuously track hub distance and angle in the background
+        // Single efficient update cycle - reads from Limelight once per loop
         updateHubTracking();
-        
-        // Update SmartDashboard with current status
-        updateDashboard();
     }
     
     /**
      * Continuously updates hub tracking information in the background.
      * This runs every robot loop to keep distance/angle data fresh.
+     * 
+     * OPTIMIZED: Only reads from NetworkTables once per cycle, avoids JSON parsing.
      */
     private void updateHubTracking() {
-        // Use simple visible tag ID method (reads directly from NetworkTables)
-        int visibleTagID = getVisibleTagID();
+        // === SINGLE READ FROM NETWORKTABLES ===
+        // Read all needed values once at the start
+        boolean hasTarget = LimelightHelpers.getTV(limelightName);
+        int visibleTagID = hasTarget ? (int)LimelightHelpers.getFiducialID(limelightName) : -1;
+        double tx = hasTarget ? LimelightHelpers.getTX(limelightName) : 0;
+        double ty = hasTarget ? LimelightHelpers.getTY(limelightName) : 0;
         
-        // Debug outputs
-        SmartDashboard.putBoolean("Limelight/DEBUG Has Valid Target", hasValidTarget());
-        SmartDashboard.putNumber("Limelight/DEBUG Visible Tag ID", visibleTagID);
-        SmartDashboard.putNumber("Limelight/DEBUG TID from NetworkTables", LimelightHelpers.getFiducialID(limelightName));
-        SmartDashboard.putNumber("Limelight/DEBUG TY angle", LimelightHelpers.getTY(limelightName));
-        SmartDashboard.putNumber("Limelight/DEBUG TX angle", LimelightHelpers.getTX(limelightName));
+        // Cache connection status
+        limelightConnected = hasTarget;
         
-        // Check if we see a hub tag
-        if (hasValidTarget() && (visibleTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
-                                 visibleTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID)) {
+        // Check if we see a hub tag (simple integer comparison, no JSON parsing)
+        boolean isHubTag = hasTarget && 
+            (visibleTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
+             visibleTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID);
+        
+        // Cache whether hub is currently visible for external queries
+        hubCurrentlyVisible = isHubTag;
+        
+        if (isHubTag) {
             // Update tracking data
             lastHubTagID = visibleTagID;
-            lastHubTx = getTxToTag(visibleTagID);
+            lastHubTx = tx;
             hasEverSeenHub = true;
             
-            // Calculate distance using simple method as fallback
-            double simpleDistance = getSimpleDistance();
-            double complexDistance = getDistanceToTag(visibleTagID);
+            // Calculate distance using simple trigonometry (no JSON parsing needed)
+            lastHubDistance = calculateSimpleDistance(ty);
             
-            // Debug distance calculations
-            SmartDashboard.putNumber("Limelight/DEBUG Simple Distance", simpleDistance);
-            SmartDashboard.putNumber("Limelight/DEBUG Complex Distance", complexDistance);
-            
-            // Use whichever method works
-            lastHubDistance = complexDistance > 0 ? complexDistance : simpleDistance;
-            
-            SmartDashboard.putNumber("Limelight/DEBUG Last Hub Distance", lastHubDistance);
-            
-            // Store robot pose when hub is visible (for odometry fallback)
+            // Store hub field position when visible (for odometry fallback)
             if (drivetrain != null && lastHubDistance > 0) {
-                // Store the hub's position based on robot pose and distance
                 edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;
                 double robotHeading = robotPose.getRotation().getRadians();
                 double angleToHub = robotHeading + Math.toRadians(lastHubTx);
                 
-                // Calculate hub position
                 double hubX = robotPose.getX() + lastHubDistance * Math.cos(angleToHub);
                 double hubY = robotPose.getY() + lastHubDistance * Math.sin(angleToHub);
                 lastKnownHubPose = new edu.wpi.first.math.geometry.Pose2d(
                     hubX, hubY, new edu.wpi.first.math.geometry.Rotation2d());
             }
             
-            // Update SmartDashboard with all hub tracking data
-            if (lastHubDistance > 0) {
-                SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
-                SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
-                SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
-                SmartDashboard.putBoolean("Limelight/Hub Visible", true);
-                SmartDashboard.putString("Limelight/Hub Status", "Tracking Tag " + lastHubTagID);
-                SmartDashboard.putString("Limelight/Distance Source", "Vision");
-                
-                // Also output in PrepareToFire format for compatibility
-                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", lastHubDistance);
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
-                SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", lastHubTagID);
-            } else {
-                SmartDashboard.putString("Limelight/Hub Status", "Tag visible but distance calc failed");
-            }
+            // Update SmartDashboard (minimal outputs for competition)
+            SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
+            SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
+            SmartDashboard.putBoolean("Limelight/Hub Visible", true);
+            SmartDashboard.putString("Limelight/Distance Source", "Vision");
+            
         } else {
-            // No hub visible - use odometry if available
+            // No hub visible - use odometry fallback if available
             SmartDashboard.putBoolean("Limelight/Hub Visible", false);
             
-            // If we have drivetrain and have seen hub before, calculate distance from odometry
             if (drivetrain != null && hasEverSeenHub && lastKnownHubPose != null) {
                 edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;
-                double odometryDistance = Math.hypot(
+                
+                // Calculate distance from odometry
+                lastHubDistance = Math.hypot(
                     robotPose.getX() - lastKnownHubPose.getX(),
                     robotPose.getY() - lastKnownHubPose.getY()
                 );
-                
-                // Update distance with odometry calculation
-                lastHubDistance = odometryDistance;
                 
                 // Calculate TX from odometry
                 double angleToHub = Math.atan2(
@@ -171,49 +150,39 @@ public class LimelightSubsystem6237 extends SubsystemBase {
                 while (lastHubTx > 180) lastHubTx -= 360;
                 while (lastHubTx < -180) lastHubTx += 360;
                 
-                // Update dashboard with odometry-based tracking
                 SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
                 SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
-                SmartDashboard.putString("Limelight/Hub Status", "Odometry Tracking (last: Tag " + lastHubTagID + ")");
                 SmartDashboard.putString("Limelight/Distance Source", "Odometry");
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
-                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", lastHubDistance);
             } else {
-                // No vision and no odometry fallback available
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-                if (hasEverSeenHub) {
-                    SmartDashboard.putString("Limelight/Hub Status", "Lost (last: Tag " + lastHubTagID + ")");
-                } else {
-                    SmartDashboard.putString("Limelight/Hub Status", "Searching for hub tags");
-                }
                 SmartDashboard.putString("Limelight/Distance Source", "None");
             }
         }
-    }
-
-    /**
-     * Checks if the Limelight is currently connected and receiving frames.
-     * @return true if Limelight is connected, false otherwise
-     */
-    private void updateConnectionStatus() {
-        // Limelight is considered connected if we have valid target data
-        // This is a basic check - you can refine based on your needs
-        limelightConnected = hasValidTarget();
-    }
-
-    /**
-     * Updates SmartDashboard with current Limelight status and detection data.
-     */
-    private void updateDashboard() {
-        SmartDashboard.putBoolean("Limelight/Connected", limelightConnected);
-        SmartDashboard.putBoolean("Limelight/Has Target", hasValidTarget());
-        SmartDashboard.putBoolean("Limelight/Any AprilTag Detected", getDetectedFiducialCount() > 0);
-        SmartDashboard.putNumber("Limelight/Fiducials Detected", getDetectedFiducialCount());
-        SmartDashboard.putNumber("Limelight/Current Pipeline", LimelightHelpers.getCurrentPipelineIndex(limelightName));
         
-        // Debug: Show raw NetworkTables values
-        SmartDashboard.putBoolean("Limelight/DEBUG TV", LimelightHelpers.getTV(limelightName));
-        SmartDashboard.putNumber("Limelight/DEBUG TID", LimelightHelpers.getFiducialID(limelightName));
+        // Minimal status output
+        SmartDashboard.putBoolean("Limelight/Connected", limelightConnected);
+    }
+    
+    /**
+     * Calculates distance using simple trigonometry from TY angle.
+     * This avoids expensive JSON parsing of full pose data.
+     * 
+     * @param ty The vertical angle to target in degrees
+     * @return Distance in meters, or -1 if invalid
+     */
+    private double calculateSimpleDistance(double ty) {
+        // TODO: Update these values for your robot's camera mounting
+        double cameraHeightMeters = frc.robot.Constants.Limelight.kCameraHeightMeters;
+        double cameraAngleDegrees = frc.robot.Constants.Limelight.kCameraMountAngleDegrees;
+        double targetHeightMeters = frc.robot.Constants.Limelight.kHubAprilTagHeightMeters;
+        
+        double angleToTargetRadians = Math.toRadians(cameraAngleDegrees + ty);
+        
+        if (Math.abs(angleToTargetRadians) < 0.01) {
+            return -1; // Avoid division by near-zero
+        }
+        
+        double distance = (targetHeightMeters - cameraHeightMeters) / Math.tan(angleToTargetRadians);
+        return distance > 0 ? distance : -1;
     }
 
     // ======================== TARGET DETECTION ========================
@@ -291,12 +260,11 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     
     /**
      * Checks if the hub is currently visible.
+     * Uses cached value from periodic() - no additional Limelight reads.
      * @return true if a hub tag is currently visible, false otherwise
      */
     public boolean isHubCurrentlyVisible() {
-        int visibleTagID = getBestHubTagID();
-        return hasValidTarget() && (visibleTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
-                                     visibleTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID);
+        return hubCurrentlyVisible;
     }
     
     /**
