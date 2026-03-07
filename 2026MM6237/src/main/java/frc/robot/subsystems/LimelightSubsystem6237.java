@@ -78,43 +78,68 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      * This runs every robot loop to keep distance/angle data fresh.
      * 
      * OPTIMIZED: Only reads from NetworkTables once per cycle, avoids JSON parsing.
+     * FILTER: Completely ignores tag 9 which interferes with hub tracking.
      */
     private void updateHubTracking() {
         // === SINGLE READ FROM NETWORKTABLES ===
         // Read all needed values once at the start
         boolean hasTarget = LimelightHelpers.getTV(limelightName);
-        int visibleTagID = hasTarget ? (int)LimelightHelpers.getFiducialID(limelightName) : -1;
-        double tx = hasTarget ? LimelightHelpers.getTX(limelightName) : 0;
-        double ty = hasTarget ? LimelightHelpers.getTY(limelightName) : 0;
+        
+        // Get primary target info (for debug display)
+        int primaryTagID = hasTarget ? (int)LimelightHelpers.getFiducialID(limelightName) : -1;
+        double primaryTx = hasTarget ? LimelightHelpers.getTX(limelightName) : 0;
+        double primaryTy = hasTarget ? LimelightHelpers.getTY(limelightName) : 0;
+        
+        // === HARD IGNORE TAG 9 ===
+        // Tag 9 interferes with hub tracking - treat it as if no target exists
+        if (primaryTagID == 9) {
+            hasTarget = false;
+            primaryTagID = -1;
+        }
         
         // Cache connection status
         limelightConnected = hasTarget;
         
-        // Check if we see a hub tag (simple integer comparison, no JSON parsing)
-        boolean isHubTag = hasTarget && 
-            (visibleTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
-             visibleTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID);
+        // === CHECK IF THIS IS A HUB TAG ===
+        int hubTagID = -1;
+        double hubTx = 0;
+        double hubTy = 0;
+        boolean foundHubTag = false;
+        
+        if (hasTarget) {
+            // Check if primary target is a hub tag (10 or 26)
+            if (primaryTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
+                primaryTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID) {
+                hubTagID = primaryTagID;
+                hubTx = primaryTx;
+                hubTy = primaryTy;
+                foundHubTag = true;
+            }
+            // Note: We no longer search through all fiducials - just use primary
+            // This avoids JSON parsing overhead and tag 9 interference
+        }
         
         // Cache whether hub is currently visible for external queries
-        hubCurrentlyVisible = isHubTag;
+        hubCurrentlyVisible = foundHubTag;
         
         // === DEBUG: Raw Limelight values (always output for debugging) ===
         SmartDashboard.putBoolean("Limelight/DEBUG/Has Any Target", hasTarget);
-        SmartDashboard.putNumber("Limelight/DEBUG/Raw Tag ID", visibleTagID);
-        SmartDashboard.putNumber("Limelight/DEBUG/Raw TX (deg)", tx);
-        SmartDashboard.putNumber("Limelight/DEBUG/Raw TY (deg)", ty);
-        SmartDashboard.putBoolean("Limelight/DEBUG/Is Hub Tag", isHubTag);
+        SmartDashboard.putNumber("Limelight/DEBUG/Primary Tag ID", primaryTagID);
+        SmartDashboard.putNumber("Limelight/DEBUG/Primary TX (deg)", primaryTx);
+        SmartDashboard.putNumber("Limelight/DEBUG/Primary TY (deg)", primaryTy);
+        SmartDashboard.putBoolean("Limelight/DEBUG/Found Hub Tag", foundHubTag);
+        SmartDashboard.putNumber("Limelight/DEBUG/Hub Tag ID Found", hubTagID);
         SmartDashboard.putNumber("Limelight/DEBUG/Red Hub Tag ID", frc.robot.Constants.Auto.kRedHubAprilTagID);
         SmartDashboard.putNumber("Limelight/DEBUG/Blue Hub Tag ID", frc.robot.Constants.Auto.kBlueHubAprilTagID);
         
-        if (isHubTag) {
-            // Update tracking data
-            lastHubTagID = visibleTagID;
-            lastHubTx = tx;
+        if (foundHubTag) {
+            // Update tracking data with HUB tag data (not primary!)
+            lastHubTagID = hubTagID;
+            lastHubTx = hubTx;
             hasEverSeenHub = true;
             
             // Calculate distance using simple trigonometry (no JSON parsing needed)
-            lastHubDistance = calculateSimpleDistance(ty);
+            lastHubDistance = calculateSimpleDistance(hubTy);
             
             // Store hub field position when visible (for odometry fallback)
             if (drivetrain != null && lastHubDistance > 0) {
@@ -131,11 +156,17 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             // Update SmartDashboard
             SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
             SmartDashboard.putNumber("Limelight/Hub TX (deg)", lastHubTx);
-            SmartDashboard.putNumber("Limelight/Hub TY (deg)", ty);
+            SmartDashboard.putNumber("Limelight/Hub TY (deg)", hubTy);
             SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
             SmartDashboard.putBoolean("Limelight/Hub Visible", true);
             SmartDashboard.putString("Limelight/Distance Source", "Vision");
-            SmartDashboard.putString("Limelight/Status", "Tracking Tag " + lastHubTagID);
+            
+            // Show if we had to search past the primary tag
+            if (primaryTagID != hubTagID) {
+                SmartDashboard.putString("Limelight/Status", "Tracking Tag " + lastHubTagID + " (ignored Tag " + primaryTagID + ")");
+            } else {
+                SmartDashboard.putString("Limelight/Status", "Tracking Tag " + lastHubTagID);
+            }
             
         } else {
             // No hub visible - use odometry fallback if available
@@ -169,7 +200,7 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             } else {
                 SmartDashboard.putString("Limelight/Distance Source", "None");
                 if (hasTarget) {
-                    SmartDashboard.putString("Limelight/Status", "Seeing Tag " + visibleTagID + " (not hub)");
+                    SmartDashboard.putString("Limelight/Status", "Seeing Tag " + primaryTagID + " (not hub - ignoring)");
                 } else {
                     SmartDashboard.putString("Limelight/Status", "No target detected");
                 }
