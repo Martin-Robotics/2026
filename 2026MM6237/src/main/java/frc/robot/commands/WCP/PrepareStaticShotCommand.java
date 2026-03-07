@@ -116,8 +116,14 @@ public class PrepareStaticShotCommand extends Command {
         }
         
         SmartDashboard.putNumber("Static Shot/Using Distance (m)", actualDistance.in(Meters));
+        SmartDashboard.putNumber("Static Shot/Using Distance (in)", actualDistance.in(Inches));
         
         final Shot shot = distanceToShotMap.get(actualDistance);
+        
+        // DEBUG: Show what values are being commanded
+        SmartDashboard.putNumber("Static Shot/Target RPM", shot.shooterRPM);
+        SmartDashboard.putNumber("Static Shot/Target Hood Position", shot.hoodPosition);
+        SmartDashboard.putNumber("Static Shot/Actual Hood Position", hood.getCurrentPosition());
         
         // Always spin up shooter and position hood
         shooter.setRPM(shot.shooterRPM);

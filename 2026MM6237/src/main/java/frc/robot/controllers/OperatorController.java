@@ -1,5 +1,6 @@
 package frc.robot.controllers;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -333,5 +334,26 @@ public class OperatorController {
         new Trigger(() -> operatorController.getHID().getPOV() == 0)
             .whileTrue(new ShooterTuningCommand(shooter, hood, feeder, limelight)
                 .withName("Shooter Tuning Mode"));
+        
+        // ======================== MANUAL HOOD CONTROLS (FOR TESTING) ========================
+        // DPad Left (POV 270): Hood DOWN (lower position number = flatter trajectory)
+        // Hold to move hood toward 0.1
+        new Trigger(() -> operatorController.getHID().getPOV() == 270)
+            .whileTrue(hood.run(() -> {
+                double current = hood.getTargetPosition();
+                double newPos = Math.max(0.1, current - 0.02); // Step down by 0.02 each cycle
+                hood.setPosition(newPos);
+                SmartDashboard.putNumber("Hood/Manual Target", newPos);
+            }).withName("Hood DOWN (Manual)"));
+        
+        // DPad Right (POV 90): Hood UP (higher position number = steeper arc)
+        // Hold to move hood toward 0.75
+        new Trigger(() -> operatorController.getHID().getPOV() == 90)
+            .whileTrue(hood.run(() -> {
+                double current = hood.getTargetPosition();
+                double newPos = Math.min(0.75, current + 0.02); // Step up by 0.02 each cycle
+                hood.setPosition(newPos);
+                SmartDashboard.putNumber("Hood/Manual Target", newPos);
+            }).withName("Hood UP (Manual)"));
     }
 }
