@@ -177,7 +177,14 @@ public final class Constants {
         public static final double kStandardDeviationTheta = 10.0;
         
         // Pipeline index for AprilTag detection (set in Limelight web interface)
-        public static final int kAprilTagPipelineIndex = 0;
+        // Pipeline 1 = "HubTarget" - configured to only track hub tags (10, 26)
+        public static final int kAprilTagPipelineIndex = 1;
+        
+        // Camera mounting parameters for distance calculation
+        // TODO: Measure and update these values for your robot
+        public static final double kCameraHeightMeters = 0.6;        // Height of camera lens from floor
+        public static final double kCameraMountAngleDegrees = 13.0;  // Angle of camera from horizontal (positive = tilted up)
+        public static final double kHubAprilTagHeightMeters = 1.2;  // Height of hub AprilTag center from floor
     }
 
     // public static class CommandSwerveDrivetrainOld {
@@ -427,5 +434,9 @@ public final class Constants {
         public static final int kRedHubAprilTagID = 10;      // Red alliance processor (center front)
         public static final int kBlueHubAprilTagID = 26;     // Blue alliance processor (center front)
         public static final int kHubAprilTagID = 4;          // Legacy - for backwards compatibility
+        
+        // Autonomous firing timing
+        public static final double kAutoFireRunTimeSeconds = 2.0;      // Time to run feeder after shooter at speed
+        public static final double kAutoPrepareAimTimeSeconds = 0.5;   // Time to attempt aiming before giving up
     }
 }

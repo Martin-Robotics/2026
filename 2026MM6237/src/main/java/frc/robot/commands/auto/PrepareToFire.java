@@ -1,154 +1,217 @@
 package frc.robot.commands.auto;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem6237;
 
 /**
- * Autonomous command to prepare the robot to fire.
+ * Command to prepare the robot to fire by aiming at the hub AprilTag.
  * 
- * Reads distance from the hub using the Limelight and displays it on SmartDashboard.
- * Does NOT spin up shooter - only reads and displays distance for testing.
+ * Uses DIRECT Limelight TX feedback to rotate toward the target:
+ * - When Limelight sees the hub tag, uses TX to calculate rotation needed
+ * - Maintains last known target heading if tag is temporarily lost
+ * - Simple proportional control for smooth, predictable aiming
+ * 
+ * This approach works regardless of odometry accuracy or field setup.
+ * The robot will point directly at whatever AprilTag the Limelight detects.
  */
 public class PrepareToFire extends Command {
     private final LimelightSubsystem6237 limelight;
+    private final CommandSwerveDrivetrain drivetrain;
+    private final CommandXboxController driverController;
+    
+    // Simple field-centric request for manual rotation control
+    private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
+        .withDeadband(Constants.TempSwerve.MaxSpeed * Constants.OperatorConstants.driverStickDeadband)
+        .withRotationalDeadband(0) // We handle our own deadband
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    
+    // Rotation control - tuned for smooth aiming
+    private static final double PROPORTIONAL_GAIN = 0.03;  // rad/s per degree of TX error (reduced from 0.05)
+    private static final double DERIVATIVE_GAIN = 0.005;   // Damping to reduce oscillation
+    private static final double MIN_ROTATION_SPEED = 0.15; // rad/s minimum to overcome friction (reduced)
+    private static final double AIM_TOLERANCE_DEGREES = 3.0; // Stop rotating when within this (increased)
+    private static final double FINE_AIM_THRESHOLD = 8.0;  // Below this, don't apply min speed (prevents oscillation)
+    
+    // State tracking
+    private Rotation2d lastTargetHeading = null;
+    private boolean hasEverSeenTarget = false;
+    private double lastTx = 0;  // For derivative calculation
 
-    public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight) {
+    public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController) {
         this.limelight = limelight;
-        // DO NOT require shooter - we're just reading distance
+        this.drivetrain = drivetrain;
+        this.driverController = driverController;
+        
+        addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        // Just read distance - don't calculate RPM or spin up shooter
-        double distanceToHub = -1.0; // Default to -1 if no target detected
-        int detectedTagID = -1;
-        
-        if (limelight.hasValidTarget()) {
-            // Try red alliance hub first (ID 10)
-            distanceToHub = limelight.getDistanceToTag(Constants.Auto.kRedHubAprilTagID);
-            if (distanceToHub > 0) {
-                detectedTagID = Constants.Auto.kRedHubAprilTagID;
-            } else {
-                // Try blue alliance hub (ID 26)
-                distanceToHub = limelight.getDistanceToTag(Constants.Auto.kBlueHubAprilTagID);
-                if (distanceToHub > 0) {
-                    detectedTagID = Constants.Auto.kBlueHubAprilTagID;
-                }
-            }
-            
-            if (distanceToHub > 0) {
-                // Output distance to SmartDashboard
-                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distanceToHub);
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
-                SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", detectedTagID);
-                SmartDashboard.putString("PrepareToFire/Status", "Target locked - Tag " + detectedTagID);
-                
-                // Calculate what RPM would be (but don't use it)
-                double calculatedRPM = calculateShooterRPM(distanceToHub);
-                SmartDashboard.putNumber("PrepareToFire/Calculated RPM", calculatedRPM);
-            } else {
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-                SmartDashboard.putString("PrepareToFire/Status", "Hub tags not visible (looking for 10 or 26)");
-            }
-        } else {
-            SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-            SmartDashboard.putString("PrepareToFire/Status", "No Limelight target");
-        }
-        
-        // DO NOT spin up shooter - just reading distance
+        lastTargetHeading = null;
+        hasEverSeenTarget = false;
+        lastTx = 0;
+        SmartDashboard.putString("PrepareToFire/Status", "Searching for hub...");
+        SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
     }
 
     @Override
     public void execute() {
-        // Continuously update distance to SmartDashboard while command is running
+        // Get current robot heading
+        Rotation2d currentHeading = drivetrain.getState().Pose.getRotation();
         
-        // Debug: Show if Limelight has any target at all
-        boolean hasTarget = limelight.hasValidTarget();
-        SmartDashboard.putBoolean("PrepareToFire/DEBUG HasValidTarget", hasTarget);
-        SmartDashboard.putNumber("PrepareToFire/DEBUG Fiducial Count", limelight.getDetectedFiducialCount());
+        // Check if Limelight sees the hub
+        boolean hubVisible = limelight.isHubCurrentlyVisible();
+        double tx = limelight.getLastHubTx();  // Degrees offset from crosshair
+        double distance = limelight.getLastHubDistance();
+        int tagID = limelight.getLastHubTagID();
         
-        if (!hasTarget) {
-            SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-            SmartDashboard.putString("PrepareToFire/Status", "No Limelight target");
-            return;
-        }
+        double rotationalRate = 0;
+        String aimState = "Unknown";
         
-        // Get the visible tag ID using simple method
-        int visibleTagID = limelight.getVisibleTagID();
-        SmartDashboard.putNumber("PrepareToFire/DEBUG Visible Tag ID", visibleTagID);
-        
-        // Check if it's one of our hub tags (10 or 26)
-        if (visibleTagID == Constants.Auto.kRedHubAprilTagID || visibleTagID == Constants.Auto.kBlueHubAprilTagID) {
-            // Use simple distance calculation as fallback
-            double simpleDistance = limelight.getSimpleDistance();
-            SmartDashboard.putNumber("PrepareToFire/DEBUG Simple Distance", simpleDistance);
+        if (hubVisible) {
+            hasEverSeenTarget = true;
+            aimState = "Tracking";
             
-            // Try the complex method too
-            double complexDistance = limelight.getDistanceToTag(visibleTagID);
-            SmartDashboard.putNumber("PrepareToFire/DEBUG Complex Distance", complexDistance);
+            // TX is the angle from crosshair to target
+            // Positive TX = target is to the RIGHT of crosshair
+            // We need to rotate RIGHT (negative in FRC convention) to center it
             
-            // Use whichever method works
-            double distanceToHub = complexDistance > 0 ? complexDistance : simpleDistance;
+            // Calculate target heading: where we need to point to center the tag
+            // Current heading + TX = heading that would center the tag
+            lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
             
-            if (distanceToHub > 0) {
-                SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distanceToHub);
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", true);
-                SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", visibleTagID);
-                SmartDashboard.putString("PrepareToFire/Status", "Target locked - Tag " + visibleTagID);
+            // Calculate derivative (rate of change of error) for damping
+            double txDerivative = tx - lastTx;
+            lastTx = tx;
+            
+            // Use TX directly for proportional control with derivative damping
+            // If TX is positive (target right), we rotate right (negative rate in FRC)
+            if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
+                // P term: proportional to error
+                double pTerm = -tx * PROPORTIONAL_GAIN;
                 
-                // Calculate what RPM would be (but don't use it)
-                double calculatedRPM = calculateShooterRPM(distanceToHub);
-                SmartDashboard.putNumber("PrepareToFire/Calculated RPM", calculatedRPM);
+                // D term: resist rapid changes (negative because we want to slow down as we approach)
+                double dTerm = -txDerivative * DERIVATIVE_GAIN;
+                
+                rotationalRate = pTerm + dTerm;
+                
+                // Only apply minimum speed if we're far from target (prevents oscillation when close)
+                if (Math.abs(tx) > FINE_AIM_THRESHOLD) {
+                    if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                        rotationalRate = MIN_ROTATION_SPEED;
+                    } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                        rotationalRate = -MIN_ROTATION_SPEED;
+                    }
+                }
+                aimState = "Rotating to target";
             } else {
-                SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-                SmartDashboard.putString("PrepareToFire/Status", "Cannot calculate distance");
+                aimState = "AIMED";
+                lastTx = 0; // Reset derivative when aimed
             }
+            
+            SmartDashboard.putString("PrepareToFire/Status", 
+                Math.abs(tx) <= AIM_TOLERANCE_DEGREES ? "AIMED at Tag " + tagID : "Aiming at Tag " + tagID);
+            SmartDashboard.putBoolean("PrepareToFire/Aimed", Math.abs(tx) <= AIM_TOLERANCE_DEGREES);
+            
+        } else if (hasEverSeenTarget && lastTargetHeading != null) {
+            // Lost the target - rotate toward last known heading
+            Rotation2d error = lastTargetHeading.minus(currentHeading);
+            double errorDegrees = error.getDegrees();
+            aimState = "Lost - Holding";
+            
+            if (Math.abs(errorDegrees) > AIM_TOLERANCE_DEGREES) {
+                rotationalRate = errorDegrees * PROPORTIONAL_GAIN;
+                
+                if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
+                    rotationalRate = MIN_ROTATION_SPEED;
+                } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
+                    rotationalRate = -MIN_ROTATION_SPEED;
+                }
+                aimState = "Lost - Rotating to last known";
+            }
+            
+            SmartDashboard.putString("PrepareToFire/Status", "Target lost - holding heading");
+            SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
         } else {
-            SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-            SmartDashboard.putString("PrepareToFire/Status", "Visible tag " + visibleTagID + " is not a hub (need 10 or 26)");
+            // Never seen target
+            aimState = "Searching";
+            SmartDashboard.putString("PrepareToFire/Status", "Searching for hub...");
+            SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
         }
         
-        // DO NOT update shooter status - we're not running the shooter
+        // Clamp rotation rate
+        double rawRotationalRate = rotationalRate;
+        rotationalRate = Math.max(-Constants.TempSwerve.MaxAngularRate, 
+                        Math.min(Constants.TempSwerve.MaxAngularRate, rotationalRate));
+        
+        // === COMPREHENSIVE DEBUG OUTPUTS ===
+        // Limelight data
+        SmartDashboard.putBoolean("PrepareToFire/Hub Visible", hubVisible);
+        SmartDashboard.putNumber("PrepareToFire/TX (deg)", tx);
+        SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", tagID);
+        SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", distance > 0 ? distance : -1);
+        
+        // DIRECTION DEBUG - Critical for diagnosing wrong-way rotation
+        String txDirection = tx > 0 ? "RIGHT" : (tx < 0 ? "LEFT" : "CENTER");
+        String rotDirection = rotationalRate > 0 ? "CCW (left)" : (rotationalRate < 0 ? "CW (right)" : "STOPPED");
+        SmartDashboard.putString("PrepareToFire/TX Direction", txDirection);
+        SmartDashboard.putString("PrepareToFire/Rotation Direction", rotDirection);
+        SmartDashboard.putString("PrepareToFire/Direction Logic", 
+            "TX=" + txDirection + " -> Rotating " + rotDirection);
+        
+        // Robot state
+        SmartDashboard.putNumber("PrepareToFire/Current Heading (deg)", currentHeading.getDegrees());
+        SmartDashboard.putNumber("PrepareToFire/Target Heading (deg)", 
+            lastTargetHeading != null ? lastTargetHeading.getDegrees() : 0);
+        
+        // Control outputs
+        SmartDashboard.putNumber("PrepareToFire/Rotation Rate (rad/s)", rotationalRate);
+        SmartDashboard.putNumber("PrepareToFire/Raw Rotation Rate (rad/s)", rawRotationalRate);
+        SmartDashboard.putNumber("PrepareToFire/Aim Error (deg)", hubVisible ? tx : 
+            (lastTargetHeading != null ? lastTargetHeading.minus(currentHeading).getDegrees() : 0));
+        
+        // State tracking
+        SmartDashboard.putBoolean("PrepareToFire/Has Ever Seen Target", hasEverSeenTarget);
+        SmartDashboard.putString("PrepareToFire/Aim State", aimState);
+        
+        // Control parameters (for tuning reference)
+        SmartDashboard.putNumber("PrepareToFire/PARAM P Gain", PROPORTIONAL_GAIN);
+        SmartDashboard.putNumber("PrepareToFire/PARAM Min Speed (rad/s)", MIN_ROTATION_SPEED);
+        SmartDashboard.putNumber("PrepareToFire/PARAM Tolerance (deg)", AIM_TOLERANCE_DEGREES);
+        
+        // Apply rotation only - no translation
+        drivetrain.setControl(
+            driveRequest
+                .withVelocityX(0)
+                .withVelocityY(0)
+                .withRotationalRate(rotationalRate)
+        );
     }
 
     @Override
     public boolean isFinished() {
-        // Never finish automatically - operator holds button to read distance
         return false;
     }
 
     @Override
     public void end(boolean interrupted) {
-        // Nothing to stop - we didn't spin up any motors
+        // Stop all motion
+        drivetrain.setControl(
+            driveRequest
+                .withVelocityX(0)
+                .withVelocityY(0)
+                .withRotationalRate(0)
+        );
         SmartDashboard.putString("PrepareToFire/Status", "Command ended");
-    }
-
-    /**
-     * Calculates the required shooter RPM based on distance from the hub.
-     * This is a placeholder implementation that can be tuned based on testing.
-     * 
-     * @param distanceMeters Distance to the hub in meters
-     * @return Required shooter RPM
-     */
-    private double calculateShooterRPM(double distanceMeters) {
-        // Placeholder linear relationship: adjust these values based on tuning
-        // Example: closer = lower RPM, farther = higher RPM
-        double minDistance = Constants.Shooter.kAutoMinShootingDistanceMeters;
-        double maxDistance = Constants.Shooter.kAutoMaxShootingDistanceMeters;
-        double minRPM = Constants.Shooter.kAutoMinShooterRPM;
-        double maxRPM = Constants.Shooter.kAutoMaxShooterRPM;
-        
-        if (distanceMeters <= minDistance) {
-            return minRPM;
-        } else if (distanceMeters >= maxDistance) {
-            return maxRPM;
-        } else {
-            // Linear interpolation between min and max RPM
-            double fraction = (distanceMeters - minDistance) / (maxDistance - minDistance);
-            return minRPM + (maxRPM - minRPM) * fraction;
-        }
+        SmartDashboard.putBoolean("PrepareToFire/Aimed", false);
     }
 }

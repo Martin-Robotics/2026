@@ -1,8 +1,10 @@
 package frc.robot.controllers;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.commands.ShooterTuningCommand;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.commands.auto.PrepareToClimbLeft;
@@ -14,6 +16,7 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * Operator Controller mapping for testing and exercising subsystems.
@@ -227,8 +230,7 @@ public class OperatorController {
      * Maps Xbox controller inputs to subsystem commands for competition control scheme.
      * 
      * Button Mapping:
-     * - RT (Right Trigger): PrepareStaticShotCommand (prepares and shoots at static distance)
-     * - LT (Left Trigger): PrepareToFire command (determines distance to hub)
+     * - RT (Right Trigger): PrepareStaticShotCommand (prepares and shoots at auto-detected distance)
      * - RB (Right Bumper): Hanger extend
      * - LB (Left Bumper): Hanger retract
      * - A: Move intake arm to INTAKE position (independent of rollers)
@@ -238,6 +240,8 @@ public class OperatorController {
      * - Back: PrepareToClimbLeft
      * - Start: PrepareToClimbRight
      * 
+     * Note: PrepareToFire (aim and distance detection) is on Driver Y button
+     * 
      * @param operatorController The Xbox controller for the operator
      * @param feeder The Feeder subsystem
      * @param shooter The Shooter subsystem
@@ -246,6 +250,8 @@ public class OperatorController {
      * @param hanger The Hanger subsystem
      * @param floor The Floor subsystem
      * @param limelight The Limelight subsystem
+     * @param drivetrain The CommandSwerveDrivetrain (not used here, but kept for compatibility)
+     * @param driverController The driver's Xbox controller (not used here, but kept for compatibility)
      */
     public static void mapXboxController(
             CommandXboxController operatorController,
@@ -255,20 +261,22 @@ public class OperatorController {
             Hood hood,
             Hanger hanger,
             Floor floor,
-            LimelightSubsystem6237 limelight) {
+            LimelightSubsystem6237 limelight,
+            frc.robot.subsystems.CommandSwerveDrivetrain drivetrain,
+            CommandXboxController driverController) {
         
         // ======================== SHOOTING CONTROLS ========================
-        // Right Trigger: PrepareStaticShotCommand (uses last detected Limelight distance)
-        // This will use the distance detected by PrepareToFire (Left Trigger)
+        // Right Trigger: PrepareStaticShotCommand (uses background-tracked Limelight distance)
+        // Distance is continuously tracked by LimelightSubsystem in the background
         // If no distance detected, falls back to 3 meters
-        new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true)
+        // IMPORTANT: Only fires when DPad UP is NOT held. When DPad UP is held,
+        // ShooterTuningCommand owns all shooting subsystems and handles RT internally.
+        new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
+                         && operatorController.getHID().getPOV() != 0)
+            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true, limelight)
                 .withName("Prepare Static Shot (Auto Distance)"));
         
-        // Left Trigger: PrepareToFire command (determines distance to hub)
-        new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(new PrepareToFire(shooter, limelight)
-                .withName("Prepare To Fire"));
+        // NOTE: PrepareToFire (aiming) is now mapped to Driver Y button (see DriverController)
         
         // ======================== HANGER CONTROLS ========================
         // Right Bumper: Hanger extend
@@ -321,5 +329,35 @@ public class OperatorController {
         operatorController.start()
             .onTrue(new PrepareToClimbRight(hanger)
                 .withName("Prepare To Climb Right"));
+        
+        // ======================== SHOOTER TUNING MODE ========================
+        // DPad Up (POV 0): Hold for Shooter Tuning Mode
+        // Adjust RPM and Hood via SmartDashboard while this is held
+        // Use RT (Right Trigger) to fire test shots while in tuning mode
+        // This command requires shooter, hood, feeder, AND floor so RT won't trigger PrepareStaticShot
+        new Trigger(() -> operatorController.getHID().getPOV() == 0)
+            .whileTrue(new ShooterTuningCommand(shooter, hood, feeder, floor, limelight, operatorController)
+                .withName("Shooter Tuning Mode"));
+        
+        // ======================== MANUAL HOOD CONTROLS (FOR TESTING) ========================
+        // DPad Left (POV 270): Hood DOWN (lower position number = flatter trajectory)
+        // Hold to move hood toward 0.1
+        new Trigger(() -> operatorController.getHID().getPOV() == 270)
+            .whileTrue(hood.run(() -> {
+                double current = hood.getTargetPosition();
+                double newPos = Math.max(0.1, current - 0.02); // Step down by 0.02 each cycle
+                hood.setPosition(newPos);
+                SmartDashboard.putNumber("Hood/Manual Target", newPos);
+            }).withName("Hood DOWN (Manual)"));
+        
+        // DPad Right (POV 90): Hood UP (higher position number = steeper arc)
+        // Hold to move hood toward 0.75
+        new Trigger(() -> operatorController.getHID().getPOV() == 90)
+            .whileTrue(hood.run(() -> {
+                double current = hood.getTargetPosition();
+                double newPos = Math.min(0.75, current + 0.02); // Step up by 0.02 each cycle
+                hood.setPosition(newPos);
+                SmartDashboard.putNumber("Hood/Manual Target", newPos);
+            }).withName("Hood UP (Manual)"));
     }
 }

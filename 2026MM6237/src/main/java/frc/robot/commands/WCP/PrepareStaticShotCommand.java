@@ -35,12 +35,17 @@ public class PrepareStaticShotCommand extends Command {
     );
 
     static {
-        // Interpolation table - adjusted for trajectory and power
-        // RPMs increased by ~350-400 total for additional distance
-        // Hood angles raised to flatten trajectory (hood mechanism is inverted)
-        distanceToShotMap.put(Inches.of(52.0), new Shot(3150, 0.24));  // Was 2800, now +350
-        distanceToShotMap.put(Inches.of(114.4), new Shot(3675, 0.48)); // Was 3275, now +400
-        distanceToShotMap.put(Inches.of(165.5), new Shot(4050, 0.56)); // Was 3650, now +400
+        // Interpolation table - tuned 2026-03-07 using ShooterTuningCommand
+        // Distances are ACTUAL Limelight-reported values (not physical tape measure)
+        //
+        // CALIBRATION NOTE: These values were tuned with RIGHT SHOOTER ONLY
+        // (correct roller wheel installed). Left and middle are awaiting parts.
+        // RPM values will likely need adjustment once all three wheels are installed.
+        distanceToShotMap.put(Inches.of(70.9),  new Shot(2700, 0.25));  // ~1.5m physical, LL reads 1.8m
+        distanceToShotMap.put(Inches.of(114.2), new Shot(3000, 0.40));  // ~2.5m physical, LL reads 2.9m
+        distanceToShotMap.put(Inches.of(149.6), new Shot(3400, 0.50));  // ~3.5m physical, LL reads 3.8m
+        distanceToShotMap.put(Inches.of(185.0), new Shot(3800, 0.50));  // ~4.5m physical, LL reads 4.7m
+        distanceToShotMap.put(Inches.of(212.6), new Shot(4100, 0.62));  // ~5.0m physical, LL reads 5.4m
     }
 
     private final Shooter shooter;
@@ -49,6 +54,7 @@ public class PrepareStaticShotCommand extends Command {
     private final Floor floor;
     private final Distance targetDistance;
     private final boolean useDetectedDistance;
+    private final frc.robot.subsystems.LimelightSubsystem6237 limelight;
     private boolean shooterAtSpeed = false;
 
     /**
@@ -61,7 +67,7 @@ public class PrepareStaticShotCommand extends Command {
      * @param distanceMeters The distance to the target in meters
      */
     public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double distanceMeters) {
-        this(shooter, hood, feeder, floor, distanceMeters, false);
+        this(shooter, hood, feeder, floor, distanceMeters, false, null);
     }
     
     /**
@@ -72,15 +78,17 @@ public class PrepareStaticShotCommand extends Command {
      * @param feeder The feeder subsystem
      * @param floor The floor subsystem
      * @param fallbackDistanceMeters The fallback distance if no detected distance available
-     * @param useDetectedDistance If true, uses last detected distance from PrepareToFire command
+     * @param useDetectedDistance If true, uses last detected distance from Limelight background tracking
+     * @param limelight The Limelight subsystem (required if useDetectedDistance is true)
      */
-    public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double fallbackDistanceMeters, boolean useDetectedDistance) {
+    public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double fallbackDistanceMeters, boolean useDetectedDistance, frc.robot.subsystems.LimelightSubsystem6237 limelight) {
         this.shooter = shooter;
         this.hood = hood;
         this.feeder = feeder;
         this.floor = floor;
         this.targetDistance = Meters.of(fallbackDistanceMeters);
         this.useDetectedDistance = useDetectedDistance;
+        this.limelight = limelight;
         addRequirements(shooter, hood, feeder, floor);
     }
 
@@ -98,23 +106,29 @@ public class PrepareStaticShotCommand extends Command {
         // Determine which distance to use
         Distance actualDistance = targetDistance;
         
-        if (useDetectedDistance) {
-            // Try to read the last detected distance from PrepareToFire
-            double detectedDistance = SmartDashboard.getNumber("PrepareToFire/Distance To Hub (m)", -1.0);
+        if (useDetectedDistance && limelight != null) {
+            // Use background-tracked distance from Limelight
+            double detectedDistance = limelight.getLastHubDistance();
             
             if (detectedDistance > 0) {
                 actualDistance = Meters.of(detectedDistance);
-                SmartDashboard.putString("Static Shot/Source", "Limelight Detected");
+                SmartDashboard.putString("Static Shot/Source", "Limelight Background");
             } else {
-                SmartDashboard.putString("Static Shot/Source", "Fallback Distance");
+                SmartDashboard.putString("Static Shot/Source", "Fallback (no hub seen)");
             }
         } else {
             SmartDashboard.putString("Static Shot/Source", "Manual Distance");
         }
         
         SmartDashboard.putNumber("Static Shot/Using Distance (m)", actualDistance.in(Meters));
+        SmartDashboard.putNumber("Static Shot/Using Distance (in)", actualDistance.in(Inches));
         
         final Shot shot = distanceToShotMap.get(actualDistance);
+        
+        // DEBUG: Show what values are being commanded
+        SmartDashboard.putNumber("Static Shot/Target RPM", shot.shooterRPM);
+        SmartDashboard.putNumber("Static Shot/Target Hood Position", shot.hoodPosition);
+        SmartDashboard.putNumber("Static Shot/Actual Hood Position", hood.getCurrentPosition());
         
         // Always spin up shooter and position hood
         shooter.setRPM(shot.shooterRPM);
