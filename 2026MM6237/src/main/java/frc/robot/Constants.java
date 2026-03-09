@@ -129,7 +129,7 @@ public final class Constants {
     }
 
     public static class Intake {
-        public static final double kIntakePercentOutput = 0.8;
+        public static final double kIntakePercentOutput = 1;
         public static final double kHomedPositionDegrees = 10;   // Home position (slightly past stowed)
         public static final double kStowedPositionDegrees = 5;   // Safe/normal stowed position
         public static final double kIntakePositionDegrees = -110; // Fully extended intake position
