@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5023589743589756,
-        "y": 6.0
+        "x": 0.5139871794871811,
+        "y": 0.6395641025641032
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3396153846153855,
-        "y": 4.848974358974361
+        "x": 1.513987179487181,
+        "y": 0.639564102564103
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 2.0489102564102577,
-        "y": 5.093166666666667
+        "x": 1.716,
+        "y": 1.9
       },
       "prevControl": {
-        "x": 0.5256153846153859,
-        "y": 5.965282051282052
+        "x": 1.0088932188134527,
+        "y": 1.1928932188134524
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,7 +30,18 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.625,
+        "y": 4.025
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.5584112149532723,
+      "maxWaypointRelativePos": 1.0,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
@@ -41,14 +52,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -29.999999999999996
+    "velocity": 0,
+    "rotation": 27.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

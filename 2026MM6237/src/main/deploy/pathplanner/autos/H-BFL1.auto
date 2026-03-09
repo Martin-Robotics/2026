@@ -5,6 +5,48 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "HBTrenchDepot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RunIntake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB-DepotHub"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "RunIntake"
@@ -13,7 +55,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "pathName": "HB-HubOutpost"
           }
         },
         {
@@ -31,7 +73,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "HB-OutpostHub"
           }
         },
         {
@@ -44,12 +86,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
           }
         }
       ]

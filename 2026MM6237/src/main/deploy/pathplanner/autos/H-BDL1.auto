@@ -23,15 +23,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "StopIntake"
+            "pathName": "HBDepot16"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "DepotCross"
+            "name": "StopIntake"
           }
         },
         {
@@ -47,9 +47,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "Across"
+            "waitTime": 4.0
           }
         }
       ]

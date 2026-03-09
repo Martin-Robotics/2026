@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5023589743589756,
-        "y": 6.0
+        "x": 0.5139871794871811,
+        "y": 0.6395641025641032
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3396153846153855,
-        "y": 4.848974358974361
+        "x": 2.0069946332737025,
+        "y": 0.5871019677996412
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 2.0489102564102577,
-        "y": 5.093166666666667
+        "x": 0.5023589743589756,
+        "y": 6.0
       },
       "prevControl": {
-        "x": 0.5256153846153859,
-        "y": 5.965282051282052
+        "x": 2.412629695885509,
+        "y": 5.811681574239714
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Depot"
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -29.999999999999996
+    "velocity": 0,
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

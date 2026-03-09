@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7,
-        "y": 6.0
+        "x": 0.5,
+        "y": 4.7
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4594306049822068,
-        "y": 6.547271648873073
+        "x": 1.2594306049822068,
+        "y": 5.247271648873073
       },
       "isLocked": false,
       "linkedName": "4"
     },
     {
       "anchor": {
-        "x": 2.45,
-        "y": 7.25
+        "x": 1.716,
+        "y": 4.7
       },
       "prevControl": {
-        "x": 1.4701897983392653,
-        "y": 6.536512455516014
+        "x": 0.7361897983392651,
+        "y": 3.9865124555160145
       },
       "nextControl": null,
       "isLocked": false,
@@ -56,7 +56,7 @@
     "rotation": -29.999999999999996
   },
   "reversed": false,
-  "folder": "Projects D2",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

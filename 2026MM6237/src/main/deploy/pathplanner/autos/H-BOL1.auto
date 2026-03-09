@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "RunIntake"
+            "pathName": "HBTrenchOutpost"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "name": "RunIntake"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "HBOutpost15"
           }
         },
         {
@@ -44,12 +44,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
           }
         }
       ]

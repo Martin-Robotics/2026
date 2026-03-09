@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "pathName": "HBTrenchOutpost"
           }
         },
         {
@@ -23,15 +23,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "StopIntake"
+            "pathName": "HBOutpost15"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "DepotCross"
+            "name": "StopIntake"
           }
         },
         {
@@ -47,9 +47,21 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Across"
+            "pathName": "HB-15Right32"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB-32RightNuteral"
           }
         }
       ]

@@ -8,29 +8,40 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3396153846153855,
-        "y": 4.848974358974361
+        "x": 1.5023589743589756,
+        "y": 6.0
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Depot"
     },
     {
       "anchor": {
-        "x": 2.0489102564102577,
-        "y": 5.093166666666667
+        "x": 2.933,
+        "y": 4.7
       },
       "prevControl": {
-        "x": 0.5256153846153859,
-        "y": 5.965282051282052
+        "x": 1.9329999999999998,
+        "y": 4.7
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "16"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [],
+  "pointTowardsZones": [
+    {
+      "fieldPosition": {
+        "x": 4.625,
+        "y": 4.025
+      },
+      "rotationOffset": 0.0,
+      "minWaypointRelativePos": 0.25,
+      "maxWaypointRelativePos": 1.0,
+      "name": "Point Towards Zone"
+    }
+  ],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
@@ -41,14 +52,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -29.999999999999996
+    "velocity": 0,
+    "rotation": -22.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

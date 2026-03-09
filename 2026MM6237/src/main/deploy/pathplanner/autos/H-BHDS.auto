@@ -7,13 +7,13 @@
         {
           "type": "named",
           "data": {
-            "name": "RunIntake"
+            "name": "PrepareToFire"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "name": "Fire"
           }
         },
         {
@@ -25,13 +25,31 @@
         {
           "type": "named",
           "data": {
-            "name": "StopIntake"
+            "name": "RunIntake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "HB-HubDepot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HBDepotShort"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
           }
         },
         {
@@ -44,12 +62,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
           }
         }
       ]

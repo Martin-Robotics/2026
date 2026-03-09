@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "RunIntake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "HBTrenchDepot"
@@ -25,13 +19,31 @@
         {
           "type": "named",
           "data": {
-            "name": "StopIntake"
+            "name": "RunIntake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "HBDepotOutpost"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HBOutpost15"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
           }
         },
         {
@@ -44,12 +56,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
           }
         }
       ]

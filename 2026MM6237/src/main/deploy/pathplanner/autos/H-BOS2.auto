@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "pathName": "HBTrenchOutpost"
           }
         },
         {
@@ -31,7 +31,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "HBOutpostShort"
           }
         },
         {
@@ -47,9 +47,21 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Across"
+            "pathName": "HBShortRight32"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB-32RightNuteral"
           }
         }
       ]

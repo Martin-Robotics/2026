@@ -13,7 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "pathName": "HBTrenchOutpost"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HBOutpostShort"
           }
         },
         {
@@ -29,12 +35,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "DepotCross"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "PrepareToFire"
@@ -44,12 +44,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
           }
         }
       ]

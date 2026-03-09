@@ -3,32 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5023589743589756,
-        "y": 6.0
+        "x": 3.4156338028169024,
+        "y": 4.035
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3396153846153855,
-        "y": 4.848974358974361
+        "x": 2.7609330985915497,
+        "y": 6.23862676056338
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 2.0489102564102577,
-        "y": 5.093166666666667
+        "x": 6.583,
+        "y": 6.1
       },
       "prevControl": {
-        "x": 0.5256153846153859,
-        "y": 5.965282051282052
+        "x": 7.056408450704226,
+        "y": 5.615862676056338
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "35"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.12523020257826978,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 0.664658634538153,
+      "rotationDegrees": 45.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,11 +50,11 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": -29.999999999999996
+    "velocity": 0,
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

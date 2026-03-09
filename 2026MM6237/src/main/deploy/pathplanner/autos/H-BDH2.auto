@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "path",
+          "data": {
+            "pathName": "HBTrenchDepot"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "RunIntake"
@@ -13,25 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
+            "pathName": "HB-DepotHub"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StopIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "DepotCross"
           }
         },
         {
@@ -47,9 +41,21 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 4.0
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Across"
+            "pathName": "HB-HubLeft35"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB35LeftNuteral"
           }
         }
       ]

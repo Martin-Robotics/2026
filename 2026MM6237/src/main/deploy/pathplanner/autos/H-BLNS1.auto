@@ -13,13 +13,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "pathName": "HB-Bump35"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 4.0
+            "pathName": "HB35LeftNuteral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HBLeftNuteral40"
           }
         },
         {
@@ -31,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DepotCross"
+            "pathName": "HB40-16"
           }
         },
         {
@@ -44,12 +50,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Across"
           }
         }
       ]
