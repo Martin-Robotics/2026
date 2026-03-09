@@ -106,6 +106,8 @@ public class RobotContainer {
       NamedCommands.registerCommand("StopIntake", new StopIntake(intake));
       NamedCommands.registerCommand("ExtendIntakeArm", new ExtendIntakeArm(intake));
       NamedCommands.registerCommand("RetractIntakeArm", new RetractIntakeArm(intake));
+      NamedCommands.registerCommand("StartIntakeRollers", new StartIntakeRollers(intake));
+      NamedCommands.registerCommand("StopIntakeRollers", new StopIntakeRollers(intake));
       
       // Shooter commands - use Autonomous versions with timeout/duration
       // PrepareToFire: aims at hub using Limelight TX with PD control, auto-ends when aimed or timeout
