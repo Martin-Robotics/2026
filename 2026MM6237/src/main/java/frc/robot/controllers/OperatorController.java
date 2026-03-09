@@ -1,6 +1,7 @@
 package frc.robot.controllers;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -266,15 +267,19 @@ public class OperatorController {
             CommandXboxController driverController) {
         
         // ======================== SHOOTING CONTROLS ========================
-        // Right Trigger: PrepareStaticShotCommand (uses background-tracked Limelight distance)
+        // Right Trigger: PrepareStaticShotCommand + Intake Agitate (run in parallel)
+        // - Spins up shooter, positions hood, feeds when at speed (uses Limelight auto-distance)
+        // - Simultaneously agitates the intake arm to knock balls into the feed system
         // Distance is continuously tracked by LimelightSubsystem in the background
         // If no distance detected, falls back to 3 meters
         // IMPORTANT: Only fires when DPad UP is NOT held. When DPad UP is held,
         // ShooterTuningCommand owns all shooting subsystems and handles RT internally.
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
                          && operatorController.getHID().getPOV() != 0)
-            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true, limelight)
-                .withName("Prepare Static Shot (Auto Distance)"));
+            .whileTrue(Commands.parallel(
+                new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true, limelight),
+                intake.agitateCommand()
+            ).withName("Prepare Static Shot + Agitate"));
         
         // NOTE: PrepareToFire (aiming) is now mapped to Driver Y button (see DriverController)
         

@@ -116,7 +116,7 @@ public final class Constants {
 
     public static class Hood {
         public static final Distance kServoLength = Millimeters.of(100);
-        public static final LinearVelocity kMaxServoSpeed = Millimeters.of(20).per(Second);
+        public static final LinearVelocity kMaxServoSpeed = Millimeters.of(60).per(Second); // Tripled from 20 — software position estimate only, does not limit physical servo speed
         public static final double kMinPosition = 0.01;
         public static final double kMaxPosition = 0.77;
         public static final double kPositionTolerance = 0.01;
@@ -133,7 +133,7 @@ public final class Constants {
         public static final double kHomedPositionDegrees = 10;   // Home position (slightly past stowed)
         public static final double kStowedPositionDegrees = 5;   // Safe/normal stowed position
         public static final double kIntakePositionDegrees = -110; // Fully extended intake position
-        public static final double kAgitatePositionDegrees = -50; // Mid-position for agitating
+        public static final double kAgitatePositionDegrees = -80; 
         public static final double kPivotReduction = 50.0;
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;
