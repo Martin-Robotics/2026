@@ -11,9 +11,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ExtendIntakeArm"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 0
+            "waitTime": 5.0
           }
         },
         {
