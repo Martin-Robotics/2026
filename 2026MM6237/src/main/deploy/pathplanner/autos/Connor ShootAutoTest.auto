@@ -21,6 +21,12 @@
           "data": {
             "name": "Fire"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareForIntake"
+          }
         }
       ]
     }

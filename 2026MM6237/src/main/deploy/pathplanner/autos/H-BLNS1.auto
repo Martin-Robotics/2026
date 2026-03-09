@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "RunIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB-Bump35"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB35LeftNuteral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HBLeftNuteral40"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "HB40-16"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "Lilly's Autos",
+  "choreoAuto": false
+}

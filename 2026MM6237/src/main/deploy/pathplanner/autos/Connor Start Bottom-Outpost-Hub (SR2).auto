@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SR2 StartToOutpost"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ExtendIntakeArm"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SR2 OutpostToHub"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

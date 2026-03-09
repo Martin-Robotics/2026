@@ -32,48 +32,48 @@
     },
     {
       "anchor": {
-        "x": 4.15,
-        "y": 4.7
+        "x": 7.75,
+        "y": 2.0
       },
       "prevControl": {
-        "x": 4.15,
-        "y": 4.95
+        "x": 7.75,
+        "y": 2.25
       },
       "nextControl": {
-        "x": 4.15,
-        "y": 4.45
+        "x": 7.75,
+        "y": 1.75
       },
       "isLocked": false,
       "linkedName": "22"
     },
     {
       "anchor": {
-        "x": 4.15,
-        "y": 3.3
+        "x": 7.75,
+        "y": 0.75
       },
       "prevControl": {
-        "x": 4.15,
-        "y": 4.20859205171026
+        "x": 7.75,
+        "y": 1.6585920517102606
       },
       "nextControl": {
-        "x": 4.15,
-        "y": 2.3914079482897392
+        "x": 7.75,
+        "y": -0.15859205171026058
       },
       "isLocked": false,
       "linkedName": "21"
     },
     {
       "anchor": {
-        "x": 4.15,
-        "y": 1.9
+        "x": 6.25,
+        "y": 7.25
       },
       "prevControl": {
-        "x": 4.15,
-        "y": 2.5284350297802547
+        "x": 6.25,
+        "y": 7.878435029780254
       },
       "nextControl": {
-        "x": 4.15,
-        "y": 1.2715649702197451
+        "x": 6.25,
+        "y": 6.621564970219745
       },
       "isLocked": false,
       "linkedName": "20"
@@ -89,7 +89,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "19"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -109,7 +109,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Help",
+  "folder": "Lilly's Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

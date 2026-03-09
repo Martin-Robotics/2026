@@ -1,0 +1,63 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.4156338028169024,
+        "y": 4.035
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.4575352112676057,
+        "y": 1.9591197183098603
+      },
+      "isLocked": false,
+      "linkedName": "Hub"
+    },
+    {
+      "anchor": {
+        "x": 6.583,
+        "y": 1.9
+      },
+      "prevControl": {
+        "x": 6.385739436619718,
+        "y": 2.885281690140845
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "32"
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.23694779116465856,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 0.7349397590361436,
+      "rotationDegrees": 45.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": "Lilly's Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}
