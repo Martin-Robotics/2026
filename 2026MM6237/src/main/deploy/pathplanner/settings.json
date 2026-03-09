@@ -3,14 +3,17 @@
   "robotLength": 0.9,
   "holonomicMode": true,
   "pathFolders": [
+    "Help",
+    "Connor",
     "New Folder",
     "Lilly's Paths"
-  ],
-  "autoFolders": [
+    "New Folder"
+    "MISC.",
     "Lilly's Autos"
   ],
-  "defaultMaxVel": 3.0,
-  "defaultMaxAccel": 3.0,
+  "autoFolders": [],
+  "defaultMaxVel": 0.6,
+  "defaultMaxAccel": 0.6,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,

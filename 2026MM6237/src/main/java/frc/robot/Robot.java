@@ -45,6 +45,16 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    
+    // Update subsystem tuning displays
+    frc.robot.util.SubsystemTuning.updateAllDashboards(
+        m_robotContainer.getFeeder(),
+        m_robotContainer.getShooter(),
+        m_robotContainer.getIntake(),
+        m_robotContainer.getHood(),
+        m_robotContainer.getHanger(),
+        m_robotContainer.getFloor()
+    );
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -57,6 +67,8 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    m_robotContainer.getLEDs().setPattern(frc.robot.subsystems.LEDSubsystem.Patterns.AUTONOMOUS);
+
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -71,6 +83,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.getLEDs().setPattern(frc.robot.subsystems.LEDSubsystem.Patterns.TELEOP);
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove

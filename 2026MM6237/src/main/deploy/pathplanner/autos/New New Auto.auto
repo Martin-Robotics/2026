@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "RunIntake"
+            "name": "PrepareToFire"
           }
         },
         {
@@ -25,13 +25,13 @@
         {
           "type": "named",
           "data": {
-            "name": "StopIntake"
+            "name": "Fire"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "InitAutoTesting",
+  "folder": null,
   "choreoAuto": false
 }

@@ -13,23 +13,25 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
- * Command that rotates the robot to face a specific direction relative to the field.
- * The robot maintains the facing direction while the command is held.
+ * Command that rotates the robot to the nearest 45-degree increment.
+ * When activated, it calculates the current heading and snaps to the closest
+ * of the 8 cardinal/diagonal directions (0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°).
  */
-public class FaceDirectionCommand extends Command {
+public class SnapToNearestAngleCommand extends Command {
     private final CommandSwerveDrivetrain drivetrain;
-    private final Rotation2d targetRotation;
+    private Rotation2d targetRotation;
     private final SwerveRequest.FieldCentric driveRequest;
+    
+    // Only the 4 diagonal angles
+    private static final double[] SNAP_ANGLES = {45.0, 135.0, 225.0, 315.0};
 
     /**
-     * Creates a FaceDirectionCommand.
+     * Creates a SnapToNearestAngleCommand.
      *
      * @param drivetrain The swerve drivetrain subsystem
-     * @param targetRotation The target rotation to face (0° = forward, 90° = left, 180° = back, 270° = right)
      */
-    public FaceDirectionCommand(CommandSwerveDrivetrain drivetrain, Rotation2d targetRotation) {
+    public SnapToNearestAngleCommand(CommandSwerveDrivetrain drivetrain) {
         this.drivetrain = drivetrain;
-        this.targetRotation = targetRotation;
         
         // Create a field-centric request for applying direct rotational rates
         this.driveRequest = new SwerveRequest.FieldCentric()
@@ -41,40 +43,57 @@ public class FaceDirectionCommand extends Command {
     }
 
     /**
-     * Creates a FaceDirectionCommand for a specific direction.
+     * Calculate the nearest diagonal angle (45°, 135°, 225°, or 315°) to the given angle.
      *
-     * @param drivetrain The swerve drivetrain subsystem
-     * @param direction The direction to face: "forward", "left", "backward", "right", or "operator"
+     * @param currentAngle The current angle in degrees
+     * @return The nearest diagonal angle
      */
-    public FaceDirectionCommand(CommandSwerveDrivetrain drivetrain, String direction) {
-        this(drivetrain, getRotationForDirection(direction));
+    private static double snapToNearestDiagonal(double currentAngle) {
+        // Normalize angle to 0-360 range
+        currentAngle = currentAngle % 360.0;
+        if (currentAngle < 0) {
+            currentAngle += 360.0;
+        }
+        
+        // Find the closest diagonal angle
+        double closestAngle = SNAP_ANGLES[0];
+        double smallestDifference = Math.abs(angleDifference(currentAngle, SNAP_ANGLES[0]));
+        
+        for (int i = 1; i < SNAP_ANGLES.length; i++) {
+            double difference = Math.abs(angleDifference(currentAngle, SNAP_ANGLES[i]));
+            if (difference < smallestDifference) {
+                smallestDifference = difference;
+                closestAngle = SNAP_ANGLES[i];
+            }
+        }
+        
+        return closestAngle;
     }
-
+    
     /**
-     * Helper method to convert direction strings to Rotation2d angles.
-     * Assuming the field is oriented with:
-     * - 45° = Forward-left diagonal
-     * - 135° = Backward-left diagonal
-     * - 225° = Backward-right diagonal
-     * - 315° = Forward-right diagonal
-     *
-     * @param direction The direction string ("forward", "left", "backward", "right", "operator")
-     * @return The corresponding Rotation2d angle
+     * Calculate the shortest angular difference between two angles.
+     * 
+     * @param angle1 First angle in degrees
+     * @param angle2 Second angle in degrees
+     * @return Shortest difference in degrees (positive or negative)
      */
-    private static Rotation2d getRotationForDirection(String direction) {
-        return switch (direction.toLowerCase()) {
-            case "forward" -> Rotation2d.fromDegrees(45); // Y button: face forward-left diagonal (45°)
-            case "left" -> Rotation2d.fromDegrees(135); // X button: face backward-left diagonal (135°)
-            case "backward" -> Rotation2d.fromDegrees(225); // A button: face backward-right diagonal (225°)
-            case "right" -> Rotation2d.fromDegrees(315); // B button: face forward-right diagonal (315°)
-            case "operator" -> Rotation2d.fromDegrees(225); // Alternative name for backward
-            default -> throw new IllegalArgumentException("Invalid direction: " + direction);
-        };
+    private static double angleDifference(double angle1, double angle2) {
+        double diff = angle2 - angle1;
+        // Normalize to -180 to 180 range
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
+        return diff;
     }
 
     @Override
     public void initialize() {
-        // Command starts - will continuously try to face the target direction
+        // Get current robot rotation
+        Rotation2d currentRotation = drivetrain.getState().Pose.getRotation();
+        double currentDegrees = currentRotation.getDegrees();
+        
+        // Calculate nearest diagonal angle (45°, 135°, 225°, or 315°)
+        double targetDegrees = snapToNearestDiagonal(currentDegrees);
+        targetRotation = Rotation2d.fromDegrees(targetDegrees);
     }
 
     @Override
@@ -88,11 +107,11 @@ public class FaceDirectionCommand extends Command {
         
         // Calculate desired rotational rate with proportional control
         // Scale the error by a gain to convert angle error to rotation speed
-        double proportionalGain = 1.5; // rad/s per radian of error (reduced from 3.0 for less aggressive turning)
+        double proportionalGain = 1.5; // rad/s per radian of error
         double rotationalRate = errorRadians * proportionalGain;
         
         // Add a minimum rotation speed to overcome deadband when there's significant error
-        double minRotationSpeed = 0.8; // rad/s minimum when error > threshold (reduced from 1.5)
+        double minRotationSpeed = 0.8; // rad/s minimum when error > threshold
         double errorThreshold = 0.1; // ~5.7 degrees
         
         if (Math.abs(errorRadians) > errorThreshold) {
@@ -136,8 +155,6 @@ public class FaceDirectionCommand extends Command {
     @Override
     public boolean isFinished() {
         // Command runs indefinitely while button is held
-        // The mapXboxController will handle the button release
         return false;
     }
 }
-

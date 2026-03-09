@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "RunIntake"
+            "name": "ExtendIntakeArm"
           }
         },
         {
@@ -25,13 +25,13 @@
         {
           "type": "named",
           "data": {
-            "name": "StopIntake"
+            "name": "RetractIntakeArm"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "InitAutoTesting",
+  "folder": null,
   "choreoAuto": false
 }
