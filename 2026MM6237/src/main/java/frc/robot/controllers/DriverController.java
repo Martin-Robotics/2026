@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AimAtHubWhileDriving;
 import frc.robot.commands.SnapToNearestAngleCommand;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -111,5 +112,9 @@ public class DriverController {
         
         // Y button: PrepareToFire - Aim at hub and read distance
         driverController.y().whileTrue(new PrepareToFire(shooter, limelightSubsystem, drivetrain, driverController));
+        
+        // B button: Toggle aim-at-hub mode - robot auto-rotates to face hub while driver retains full translation
+        // Press B to activate, press B again to deactivate. Operator can fire while driver repositions.
+        driverController.b().toggleOnTrue(new AimAtHubWhileDriving(limelightSubsystem, drivetrain, driverController));
     }
 }
