@@ -3,37 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.933,
-        "y": 6.1
+        "x": 6.161198102016608,
+        "y": 5.761850533807828
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.933,
-        "y": 6.35
+        "x": 6.812149003893257,
+        "y": 6.805125329486348
       },
       "isLocked": false,
-      "linkedName": "17"
+      "linkedName": "SidEnd1"
     },
     {
       "anchor": {
-        "x": 2.933,
-        "y": 6.1
+        "x": 7.653705128205129,
+        "y": 7.2095
       },
       "prevControl": {
-        "x": 2.933,
-        "y": 5.85
+        "x": 7.430966401125702,
+        "y": 6.931313530244946
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "17"
+      "linkedName": "SidEnd2"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.0,
-      "rotationDegrees": 0.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Connor",
   "idealStartingState": {
-    "velocity": 0.0,
-    "rotation": 90.0
+    "velocity": 0,
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

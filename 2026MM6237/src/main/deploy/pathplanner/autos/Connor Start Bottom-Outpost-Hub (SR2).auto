@@ -7,7 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MoveALittle"
+            "pathName": "SR2 StartToOutpost"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SR2 OutpostToHub"
           }
         },
         {
@@ -20,12 +32,6 @@
           "type": "named",
           "data": {
             "name": "Fire"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PrepareForIntake"
           }
         }
       ]
