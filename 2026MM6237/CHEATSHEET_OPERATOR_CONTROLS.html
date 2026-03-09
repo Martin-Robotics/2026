@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Operator Controller — Competition Controls Cheat Sheet</title>
+<style>
+  @page { size: letter; margin: 0.5in; }
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0.5in; color: #222; }
+  h1 { text-align: center; font-size: 22px; margin-bottom: 2px; }
+  h2 { font-size: 16px; margin: 14px 0 4px 0; border-bottom: 2px solid #333; padding-bottom: 2px; }
+  .subtitle { text-align: center; font-size: 12px; color: #666; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 13px; }
+  th { background: #333; color: #fff; text-align: left; padding: 5px 8px; }
+  td { padding: 4px 8px; border-bottom: 1px solid #ccc; }
+  tr:nth-child(even) { background: #f4f4f4; }
+  .button { font-weight: bold; white-space: nowrap; }
+  .hold { color: #b45309; font-weight: bold; font-size: 11px; }
+  .press { color: #1d4ed8; font-weight: bold; font-size: 11px; }
+  .note { font-size: 11px; color: #555; margin-top: 2px; }
+  .footer { text-align: center; font-size: 10px; color: #999; margin-top: 14px; border-top: 1px solid #ccc; padding-top: 4px; }
+  .section-icon { font-size: 16px; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<h1>🎮 Operator Controller — Competition Controls</h1>
+<p class="subtitle">Team 6237 &bull; mapXboxController() &bull; 2026 Season</p>
+
+<!-- SHOOTING -->
+<h2><span class="section-icon">🔫</span> Shooting</h2>
+<table>
+  <tr><th style="width:22%">Button</th><th style="width:12%">Type</th><th>Action</th></tr>
+  <tr>
+    <td class="button">RT (Right Trigger)</td>
+    <td><span class="hold">HOLD</span></td>
+    <td><strong>Prepare &amp; Fire</strong> — Spins up shooter, positions hood, feeds when at speed. Uses Limelight auto-distance (fallback 3 m). <em>Blocked when DPad Up is held (tuning mode owns subsystems).</em></td>
+  </tr>
+</table>
+
+<!-- INTAKE -->
+<h2><span class="section-icon">🫳</span> Intake</h2>
+<table>
+  <tr><th style="width:22%">Button</th><th style="width:12%">Type</th><th>Action</th></tr>
+  <tr>
+    <td class="button">A</td>
+    <td><span class="press">PRESS</span></td>
+    <td><strong>Extend Intake Arm</strong> — Moves pivot to INTAKE position. Does <em>not</em> start rollers.</td>
+  </tr>
+  <tr>
+    <td class="button">B</td>
+    <td><span class="press">PRESS</span></td>
+    <td><strong>Retract Intake Arm</strong> — Moves pivot to STOWED position <em>and</em> stops rollers.</td>
+  </tr>
+  <tr>
+    <td class="button">X</td>
+    <td><span class="press">PRESS</span></td>
+    <td><strong>Start Intake Rollers</strong> — Runs rollers at intake speed.</td>
+  </tr>
+  <tr>
+    <td class="button">Y</td>
+    <td><span class="press">PRESS</span></td>
+    <td><strong>Stop Intake Rollers</strong> — Stops rollers, arm stays in place.</td>
+  </tr>
+</table>
+
+<!-- HANGER / CLIMB -->
+<h2><span class="section-icon">🧗</span> Hanger / Climb</h2>
+<table>
+  <tr><th style="width:22%">Button</th><th style="width:12%">Type</th><th>Action</th></tr>
+  <tr>
+    <td class="button">RB (Right Bumper)</td>
+    <td><span class="hold">HOLD</span></td>
+    <td><strong>Hanger Extend</strong> — Runs hanger motor out at 30 % output.</td>
+  </tr>
+  <tr>
+    <td class="button">LB (Left Bumper)</td>
+    <td><span class="hold">HOLD</span></td>
+    <td><strong>Hanger Retract</strong> — Runs hanger motor in at 30 % output.</td>
+  </tr>
+  <tr>
+    <td class="button">Back</td>
+    <td><span class="press">PRESS</span></td>
+    <td><strong>Prepare To Climb Left</strong> — Extends hanger to EXTEND_HOPPER for left-side climb.</td>
+  </tr>
+  <tr>
+    <td class="button">Start</td>
+    <td><span class="press">PRESS</span></td>
+    <td><strong>Prepare To Climb Right</strong> — Extends hanger to EXTEND_HOPPER for right-side climb.</td>
+  </tr>
+</table>
+
+<!-- SHOOTER TUNING -->
+<h2><span class="section-icon">🔧</span> Shooter Tuning Mode</h2>
+<table>
+  <tr><th style="width:22%">Button</th><th style="width:12%">Type</th><th>Action</th></tr>
+  <tr>
+    <td class="button">DPad Up</td>
+    <td><span class="hold">HOLD</span></td>
+    <td><strong>Shooter Tuning Mode</strong> — Adjust RPM &amp; Hood via SmartDashboard. RT fires test shots while held. Owns shooter, hood, feeder &amp; floor subsystems.</td>
+  </tr>
+</table>
+
+<!-- HOOD MANUAL -->
+<h2><span class="section-icon">📐</span> Manual Hood Adjustment</h2>
+<table>
+  <tr><th style="width:22%">Button</th><th style="width:12%">Type</th><th>Action</th></tr>
+  <tr>
+    <td class="button">DPad Left</td>
+    <td><span class="hold">HOLD</span></td>
+    <td><strong>Hood DOWN</strong> — Steps hood position toward 0.1 (flatter trajectory). −0.02 per cycle.</td>
+  </tr>
+  <tr>
+    <td class="button">DPad Right</td>
+    <td><span class="hold">HOLD</span></td>
+    <td><strong>Hood UP</strong> — Steps hood position toward 0.75 (steeper arc). +0.02 per cycle.</td>
+  </tr>
+</table>
+
+<p class="note"><strong>Key notes:</strong> PrepareToFire (aim &amp; distance detect) is on the <em>Driver Y button</em>, not on this controller. DPad Down is unassigned.</p>
+
+<div class="footer">Generated from OperatorController.mapXboxController() &bull; 2026MM6237</div>
+</body>
+</html>

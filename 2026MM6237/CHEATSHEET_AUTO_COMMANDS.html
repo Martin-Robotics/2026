@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Autonomous Named Commands — Cheat Sheet</title>
+<style>
+  @page { size: letter; margin: 0.5in; }
+  body { font-family: Arial, Helvetica, sans-serif; margin: 0.5in; color: #222; }
+  h1 { text-align: center; font-size: 22px; margin-bottom: 2px; }
+  h2 { font-size: 16px; margin: 14px 0 4px 0; border-bottom: 2px solid #333; padding-bottom: 2px; }
+  .subtitle { text-align: center; font-size: 12px; color: #666; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12.5px; }
+  th { background: #333; color: #fff; text-align: left; padding: 5px 8px; }
+  td { padding: 5px 8px; border-bottom: 1px solid #ccc; vertical-align: top; }
+  tr:nth-child(even) { background: #f4f4f4; }
+  .cmd { font-family: Consolas, 'Courier New', monospace; font-weight: bold; white-space: nowrap; }
+  .waits { color: #b45309; font-weight: bold; font-size: 11px; }
+  .instant { color: #15803d; font-weight: bold; font-size: 11px; }
+  .runs { color: #7e22ce; font-weight: bold; font-size: 11px; }
+  .note { font-size: 11px; color: #555; margin-top: 2px; }
+  .info-box { background: #fefce8; border: 1px solid #fbbf24; border-radius: 6px; padding: 8px 12px; font-size: 12px; margin-bottom: 10px; }
+  .footer { text-align: center; font-size: 10px; color: #999; margin-top: 14px; border-top: 1px solid #ccc; padding-top: 4px; }
+  .section-icon { font-size: 16px; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<h1>🤖 Autonomous Named Commands</h1>
+<p class="subtitle">Team 6237 &bull; RobotContainer.registerNamedCommands() &bull; PathPlanner 2026</p>
+
+<div class="info-box">
+  These are the <strong>NamedCommands</strong> registered with PathPlanner. Use these exact names (case-sensitive) in <code>.auto</code> and <code>.path</code> files. Commands marked <span class="waits">WAITS</span> block the auto sequence until finished; <span class="instant">INSTANT</span> commands finish immediately and the next step runs right away.
+</div>
+
+<!-- INTAKE COMMANDS -->
+<h2><span class="section-icon">🫳</span> Intake Commands</h2>
+<table>
+  <tr>
+    <th style="width:28%">Command Name</th>
+    <th style="width:12%">Ends</th>
+    <th style="width:14%">Subsystems</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="cmd">PrepareForIntake</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Intake</td>
+    <td>Moves intake arm to INTAKE position. Finishes when arm reaches target angle. Does <em>not</em> start rollers.</td>
+  </tr>
+  <tr>
+    <td class="cmd">RunIntake</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Intake</td>
+    <td>Extends intake arm to INTAKE position, then starts rollers at full speed once arm is in position. Arm &amp; rollers keep running after command ends.</td>
+  </tr>
+  <tr>
+    <td class="cmd">StopIntake</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Intake</td>
+    <td>Stops intake rollers <strong>and</strong> retracts arm to STOWED position. Finishes when arm reaches stowed angle.</td>
+  </tr>
+  <tr>
+    <td class="cmd">ExtendIntakeArm</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Intake</td>
+    <td>Moves <em>only</em> the pivot arm to INTAKE position (no rollers). Use when you need the arm out of the way before a pickup or shot.</td>
+  </tr>
+  <tr>
+    <td class="cmd">RetractIntakeArm</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Intake</td>
+    <td>Moves <em>only</em> the pivot arm to STOWED position (does <em>not</em> stop rollers). Pair with <code>StopIntakeRollers</code> if rollers should also stop.</td>
+  </tr>
+  <tr>
+    <td class="cmd">StartIntakeRollers</td>
+    <td><span class="instant">INSTANT</span></td>
+    <td>Intake</td>
+    <td>Turns on intake rollers at INTAKE speed and finishes immediately. Safety: blocked if arm is in STOWED position.</td>
+  </tr>
+  <tr>
+    <td class="cmd">StopIntakeRollers</td>
+    <td><span class="instant">INSTANT</span></td>
+    <td>Intake</td>
+    <td>Stops intake rollers and finishes immediately. Arm position is unchanged.</td>
+  </tr>
+</table>
+
+<!-- SHOOTING COMMANDS -->
+<h2><span class="section-icon">🔫</span> Shooting Commands</h2>
+<table>
+  <tr>
+    <th style="width:28%">Command Name</th>
+    <th style="width:12%">Ends</th>
+    <th style="width:14%">Subsystems</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="cmd">PrepareToFire</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Drivetrain</td>
+    <td>Aims at hub AprilTag using Limelight TX with PD control. Rotates drivetrain toward target. Auto-ends when aimed (TX &le; 3°) or on timeout. Uses tuned gains (kP=0.03, kD=0.005).</td>
+  </tr>
+  <tr>
+    <td class="cmd">Fire</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Feeder, Shooter, Hood, Floor</td>
+    <td>Spins up shooter &amp; positions hood using interpolation table based on Limelight distance (fallback 3 m). Once at speed, engages feeder &amp; floor for a fixed duration, then auto-ends.</td>
+  </tr>
+</table>
+
+<!-- CLIMB COMMANDS -->
+<h2><span class="section-icon">🧗</span> Climb Commands</h2>
+<table>
+  <tr>
+    <th style="width:28%">Command Name</th>
+    <th style="width:12%">Ends</th>
+    <th style="width:14%">Subsystems</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td class="cmd">PrepareToClimb</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Hanger</td>
+    <td>Extends hanger to EXTEND_HOPPER position to prepare for climbing. Finishes when hanger reaches target extension.</td>
+  </tr>
+  <tr>
+    <td class="cmd">PrepareToClimbLeft</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Hanger</td>
+    <td>Same as PrepareToClimb but configured for a left-side approach to the tower.</td>
+  </tr>
+  <tr>
+    <td class="cmd">PrepareToClimbRight</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Hanger</td>
+    <td>Same as PrepareToClimb but configured for a right-side approach to the tower.</td>
+  </tr>
+  <tr>
+    <td class="cmd">Climb</td>
+    <td><span class="waits">WAITS</span></td>
+    <td>Hanger</td>
+    <td>Executes full climb sequence: moves hanger to HANGING position, then to HUNG position. Finishes when fully hung.</td>
+  </tr>
+</table>
+
+<h2><span class="section-icon">💡</span> Typical Auto Sequences</h2>
+<table>
+  <tr><th>Scenario</th><th>Suggested Command Sequence</th></tr>
+  <tr>
+    <td>Pick up a note</td>
+    <td><code>RunIntake</code> → (drive to note) → <code>StopIntake</code></td>
+  </tr>
+  <tr>
+    <td>Aim &amp; shoot</td>
+    <td><code>PrepareToFire</code> → <code>Fire</code></td>
+  </tr>
+  <tr>
+    <td>Arm out only (before pickup path)</td>
+    <td><code>ExtendIntakeArm</code> → <code>StartIntakeRollers</code></td>
+  </tr>
+  <tr>
+    <td>End-game climb</td>
+    <td><code>PrepareToClimbLeft</code> (or Right) → <code>Climb</code></td>
+  </tr>
+</table>
+
+<div class="footer">Generated from RobotContainer.registerNamedCommands() &bull; 2026MM6237</div>
+</body>
+</html>
