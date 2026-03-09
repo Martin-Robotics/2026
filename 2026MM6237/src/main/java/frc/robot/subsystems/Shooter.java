@@ -100,21 +100,25 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setRPM(double rpm) {
-        // Left and middle motors use the base RPM
-        leftTargetRPM = rpm;
+        // All three motors use 1.25x multiplier to compensate for smaller roller wheel width
+        // Tuning data (2026-03-07) was gathered with right motor only at 1.25x.
+        // Now that left and middle also have the smaller rollers installed,
+        // all three motors should run at the same speed.
+        double adjustedRPM = rpm * 1.25;
+        
+        leftTargetRPM = adjustedRPM;
         leftMotor.setControl(
             leftVelocityRequest
                 .withVelocity(RPM.of(leftTargetRPM))
         );
         
-        middleTargetRPM = rpm;
+        middleTargetRPM = adjustedRPM;
         middleMotor.setControl(
             middleVelocityRequest
                 .withVelocity(RPM.of(middleTargetRPM))
         );
         
-        // Apply 25% increase to right motor to compensate for decreased wheel width
-        rightTargetRPM = rpm * 1.25;
+        rightTargetRPM = adjustedRPM;
         rightMotor.setControl(
             rightVelocityRequest
                 .withVelocity(RPM.of(rightTargetRPM))
