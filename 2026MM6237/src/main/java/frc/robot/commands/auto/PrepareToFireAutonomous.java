@@ -5,7 +5,6 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -56,8 +55,6 @@ public class PrepareToFireAutonomous extends Command {
         lastTargetHeading = null;
         hasEverSeenTarget = false;
         lastTx = 0;
-        SmartDashboard.putString("PrepareToFireAuto/Status", "Searching for hub...");
-        SmartDashboard.putBoolean("PrepareToFireAuto/Aimed", false);
     }
 
     /**
@@ -76,8 +73,6 @@ public class PrepareToFireAutonomous extends Command {
         
         boolean hubVisible = limelight.isHubCurrentlyVisible();
         double tx = limelight.getLastHubTx();
-        double distance = limelight.getLastHubDistance();
-        int tagID = limelight.getLastHubTagID();
         
         double rotationalRate = 0;
         
@@ -110,12 +105,6 @@ public class PrepareToFireAutonomous extends Command {
                 lastTx = 0; // Reset derivative when aimed
             }
             
-            SmartDashboard.putNumber("PrepareToFireAuto/TX (deg)", tx);
-            SmartDashboard.putNumber("PrepareToFireAuto/Hub Tag ID", tagID);
-            SmartDashboard.putString("PrepareToFireAuto/Status", 
-                Math.abs(tx) <= AIM_TOLERANCE_DEGREES ? "AIMED!" : "Aiming...");
-            SmartDashboard.putBoolean("PrepareToFireAuto/Aimed", Math.abs(tx) <= AIM_TOLERANCE_DEGREES);
-            
         } else if (hasEverSeenTarget && lastTargetHeading != null) {
             Rotation2d error = lastTargetHeading.minus(currentHeading);
             double errorDegrees = error.getDegrees();
@@ -131,21 +120,10 @@ public class PrepareToFireAutonomous extends Command {
                     }
                 }
             }
-            
-            SmartDashboard.putString("PrepareToFireAuto/Status", "Target lost - holding");
-            SmartDashboard.putBoolean("PrepareToFireAuto/Aimed", false);
-        } else {
-            SmartDashboard.putString("PrepareToFireAuto/Status", "Searching...");
-            SmartDashboard.putBoolean("PrepareToFireAuto/Aimed", false);
         }
         
         rotationalRate = Math.max(-Constants.TempSwerve.MaxAngularRate, 
                         Math.min(Constants.TempSwerve.MaxAngularRate, rotationalRate));
-        
-        double timeRemaining = Constants.Auto.kAutoPrepareAimTimeSeconds - aimTimer.get();
-        SmartDashboard.putNumber("PrepareToFireAuto/Time Remaining", timeRemaining);
-        SmartDashboard.putBoolean("PrepareToFireAuto/Hub Visible", hubVisible);
-        SmartDashboard.putNumber("PrepareToFireAuto/Distance To Hub (m)", distance > 0 ? distance : -1);
         
         drivetrain.setControl(
             driveRequest
@@ -171,13 +149,5 @@ public class PrepareToFireAutonomous extends Command {
                 .withVelocityY(0)
                 .withRotationalRate(0)
         );
-        
-        if (interrupted) {
-            SmartDashboard.putString("PrepareToFireAuto/Status", "Interrupted");
-        } else if (isAimed()) {
-            SmartDashboard.putString("PrepareToFireAuto/Status", "Complete - AIMED");
-        } else {
-            SmartDashboard.putString("PrepareToFireAuto/Status", "Complete - timeout");
-        }
     }
 }

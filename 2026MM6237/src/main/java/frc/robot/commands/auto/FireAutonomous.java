@@ -8,7 +8,6 @@ import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.commands.WCP.PrepareShotCommand.Shot;
@@ -78,7 +77,6 @@ public class FireAutonomous extends Command {
     public void initialize() {
         fireTimer.reset();
         shooterAtSpeed = false;
-        SmartDashboard.putString("FireAutonomous/Status", "Spinning up...");
     }
 
     @Override
@@ -96,16 +94,9 @@ public class FireAutonomous extends Command {
         shooter.setRPM(shot.shooterRPM);
         hood.setPosition(shot.hoodPosition);
         
-        SmartDashboard.putNumber("FireAutonomous/Distance (m)", actualDistance.in(Meters));
-        SmartDashboard.putNumber("FireAutonomous/Target RPM", shot.shooterRPM);
-        SmartDashboard.putNumber("FireAutonomous/Target Hood", shot.hoodPosition);
-        
         if (!shooterAtSpeed) {
             boolean shooterReady = shooter.isVelocityWithinTolerance();
             boolean hoodReady = hood.isPositionWithinTolerance();
-            
-            SmartDashboard.putBoolean("FireAutonomous/Shooter Ready", shooterReady);
-            SmartDashboard.putBoolean("FireAutonomous/Hood Ready", hoodReady);
             
             if (shooterReady && hoodReady) {
                 // Both ready — start firing
@@ -113,12 +104,7 @@ public class FireAutonomous extends Command {
                 fireTimer.start();
                 feeder.set(Feeder.Speed.FEED);
                 floor.set(Floor.Speed.FEED);
-                SmartDashboard.putString("FireAutonomous/Status", "FIRING!");
             }
-        } else {
-            // Show countdown
-            double remaining = Constants.Auto.kAutoFireRunTimeSeconds - fireTimer.get();
-            SmartDashboard.putNumber("FireAutonomous/Time Remaining", remaining);
         }
     }
 
@@ -133,11 +119,5 @@ public class FireAutonomous extends Command {
         shooter.stop();
         feeder.setPercentOutput(0);
         floor.set(Floor.Speed.STOP);
-        
-        if (interrupted) {
-            SmartDashboard.putString("FireAutonomous/Status", "Interrupted");
-        } else {
-            SmartDashboard.putString("FireAutonomous/Status", "Complete");
-        }
     }
 }

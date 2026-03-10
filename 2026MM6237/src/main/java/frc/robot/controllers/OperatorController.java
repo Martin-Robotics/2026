@@ -1,6 +1,5 @@
 package frc.robot.controllers;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -352,7 +351,6 @@ public class OperatorController {
                 double current = hood.getTargetPosition();
                 double newPos = Math.max(0.1, current - 0.02); // Step down by 0.02 each cycle
                 hood.setPosition(newPos);
-                SmartDashboard.putNumber("Hood/Manual Target", newPos);
             }).withName("Hood DOWN (Manual)"));
         
         // DPad Right (POV 90): Hood UP (higher position number = steeper arc)
@@ -362,7 +360,6 @@ public class OperatorController {
                 double current = hood.getTargetPosition();
                 double newPos = Math.min(0.75, current + 0.02); // Step up by 0.02 each cycle
                 hood.setPosition(newPos);
-                SmartDashboard.putNumber("Hood/Manual Target", newPos);
             }).withName("Hood UP (Manual)"));
     }
 }

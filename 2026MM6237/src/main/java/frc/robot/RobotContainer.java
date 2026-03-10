@@ -77,22 +77,18 @@ public class RobotContainer {
       autoChooser = AutoBuilder.buildAutoChooser("DefaultAuto");
       SmartDashboard.putData("Auto Mode", autoChooser);
       
-      // Initialize PrepareToFire dashboard values so they appear immediately
-      initializePrepareToFireDashboard();
-      
-      // Initialize subsystem tuning displays (commented out after testing phase)
-      // SubsystemTuning.initializeAllDashboards();
+      // Initialize dashboard values so they appear on startup
+      initializeDashboard();
     }
     
     /**
-     * Initialize PrepareToFire dashboard values so they're visible before the command runs.
+     * Initialize the minimal set of SmartDashboard values so they're visible on startup.
      */
-    private void initializePrepareToFireDashboard() {
-      SmartDashboard.putNumber("PrepareToFire/Distance To Hub (m)", 0.0);
-      SmartDashboard.putBoolean("PrepareToFire/Target Detected", false);
-      SmartDashboard.putNumber("PrepareToFire/Hub Tag ID", 0);
-      SmartDashboard.putString("PrepareToFire/Status", "Waiting for command...");
-      SmartDashboard.putNumber("PrepareToFire/Calculated RPM", 0.0);
+    private void initializeDashboard() {
+      SmartDashboard.putNumber("Limelight/Hub Distance (m)", 0.0);
+      SmartDashboard.putBoolean("Limelight/Hub Visible", false);
+      SmartDashboard.putNumber("Limelight/Hub Tag ID", 0);
+      SmartDashboard.putBoolean("AimAtHub/Active", false);
     }
 
     /**

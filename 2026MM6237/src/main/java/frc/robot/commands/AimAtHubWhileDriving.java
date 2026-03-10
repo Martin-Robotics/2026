@@ -82,7 +82,6 @@ public class AimAtHubWhileDriving extends Command {
         hasEverSeenTarget = false;
         lastTx = 0;
         SmartDashboard.putBoolean("AimAtHub/Active", true);
-        SmartDashboard.putString("AimAtHub/Status", "Activated — searching for hub...");
     }
 
     @Override
@@ -117,8 +116,6 @@ public class AimAtHubWhileDriving extends Command {
         double tx = limelight.getLastHubTx();
         
         double rotationalRate = 0;
-        String status;
-        boolean aimed = false;
         
         if (hubVisible) {
             // === DIRECT VISION TRACKING ===
@@ -144,11 +141,8 @@ public class AimAtHubWhileDriving extends Command {
                         rotationalRate = -MIN_ROTATION_SPEED;
                     }
                 }
-                status = "Tracking — aiming at Tag " + limelight.getLastHubTagID();
             } else {
-                aimed = true;
                 lastTx = 0;
-                status = "AIMED at Tag " + limelight.getLastHubTagID();
             }
             
         } else if (hubEverSeen || (hasEverSeenTarget && lastTargetHeading != null)) {
@@ -175,11 +169,8 @@ public class AimAtHubWhileDriving extends Command {
                             rotationalRate = -MIN_ROTATION_SPEED;
                         }
                     }
-                    status = "Lost tag — tracking via odometry";
                 } else {
-                    aimed = true;
                     lastTx = 0;
-                    status = "Lost tag — AIMED (odometry)";
                 }
             } else {
                 // Heading-based fallback from this command session
@@ -193,10 +184,6 @@ public class AimAtHubWhileDriving extends Command {
                     } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
                         rotationalRate = -MIN_ROTATION_SPEED;
                     }
-                    status = "Lost tag — holding heading";
-                } else {
-                    aimed = true;
-                    status = "Lost tag — heading held";
                 }
             }
             
@@ -205,7 +192,6 @@ public class AimAtHubWhileDriving extends Command {
             // Fall back to right stick rotation so the driver isn't stuck
             rotationalRate = -1 * driverController.getRightX() 
                              * Constants.TempSwerve.MaxAngularRate * speedMultiplier;
-            status = "No hub seen — manual rotation";
         }
         
         // Clamp rotation rate
@@ -219,15 +205,6 @@ public class AimAtHubWhileDriving extends Command {
                 .withVelocityY(velocityY)
                 .withRotationalRate(rotationalRate)
         );
-        
-        // === DASHBOARD ===
-        SmartDashboard.putString("AimAtHub/Status", status);
-        SmartDashboard.putBoolean("AimAtHub/Aimed", aimed);
-        SmartDashboard.putBoolean("AimAtHub/Hub Visible", hubVisible);
-        SmartDashboard.putNumber("AimAtHub/TX (deg)", tx);
-        SmartDashboard.putNumber("AimAtHub/Rotation Rate (rad/s)", rotationalRate);
-        SmartDashboard.putNumber("AimAtHub/VelocityX (m/s)", velocityX);
-        SmartDashboard.putNumber("AimAtHub/VelocityY (m/s)", velocityY);
     }
 
     @Override
@@ -246,7 +223,5 @@ public class AimAtHubWhileDriving extends Command {
                 .withRotationalRate(0)
         );
         SmartDashboard.putBoolean("AimAtHub/Active", false);
-        SmartDashboard.putString("AimAtHub/Status", "Deactivated");
-        SmartDashboard.putBoolean("AimAtHub/Aimed", false);
     }
 }

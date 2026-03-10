@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class HubMonitor extends SubsystemBase {
@@ -25,8 +24,6 @@ public class HubMonitor extends SubsystemBase {
       // Calculate shifts (130s down to 30s) 
       isOurHubActive = calculateShiftStatus(matchTime, gameData);
     }
-
-    SmartDashboard.putBoolean("Our Hub Active", isOurHubActive);
   }
 
   private boolean calculateShiftStatus(double time, String data) {

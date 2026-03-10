@@ -7,7 +7,6 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.WCP.PrepareShotCommand.Shot;
 import frc.robot.subsystems.Feeder;
@@ -112,23 +111,10 @@ public class PrepareStaticShotCommand extends Command {
             
             if (detectedDistance > 0) {
                 actualDistance = Meters.of(detectedDistance);
-                SmartDashboard.putString("Static Shot/Source", "Limelight Background");
-            } else {
-                SmartDashboard.putString("Static Shot/Source", "Fallback (no hub seen)");
             }
-        } else {
-            SmartDashboard.putString("Static Shot/Source", "Manual Distance");
         }
         
-        SmartDashboard.putNumber("Static Shot/Using Distance (m)", actualDistance.in(Meters));
-        SmartDashboard.putNumber("Static Shot/Using Distance (in)", actualDistance.in(Inches));
-        
         final Shot shot = distanceToShotMap.get(actualDistance);
-        
-        // DEBUG: Show what values are being commanded
-        SmartDashboard.putNumber("Static Shot/Target RPM", shot.shooterRPM);
-        SmartDashboard.putNumber("Static Shot/Target Hood Position", shot.hoodPosition);
-        SmartDashboard.putNumber("Static Shot/Actual Hood Position", hood.getCurrentPosition());
         
         // Always spin up shooter and position hood
         shooter.setRPM(shot.shooterRPM);

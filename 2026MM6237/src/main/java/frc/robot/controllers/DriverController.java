@@ -5,8 +5,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -71,21 +69,10 @@ public class DriverController {
                 speedMultiplier = 55.0 / 35.0; // Scale to 55%
             }
             
-            // DEBUG: Alliance and control info (for verification only)
-            String allianceStr = DriverStation.getAlliance()
-                .map(a -> a == DriverStation.Alliance.Red ? "RED" : "BLUE")
-                .orElse("UNKNOWN");
-            SmartDashboard.putString("Drive/Alliance", allianceStr);
-            SmartDashboard.putNumber("Drive/Raw Left Y", driverController.getLeftY());
-            SmartDashboard.putNumber("Drive/Raw Left X", driverController.getLeftX());
-            
             // Calculate velocities - NO manual alliance flip needed!
             // CTRE's setOperatorPerspectiveForward() handles Red alliance automatically
             double velocityX = invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
             double velocityY = invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
-            
-            SmartDashboard.putNumber("Drive/VelocityX Cmd", velocityX);
-            SmartDashboard.putNumber("Drive/VelocityY Cmd", velocityY);
             
             if (robotCentricControl.getAsBoolean()) {
                 // Robot-centric control when left bumper is pressed (no alliance flip needed)
