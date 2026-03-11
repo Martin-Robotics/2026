@@ -499,10 +499,10 @@ public final class Constants {
         public static final double kTrimTag9  = 0.0;
         public static final double kTrimTag10 = 0.0;
         public static final double kTrimTag11 = 0.0;
-        public static final double kTrimTag24 = 0.0;
-        public static final double kTrimTag25 = 0.0;
-        public static final double kTrimTag26 = 0.0;
-        public static final double kTrimTag27 = 0.0;
+        public static final double kTrimTag24 = 30.0;
+        public static final double kTrimTag25 = 11.0;
+        public static final double kTrimTag26 = 5.0;
+        public static final double kTrimTag27 = -8.0;
 
         /**
          * Returns the default TX trim (degrees) for a given tag ID.
