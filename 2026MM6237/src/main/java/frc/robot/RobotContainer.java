@@ -79,6 +79,10 @@ public class RobotContainer {
       
       // Initialize dashboard values so they appear on startup
       initializeDashboard();
+      
+      // Enable target tuning dashboard for field calibration
+      // Comment out or call limelight.removeTargetTuningDashboard() for competition
+      limelight.initializeTargetTuningDashboard();
     }
     
     /**

@@ -11,86 +11,6 @@
         "vgap": 16.0,
         "titleType": 0,
         "tiles": {
-          "12,0": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_Stream",
-              "_title": "limelight_Stream",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "12,1": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight/DEBUG/Primary TX (deg)",
-              "_title": "Limelight/DEBUG/Primary TX (deg)",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "12,2": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight/Hub TY (deg)",
-              "_title": "Limelight/Hub TY (deg)",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "12,3": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Intake/Pivot Stator Current (A)",
-              "_title": "Intake/Pivot Stator Current (A)",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "12,4": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/PrepareToFire/Aimed",
-              "_title": "PrepareToFire/Aimed",
-              "_glyph": 148,
-              "_showGlyph": false,
-              "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#8B0000FF"
-            }
-          },
-          "12,5": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/PrepareToFire/Current Heading (deg)",
-              "_title": "PrepareToFire/Current Heading (deg)",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
           "0,0": {
             "size": [
               2,
@@ -256,6 +176,19 @@
               "_showGlyph": false
             }
           },
+          "6,2": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/limelight_PipelineName",
+              "_title": "limelight_PipelineName",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
           "8,0": {
             "size": [
               1,
@@ -263,12 +196,12 @@
             ],
             "content": {
               "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Limelight/Hub Visible",
-              "_title": "Limelight/Hub Visible",
+              "_source0": "network_table:///SmartDashboard/Hub Visible",
+              "_title": "Hub Visible",
               "_glyph": 148,
               "_showGlyph": false,
-              "Colors/Color when true": "#00FF00FF",
-              "Colors/Color when false": "#FFFF00FF"
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#8B0000FF"
             }
           }
         }
@@ -289,9 +222,9 @@
     }
   ],
   "windowGeometry": {
-    "x": -3447.0,
-    "y": -307.0,
-    "width": 1746.0,
-    "height": 1429.0
+    "x": -1928.0,
+    "y": -8.0,
+    "width": 1940.0,
+    "height": 1058.0
   }
 }

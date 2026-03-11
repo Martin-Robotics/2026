@@ -169,6 +169,13 @@ public final class Constants {
         public static final double kAutoMaxShootingDistanceMeters = 8.0;
         public static final double kAutoMinShooterRPM = 2000;
         public static final double kAutoMaxShooterRPM = 5500;
+
+        // ======================== RETURN SHOT CONSTANTS ========================
+        // Used to lob balls back to the alliance starting zone (not into the hub).
+        // Static values — no Limelight or distance detection needed.
+        // Seeded from the ~3m interpolation point in the hub shot table.
+        public static final double kReturnShotRPM = 3000;
+        public static final double kReturnShotHoodPosition = 0.40;
     }
 
     public static class Limelight {
@@ -482,6 +489,37 @@ public final class Constants {
         public static final double[] kTag25Pos = {4.022, 4.390};    // front
         public static final double[] kTag26Pos = {4.022, 4.035};    // front
         public static final double[] kTag27Pos = {4.270, 3.431};    // right side
+
+        // --- Per-tag TX trim offsets (degrees) ---
+        // Applied AFTER the hub-center geometric correction.
+        // Positive = shift aim to the right, Negative = shift aim to the left.
+        // These are the initial defaults loaded into SmartDashboard at startup.
+        // Tune live via TargetTuning/Trim Tag XX entries, then copy values back here.
+        public static final double kTrimTag8  = 0.0;
+        public static final double kTrimTag9  = 0.0;
+        public static final double kTrimTag10 = 0.0;
+        public static final double kTrimTag11 = 0.0;
+        public static final double kTrimTag24 = 0.0;
+        public static final double kTrimTag25 = 0.0;
+        public static final double kTrimTag26 = 0.0;
+        public static final double kTrimTag27 = 0.0;
+
+        /**
+         * Returns the default TX trim (degrees) for a given tag ID.
+         */
+        public static double getDefaultTrim(int tagID) {
+            switch (tagID) {
+                case 8:  return kTrimTag8;
+                case 9:  return kTrimTag9;
+                case 10: return kTrimTag10;
+                case 11: return kTrimTag11;
+                case 24: return kTrimTag24;
+                case 25: return kTrimTag25;
+                case 26: return kTrimTag26;
+                case 27: return kTrimTag27;
+                default: return 0.0;
+            }
+        }
 
         /**
          * Returns the field position {x, y} of a known hub tag, or null if not a hub tag.

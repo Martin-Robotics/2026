@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.ShooterTuningCommand;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
+import frc.robot.commands.WCP.ReturnShotCommand;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.commands.auto.PrepareToClimbLeft;
 import frc.robot.commands.auto.PrepareToClimbRight;
@@ -28,7 +29,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
  * 
  * Button Mapping:
  * - LB: Feeder forward (positive voltage)
- * - LT: Feeder reverse (negative voltage)
+ * - LT: Return shot (lob balls back to alliance zone)
  * - RB: Shooter forward (positive voltage)
  * - RT: Shooter reverse (negative voltage)
  * - Left Stick Up: Intake pivot manual positive voltage (6% for testing)
@@ -231,6 +232,7 @@ public class OperatorController {
      * 
      * Button Mapping:
      * - RT (Right Trigger): PrepareStaticShotCommand (prepares and shoots at auto-detected distance)
+     * - LT (Left Trigger): ReturnShotCommand (lob balls back to alliance starting zone)
      * - RB (Right Bumper): Hanger extend
      * - LB (Left Bumper): Hanger retract
      * - A: Move intake arm to INTAKE position (independent of rollers)
@@ -279,6 +281,14 @@ public class OperatorController {
                 new PrepareStaticShotCommand(shooter, feeder, floor, 3.0, true, limelight),
                 intake.agitateCommand()
             ).withName("Prepare Static Shot + Agitate"));
+        
+        // Left Trigger: Return Shot — lob balls back to alliance starting zone
+        // Static RPM & hood position from Constants.Shooter, feeds immediately without waiting for speed
+        new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
+            .whileTrue(Commands.parallel(
+                new ReturnShotCommand(shooter, feeder, floor, hood),
+                intake.agitateCommand()
+            ).withName("Return Shot + Agitate"));
         
         // NOTE: PrepareToFire (aiming) is now mapped to Driver Y button (see DriverController)
         

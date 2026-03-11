@@ -38,6 +38,12 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     private edu.wpi.first.math.geometry.Pose2d lastKnownHubPose = null;  // Field position when hub was last seen
     private final frc.robot.subsystems.CommandSwerveDrivetrain drivetrain;
 
+    // Target tuning dashboard state
+    private boolean targetTuningEnabled = false;
+    private static final String TT_PREFIX = "TargetTuning/";
+    // Tag IDs for iteration
+    private static final int[] ALL_HUB_TAG_IDS = {8, 9, 10, 11, 24, 25, 26, 27};
+
     /**
      * Constructs a LimelightSubsystem with the default Limelight name.
      * Uses empty string "" which corresponds to "limelight" on the network.
@@ -136,13 +142,13 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             }
             
             // Update SmartDashboard
-            SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubCenterDistance);
-            SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
-            SmartDashboard.putBoolean("Limelight/Hub Visible", true);
+            SmartDashboard.putNumber("Hub Distance (m)", lastHubCenterDistance);
+            SmartDashboard.putNumber("Hub Tag ID", lastHubTagID);
+            SmartDashboard.putBoolean("Hub Visible", true);
             
         } else {
             // No hub visible - use odometry fallback if available
-            SmartDashboard.putBoolean("Limelight/Hub Visible", false);
+            SmartDashboard.putBoolean("Hub Visible", false);
             
             if (drivetrain != null && hasEverSeenHub && lastKnownHubPose != null) {
                 Pose2d robotPose = drivetrain.getState().Pose;
@@ -223,6 +229,23 @@ public class LimelightSubsystem6237 extends SubsystemBase {
         
         // Corrected distance: straight-line to hub center
         lastHubCenterDistance = Math.hypot(hubCenterRobotX, hubCenterRobotY);
+        
+        // Apply per-tag TX trim from SmartDashboard (live tunable)
+        double trim = SmartDashboard.getNumber(TT_PREFIX + "Trim Tag " + tagID,
+                Constants.HubGeometry.getDefaultTrim(tagID));
+        double rawCorrectedTx = lastHubCenterTx;
+        lastHubCenterTx += trim;
+        
+        // Publish diagnostics when tuning dashboard is active
+        if (targetTuningEnabled) {
+            SmartDashboard.putNumber(TT_PREFIX + "Active Tag", tagID);
+            SmartDashboard.putNumber(TT_PREFIX + "Raw LL TX (deg)", rawTxDegrees);
+            SmartDashboard.putNumber(TT_PREFIX + "Corrected TX (deg)", rawCorrectedTx);
+            SmartDashboard.putNumber(TT_PREFIX + "Trim (deg)", trim);
+            SmartDashboard.putNumber(TT_PREFIX + "Final TX (deg)", lastHubCenterTx);
+            SmartDashboard.putNumber(TT_PREFIX + "Distance to Tag (m)", distanceToTag);
+            SmartDashboard.putNumber(TT_PREFIX + "Distance to Hub (m)", lastHubCenterDistance);
+        }
     }
     
     /**
@@ -355,6 +378,53 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      */
     public boolean hasEverSeenHub() {
         return hasEverSeenHub;
+    }
+
+    // ======================== TARGET TUNING DASHBOARD ========================
+
+    /**
+     * Publishes per-tag TX trim controls and real-time diagnostic values to SmartDashboard
+     * under the "TargetTuning/" prefix.
+     * 
+     * Trims are seeded from Constants.HubGeometry defaults (initially 0.0).
+     * Adjust trims live on SmartDashboard, then copy final values back to Constants.
+     * 
+     * Published entries:
+     *   TargetTuning/Trim Tag 8..11, 24..27   — editable TX offsets (degrees)
+     *   TargetTuning/Active Tag               — which tag is currently driving aiming
+     *   TargetTuning/Raw LL TX (deg)          — raw Limelight TX before any correction
+     *   TargetTuning/Corrected TX (deg)       — after geometric hub-center correction
+     *   TargetTuning/Trim (deg)               — the trim being applied for the active tag
+     *   TargetTuning/Final TX (deg)           — corrected + trim (what the robot aims at)
+     *   TargetTuning/Distance to Tag (m)      — raw distance to the tag face
+     *   TargetTuning/Distance to Hub (m)      — corrected distance to hub center
+     */
+    public void initializeTargetTuningDashboard() {
+        targetTuningEnabled = true;
+
+        // Seed per-tag trim entries with defaults from Constants
+        for (int tagID : ALL_HUB_TAG_IDS) {
+            SmartDashboard.putNumber(TT_PREFIX + "Trim Tag " + tagID,
+                    Constants.HubGeometry.getDefaultTrim(tagID));
+        }
+
+        // Seed diagnostic readouts with zeros
+        SmartDashboard.putNumber(TT_PREFIX + "Active Tag", 0);
+        SmartDashboard.putNumber(TT_PREFIX + "Raw LL TX (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Corrected TX (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Trim (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Final TX (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Distance to Tag (m)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Distance to Hub (m)", 0.0);
+    }
+
+    /**
+     * Stops publishing diagnostic values to SmartDashboard (trim entries remain
+     * so the robot still reads them — they just won't update in real time).
+     * Call this to reduce dashboard clutter during competition.
+     */
+    public void removeTargetTuningDashboard() {
+        targetTuningEnabled = false;
     }
 
     // ======================== POSE ESTIMATION ========================
