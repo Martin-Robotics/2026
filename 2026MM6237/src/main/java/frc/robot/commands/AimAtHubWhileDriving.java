@@ -107,13 +107,13 @@ public class AimAtHubWhileDriving extends Command {
         // === ROTATION: Automatic hub aiming via Limelight TX + PD control ===
         Rotation2d currentHeading = drivetrain.getState().Pose.getRotation();
         
-        // getLastHubTx() returns:
-        //   - Direct Limelight TX when hub tag is visible (most accurate)
-        //   - Odometry-estimated TX when hub tag is lost but was previously seen
+        // getHubCenterTx() returns:
+        //   - Corrected TX aimed at hub CENTER when hub tag is visible (most accurate)
+        //   - Odometry-estimated TX to hub center when hub tag is lost but was previously seen
         //   - 0.0 if hub has never been seen
         boolean hubVisible = limelight.isHubCurrentlyVisible();
         boolean hubEverSeen = limelight.hasEverSeenHub();
-        double tx = limelight.getLastHubTx();
+        double tx = limelight.getHubCenterTx();
         
         double rotationalRate = 0;
         

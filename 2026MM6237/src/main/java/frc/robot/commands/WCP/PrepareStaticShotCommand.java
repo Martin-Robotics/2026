@@ -105,8 +105,8 @@ public class PrepareStaticShotCommand extends Command {
         Distance actualDistance = targetDistance;
         
         if (useDetectedDistance && limelight != null) {
-            // Use background-tracked distance from Limelight
-            double detectedDistance = limelight.getLastHubDistance();
+            // Use hub-center corrected distance from Limelight
+            double detectedDistance = limelight.getHubCenterDistance();
             
             if (detectedDistance > 0) {
                 actualDistance = Meters.of(detectedDistance);

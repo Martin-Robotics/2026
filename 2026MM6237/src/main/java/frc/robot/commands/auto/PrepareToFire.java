@@ -74,19 +74,19 @@ public class PrepareToFire extends Command {
         
         // Check if Limelight sees the hub
         boolean hubVisible = limelight.isHubCurrentlyVisible();
-        double tx = limelight.getLastHubTx();  // Degrees offset from crosshair
+        // Use CORRECTED TX aimed at hub center (not tag face)
+        double tx = limelight.getHubCenterTx();
         
         double rotationalRate = 0;
         
         if (hubVisible) {
             hasEverSeenTarget = true;
             
-            // TX is the angle from crosshair to target
-            // Positive TX = target is to the RIGHT of crosshair
+            // TX is the corrected angle from robot forward to the HUB CENTER
+            // Positive TX = hub center is to the RIGHT
             // We need to rotate RIGHT (negative in FRC convention) to center it
             
-            // Calculate target heading: where we need to point to center the tag
-            // Current heading + TX = heading that would center the tag
+            // Calculate target heading: where we need to point to center the hub
             lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
             
             // Calculate derivative (rate of change of error) for damping
@@ -94,7 +94,6 @@ public class PrepareToFire extends Command {
             lastTx = tx;
             
             // Use TX directly for proportional control with derivative damping
-            // If TX is positive (target right), we rotate right (negative rate in FRC)
             if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
                 // P term: proportional to error
                 double pTerm = -tx * PROPORTIONAL_GAIN;
@@ -117,7 +116,7 @@ public class PrepareToFire extends Command {
             }
             
         } else if (hasEverSeenTarget && lastTargetHeading != null) {
-            // Lost the target - rotate toward last known heading
+            // Lost the target - rotate toward last known heading (hub center)
             Rotation2d error = lastTargetHeading.minus(currentHeading);
             double errorDegrees = error.getDegrees();
             
@@ -147,9 +146,9 @@ public class PrepareToFire extends Command {
                 .withRotationalRate(rotationalRate)
         );
         
-        // Position the hood based on detected distance using the shared interpolation table
+        // Position the hood based on corrected distance to hub CENTER
         // This runs continuously so the hood tracks distance changes while the driver aims
-        double detectedDistance = limelight.getLastHubDistance();
+        double detectedDistance = limelight.getHubCenterDistance();
         if (detectedDistance > 0) {
             Shot shot = PrepareStaticShotCommand.distanceToShotMap.get(Meters.of(detectedDistance));
             hood.setPosition(shot.hoodPosition);

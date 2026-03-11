@@ -439,4 +439,98 @@ public final class Constants {
         public static final double kAutoFireRunTimeSeconds = 2.0;      // Time to run feeder after shooter at speed
         public static final double kAutoPrepareAimTimeSeconds = 0.5;   // Time to attempt aiming before giving up
     }
+
+    // ======================== HUB GEOMETRY (2026 REBUILT FIELD) ========================
+    // All coordinates in meters, from the official 2026-rebuilt-welded.json field spec.
+    // Hub is a hexagonal processor structure with 4 AprilTags per alliance hub.
+    
+    public static class HubGeometry {
+        // --- Red Hub (far side of field, front face points toward +X / Red wall) ---
+        public static final int[] kRedHubTagIDs = {8, 9, 10, 11};
+        //   Tag  8: right side  (12.271, 3.431) facing -Y
+        //   Tag  9: front       (12.519, 3.679) facing +X
+        //   Tag 10: front       (12.519, 4.035) facing +X
+        //   Tag 11: left side   (12.271, 4.638) facing +Y
+        
+        // Red hub center (geometric center of the hexagonal structure)
+        public static final double kRedHubCenterX = 12.395;  // midpoint of front (12.519) and side (12.271) faces
+        public static final double kRedHubCenterY = 4.035;   // midpoint of Y span
+        
+        // --- Blue Hub (near side of field, front face points toward -X / Blue wall) ---
+        public static final int[] kBlueHubTagIDs = {24, 25, 26, 27};
+        //   Tag 24: left side   (4.270, 4.638) facing +Y
+        //   Tag 25: front       (4.022, 4.390) facing -X
+        //   Tag 26: front       (4.022, 4.035) facing -X
+        //   Tag 27: right side  (4.270, 3.431) facing -Y
+        
+        // Blue hub center (geometric center of the hexagonal structure)
+        public static final double kBlueHubCenterX = 4.146;  // midpoint of front (4.022) and side (4.270) faces
+        public static final double kBlueHubCenterY = 4.035;   // midpoint of Y span
+
+        // --- Per-tag field positions (meters) ---
+        // Used to compute the offset from any visible tag to its hub center.
+        // Format: {x, y} for each tag, indexed by tag ID via getTagPosition()
+        
+        // Red hub tag positions
+        public static final double[] kTag8Pos  = {12.271, 3.431};   // right side
+        public static final double[] kTag9Pos  = {12.519, 3.679};   // front
+        public static final double[] kTag10Pos = {12.519, 4.035};   // front
+        public static final double[] kTag11Pos = {12.271, 4.638};   // left side
+        
+        // Blue hub tag positions
+        public static final double[] kTag24Pos = {4.270, 4.638};    // left side
+        public static final double[] kTag25Pos = {4.022, 4.390};    // front
+        public static final double[] kTag26Pos = {4.022, 4.035};    // front
+        public static final double[] kTag27Pos = {4.270, 3.431};    // right side
+
+        /**
+         * Returns the field position {x, y} of a known hub tag, or null if not a hub tag.
+         */
+        public static double[] getTagPosition(int tagID) {
+            switch (tagID) {
+                case 8:  return kTag8Pos;
+                case 9:  return kTag9Pos;
+                case 10: return kTag10Pos;
+                case 11: return kTag11Pos;
+                case 24: return kTag24Pos;
+                case 25: return kTag25Pos;
+                case 26: return kTag26Pos;
+                case 27: return kTag27Pos;
+                default: return null;
+            }
+        }
+
+        /**
+         * Returns the hub center {x, y} for the hub that the given tag belongs to,
+         * or null if not a hub tag.
+         */
+        public static double[] getHubCenter(int tagID) {
+            switch (tagID) {
+                case 8: case 9: case 10: case 11:
+                    return new double[] {kRedHubCenterX, kRedHubCenterY};
+                case 24: case 25: case 26: case 27:
+                    return new double[] {kBlueHubCenterX, kBlueHubCenterY};
+                default:
+                    return null;
+            }
+        }
+
+        /**
+         * Returns true if the given tag ID belongs to any hub (red or blue).
+         */
+        public static boolean isHubTag(int tagID) {
+            return getTagPosition(tagID) != null;
+        }
+
+        /**
+         * Returns true if the given tag belongs to the specified alliance's hub.
+         */
+        public static boolean isOurHubTag(int tagID, edu.wpi.first.wpilibj.DriverStation.Alliance alliance) {
+            if (alliance == edu.wpi.first.wpilibj.DriverStation.Alliance.Red) {
+                return tagID >= 8 && tagID <= 11;
+            } else {
+                return tagID >= 24 && tagID <= 27;
+            }
+        }
+    }
 }
