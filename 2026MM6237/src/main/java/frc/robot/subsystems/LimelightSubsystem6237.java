@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -33,6 +32,17 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     private double lastHubCenterDistance = -1.0; // distance to HUB CENTER (corrected)
     private boolean hasEverSeenHub = false;
     private boolean hubCurrentlyVisible = false;  // Updated each loop cycle
+    
+    // Tag lock hysteresis — prevents bouncing between adjacent tags (e.g., 25/26)
+    // Currently disabled: simple direct tracking proved more reliable in testing
+    // private int lockedTagID = -1;
+    // private int framesWithoutLockedTag = 0;
+    // private static final int LOCK_RELEASE_FRAMES = 15;
+    
+    // TX smoothing — low-pass filter to dampen frame-to-frame jitter
+    // Currently disabled: added too much lag for our use case
+    // private double smoothedHubCenterTx = 0.0;
+    // private static final double SMOOTHING_ALPHA = 0.15;
     
     // Odometry-based tracking when vision is lost
     private edu.wpi.first.math.geometry.Pose2d lastKnownHubPose = null;  // Field position when hub was last seen
@@ -361,6 +371,23 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      */
     public double getHubCenterTx() {
         return lastHubCenterTx;
+    }
+    
+    /**
+     * Gets the raw (unsmoothed) corrected TX to hub center. Same as getHubCenterTx().
+     * @return Corrected TX angle in degrees
+     */
+    public double getRawHubCenterTx() {
+        return lastHubCenterTx;
+    }
+    
+    /**
+     * Gets the currently locked tag ID for anti-oscillation.
+     * Tag locking is currently disabled — returns the last seen hub tag ID instead.
+     * @return The last seen hub tag ID, or -1 if none
+     */
+    public int getLockedTagID() {
+        return lastHubTagID;
     }
     
     /**
