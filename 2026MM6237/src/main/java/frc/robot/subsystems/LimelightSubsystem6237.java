@@ -144,13 +144,13 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             }
             
             // Update SmartDashboard (kept values only)
-            SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
-            SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
-            SmartDashboard.putBoolean("Limelight/Hub Visible", true);
+            SmartDashboard.putNumber("Hub Distance (m)", lastHubDistance);
+            SmartDashboard.putNumber("Hub Tag ID", lastHubTagID);
+            SmartDashboard.putBoolean("Hub Locked", true);
             
         } else {
             // No hub visible - use odometry fallback if available
-            SmartDashboard.putBoolean("Limelight/Hub Visible", false);
+            SmartDashboard.putBoolean("Hub Locked", false);
             
             if (drivetrain != null && hasEverSeenHub && lastKnownHubPose != null) {
                 edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;

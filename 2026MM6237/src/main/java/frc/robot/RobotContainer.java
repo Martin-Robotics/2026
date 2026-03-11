@@ -85,10 +85,15 @@ public class RobotContainer {
      * Initialize the minimal set of SmartDashboard values so they're visible on startup.
      */
     private void initializeDashboard() {
-      SmartDashboard.putNumber("Limelight/Hub Distance (m)", 0.0);
-      SmartDashboard.putBoolean("Limelight/Hub Visible", false);
-      SmartDashboard.putNumber("Limelight/Hub Tag ID", 0);
-      SmartDashboard.putBoolean("AimAtHub/Active", false);
+      SmartDashboard.putNumber("Hub Distance (m)", 0.0);
+      SmartDashboard.putBoolean("Hub Locked", false);
+      SmartDashboard.putNumber("Hub Tag ID", 0);
+      SmartDashboard.putBoolean("AimAtHub Mode", false);
+      SmartDashboard.putString("Hub/Active Hub", "Both");
+      SmartDashboard.putBoolean("Hub/Our Hub Active", true);
+      SmartDashboard.putString("Hub/Status", "");
+      SmartDashboard.putNumber("Hub/Countdown (s)", 0.0);
+      SmartDashboard.putNumber("Match Time (s)", 0.0);
     }
 
     /**

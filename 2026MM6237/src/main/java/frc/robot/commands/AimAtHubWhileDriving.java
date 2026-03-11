@@ -81,7 +81,7 @@ public class AimAtHubWhileDriving extends Command {
         lastTargetHeading = null;
         hasEverSeenTarget = false;
         lastTx = 0;
-        SmartDashboard.putBoolean("AimAtHub/Active", true);
+        SmartDashboard.putBoolean("AimAtHub Mode", true);
     }
 
     @Override
@@ -222,6 +222,6 @@ public class AimAtHubWhileDriving extends Command {
                 .withVelocityY(0)
                 .withRotationalRate(0)
         );
-        SmartDashboard.putBoolean("AimAtHub/Active", false);
+        SmartDashboard.putBoolean("AimAtHub Mode", false);
     }
 }
