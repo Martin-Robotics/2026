@@ -20,7 +20,7 @@
         "y": 6.0
       },
       "prevControl": {
-        "x": 2.933,
+        "x": 2.9330000000000003,
         "y": 0.9000000000000004
       },
       "nextControl": {
@@ -109,7 +109,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Lilly's Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0
