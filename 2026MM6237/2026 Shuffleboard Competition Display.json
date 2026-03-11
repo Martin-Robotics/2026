@@ -91,48 +91,76 @@
               "_showGlyph": false
             }
           },
-          "4,0": {
+          "0,0": {
             "size": [
               2,
               1
             ],
             "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight/Hub Distance (m)",
-              "_title": "Limelight/Hub Distance (m)",
+              "_type": "ComboBox Chooser",
+              "_source0": "network_table:///SmartDashboard/Auto Mode",
+              "_title": "Auto Mode",
               "_glyph": 148,
               "_showGlyph": false
             }
           },
-          "6,1": {
+          "2,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/Hub Distance (m)",
+              "_title": "Hub Distance (m)",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
+          },
+          "4,2": {
             "size": [
               2,
               2
             ],
             "content": {
               "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/Limelight/Hub Visible",
-              "_title": "Limelight/Hub Visible",
+              "_source0": "network_table:///SmartDashboard/Hub Locked",
+              "_title": "Hub Locked",
               "_glyph": 148,
               "_showGlyph": false,
               "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#8B0000FF"
+              "Colors/Color when false": "#666666FF"
             }
           },
-          "6,0": {
+          "5,0": {
             "size": [
-              2,
+              1,
               1
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Limelight/Hub Tag ID",
-              "_title": "Limelight/Hub Tag ID",
+              "_source0": "network_table:///SmartDashboard/Hub Tag ID",
+              "_title": "Hub Tag ID",
               "_glyph": 148,
               "_showGlyph": false
             }
           },
-          "10,0": {
+          "4,0": {
+            "size": [
+              1,
+              1
+            ],
+            "content": {
+              "_type": "Boolean Box",
+              "_source0": "network_table:///SmartDashboard/AimAtHub Mode",
+              "_title": "AimAtHub Mode",
+              "_glyph": 148,
+              "_showGlyph": false,
+              "Colors/Color when true": "#7CFC00FF",
+              "Colors/Color when false": "#808080FF"
+            }
+          },
+          "7,0": {
             "size": [
               1,
               1
@@ -145,7 +173,7 @@
               "_showGlyph": false
             }
           },
-          "11,1": {
+          "6,0": {
             "size": [
               1,
               1
@@ -160,7 +188,7 @@
               "Colors/Color when false": "#8B0000FF"
             }
           },
-          "11,0": {
+          "6,1": {
             "size": [
               1,
               1
@@ -173,7 +201,7 @@
               "_showGlyph": false
             }
           },
-          "9,1": {
+          "4,1": {
             "size": [
               2,
               1
@@ -186,7 +214,7 @@
               "_showGlyph": false
             }
           },
-          "9,0": {
+          "7,3": {
             "size": [
               1,
               1
@@ -199,10 +227,10 @@
               "_showGlyph": false
             }
           },
-          "6,3": {
+          "0,2": {
             "size": [
-              5,
-              3
+              4,
+              2
             ],
             "content": {
               "_type": "Field",
@@ -215,20 +243,7 @@
               "Visuals/Show Outside Circles": false
             }
           },
-          "0,0": {
-            "size": [
-              3,
-              1
-            ],
-            "content": {
-              "_type": "ComboBox Chooser",
-              "_source0": "network_table:///SmartDashboard/Auto Mode",
-              "_title": "Auto Mode",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "8,0": {
+          "3,0": {
             "size": [
               1,
               1
@@ -241,19 +256,19 @@
               "_showGlyph": false
             }
           },
-          "3,0": {
+          "8,0": {
             "size": [
               1,
               1
             ],
             "content": {
               "_type": "Boolean Box",
-              "_source0": "network_table:///SmartDashboard/AimAtHub/Active",
-              "_title": "AimAtHub/Active",
+              "_source0": "network_table:///SmartDashboard/Limelight/Hub Visible",
+              "_title": "Limelight/Hub Visible",
               "_glyph": 148,
               "_showGlyph": false,
-              "Colors/Color when true": "#7CFC00FF",
-              "Colors/Color when false": "#8B0000FF"
+              "Colors/Color when true": "#00FF00FF",
+              "Colors/Color when false": "#FFFF00FF"
             }
           }
         }
@@ -276,7 +291,7 @@
   "windowGeometry": {
     "x": -3447.0,
     "y": -307.0,
-    "width": 1742.0,
-    "height": 1419.0
+    "width": 1746.0,
+    "height": 1429.0
   }
 }
