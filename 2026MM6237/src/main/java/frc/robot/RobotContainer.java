@@ -72,6 +72,9 @@ public class RobotContainer {
             .onlyIf(() -> intake.isHomed())
             .withName("HoldStowed"));
       
+      // Wire limelight into LED subsystem for target-lock indication
+      m_leds.setLimelightSubsystem(limelight);
+
       // Configure the trigger bindings
       configureBindings();
       autoChooser = AutoBuilder.buildAutoChooser("DefaultAuto");
