@@ -11,16 +11,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.WCP.PrepareShotCommand.Shot;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
-import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 
 /**
  * Prepares the shooter and feeds game pieces at a known static distance.
  * Unlike PrepareShotCommand, this does not use field position or odometry.
- * Spins up the shooter, positions the hood, and engages the feeder and floor once at speed.
+ * Spins up the shooter to the interpolated RPM and engages the feeder and floor once at speed.
+ * 
+ * NOTE: Hood positioning has been moved to PrepareToFire (Driver Y button).
+ * This command no longer waits for the hood — it fires as soon as the shooter is at speed.
  */
 public class PrepareStaticShotCommand extends Command {
-    private static final InterpolatingTreeMap<Distance, Shot> distanceToShotMap = new InterpolatingTreeMap<>(
+    /** Shared interpolation table — also used by PrepareToFire for hood positioning. */
+    public static final InterpolatingTreeMap<Distance, Shot> distanceToShotMap = new InterpolatingTreeMap<>(
         (startValue, endValue, q) -> 
             InverseInterpolator.forDouble()
                 .inverseInterpolate(startValue.in(Meters), endValue.in(Meters), q.in(Meters)),
@@ -48,7 +51,6 @@ public class PrepareStaticShotCommand extends Command {
     }
 
     private final Shooter shooter;
-    private final Hood hood;
     private final Feeder feeder;
     private final Floor floor;
     private final Distance targetDistance;
@@ -60,35 +62,32 @@ public class PrepareStaticShotCommand extends Command {
      * Creates a command to prepare for a shot at a static distance.
      * 
      * @param shooter The shooter subsystem
-     * @param hood The hood subsystem
      * @param feeder The feeder subsystem
      * @param floor The floor subsystem
      * @param distanceMeters The distance to the target in meters
      */
-    public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double distanceMeters) {
-        this(shooter, hood, feeder, floor, distanceMeters, false, null);
+    public PrepareStaticShotCommand(Shooter shooter, Feeder feeder, Floor floor, double distanceMeters) {
+        this(shooter, feeder, floor, distanceMeters, false, null);
     }
     
     /**
      * Creates a command to prepare for a shot, optionally using detected distance from Limelight.
      * 
      * @param shooter The shooter subsystem
-     * @param hood The hood subsystem
      * @param feeder The feeder subsystem
      * @param floor The floor subsystem
      * @param fallbackDistanceMeters The fallback distance if no detected distance available
      * @param useDetectedDistance If true, uses last detected distance from Limelight background tracking
      * @param limelight The Limelight subsystem (required if useDetectedDistance is true)
      */
-    public PrepareStaticShotCommand(Shooter shooter, Hood hood, Feeder feeder, Floor floor, double fallbackDistanceMeters, boolean useDetectedDistance, frc.robot.subsystems.LimelightSubsystem6237 limelight) {
+    public PrepareStaticShotCommand(Shooter shooter, Feeder feeder, Floor floor, double fallbackDistanceMeters, boolean useDetectedDistance, frc.robot.subsystems.LimelightSubsystem6237 limelight) {
         this.shooter = shooter;
-        this.hood = hood;
         this.feeder = feeder;
         this.floor = floor;
         this.targetDistance = Meters.of(fallbackDistanceMeters);
         this.useDetectedDistance = useDetectedDistance;
         this.limelight = limelight;
-        addRequirements(shooter, hood, feeder, floor);
+        addRequirements(shooter, feeder, floor);
     }
 
     @Override
@@ -116,24 +115,16 @@ public class PrepareStaticShotCommand extends Command {
         
         final Shot shot = distanceToShotMap.get(actualDistance);
         
-        // Always spin up shooter and position hood
+        // Spin up shooter to target RPM
         shooter.setRPM(shot.shooterRPM);
-        hood.setPosition(shot.hoodPosition);
         
-        // Check if both shooter has reached speed AND hood has reached position
-        if (!shooterAtSpeed && shooter.isVelocityWithinTolerance() && hood.isPositionWithinTolerance()) {
+        // Engage feeder and floor once shooter is at speed
+        // Hood positioning is handled separately by PrepareToFire (Driver Y button)
+        if (!shooterAtSpeed && shooter.isVelocityWithinTolerance()) {
             shooterAtSpeed = true;
-            // Engage feeder and floor once both shooter and hood are ready
             feeder.set(Feeder.Speed.FEED);
             floor.set(Floor.Speed.FEED);
         }
-        
-        // Debug outputs (commented out after testing)
-        // SmartDashboard.putNumber("Static Distance to Target (inches)", targetDistance.in(Inches));
-        // SmartDashboard.putNumber("Target Shooter RPM", shot.shooterRPM);
-        // SmartDashboard.putNumber("Target Hood Position", shot.hoodPosition);
-        // SmartDashboard.putBoolean("Shooter At Speed", shooterAtSpeed);
-        // SmartDashboard.putBoolean("Hood At Position", hood.isPositionWithinTolerance());
     }
 
     @Override

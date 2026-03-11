@@ -1,5 +1,7 @@
 package frc.robot.commands.auto;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -7,6 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
+import frc.robot.commands.WCP.PrepareStaticShotCommand;
+import frc.robot.commands.WCP.PrepareShotCommand.Shot;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem6237;
@@ -26,6 +31,7 @@ public class PrepareToFire extends Command {
     private final LimelightSubsystem6237 limelight;
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
+    private final Hood hood;
     
     // Simple field-centric request for manual rotation control
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
@@ -45,12 +51,13 @@ public class PrepareToFire extends Command {
     private boolean hasEverSeenTarget = false;
     private double lastTx = 0;  // For derivative calculation
 
-    public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController) {
+    public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController, Hood hood) {
         this.limelight = limelight;
         this.drivetrain = drivetrain;
         this.driverController = driverController;
+        this.hood = hood;
         
-        addRequirements(drivetrain);
+        addRequirements(drivetrain, hood);
     }
 
     @Override
@@ -139,6 +146,14 @@ public class PrepareToFire extends Command {
                 .withVelocityY(0)
                 .withRotationalRate(rotationalRate)
         );
+        
+        // Position the hood based on detected distance using the shared interpolation table
+        // This runs continuously so the hood tracks distance changes while the driver aims
+        double detectedDistance = limelight.getLastHubDistance();
+        if (detectedDistance > 0) {
+            Shot shot = PrepareStaticShotCommand.distanceToShotMap.get(Meters.of(detectedDistance));
+            hood.setPosition(shot.hoodPosition);
+        }
     }
 
     @Override

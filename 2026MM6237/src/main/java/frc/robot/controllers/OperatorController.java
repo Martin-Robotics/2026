@@ -222,7 +222,7 @@ public class OperatorController {
         //     .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, STATIC_SHOT_DISTANCE_METERS) STATIC_SHOT_DISTANCE_METERS = 2.0
         //         .withName("Prepare Static Shot"));
         operatorController.start()
-            .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3) 
+            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, 3) 
                 .withName("Prepare Static Shot"));
     }
 
@@ -276,7 +276,7 @@ public class OperatorController {
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
                          && operatorController.getHID().getPOV() != 0)
             .whileTrue(Commands.parallel(
-                new PrepareStaticShotCommand(shooter, hood, feeder, floor, 3.0, true, limelight),
+                new PrepareStaticShotCommand(shooter, feeder, floor, 3.0, true, limelight),
                 intake.agitateCommand()
             ).withName("Prepare Static Shot + Agitate"));
         

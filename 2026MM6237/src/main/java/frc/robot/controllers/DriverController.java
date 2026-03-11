@@ -14,6 +14,7 @@ import frc.robot.commands.AimAtHubWhileDriving;
 import frc.robot.commands.SnapToNearestAngleCommand;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
 
@@ -54,7 +55,7 @@ public class DriverController {
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public static void mapXboxController(CommandXboxController driverController, CommandSwerveDrivetrain drivetrain, NetworkTable limelight, 
-                                         Shooter shooter, LimelightSubsystem6237 limelightSubsystem) {
+                                         Shooter shooter, LimelightSubsystem6237 limelightSubsystem, Hood hood) {
         robotCentricControl = new Trigger(() -> driverController.leftBumper().getAsBoolean());
         slowSpeedControl = new Trigger(() -> driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
         fastSpeedControl = new Trigger(() -> driverController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
@@ -97,8 +98,8 @@ public class DriverController {
         // A button: Snap to nearest 45-degree increment
         driverController.a().whileTrue(new SnapToNearestAngleCommand(drivetrain));
         
-        // Y button: PrepareToFire - Aim at hub and read distance
-        driverController.y().whileTrue(new PrepareToFire(shooter, limelightSubsystem, drivetrain, driverController));
+        // Y button: PrepareToFire - Aim at hub, read distance, and position hood
+        driverController.y().whileTrue(new PrepareToFire(shooter, limelightSubsystem, drivetrain, driverController, hood));
         
         // B button: Toggle aim-at-hub mode - robot auto-rotates to face hub while driver retains full translation
         // Press B to activate, press B again to deactivate. Operator can fire while driver repositions.

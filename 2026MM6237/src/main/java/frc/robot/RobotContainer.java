@@ -135,7 +135,7 @@ public class RobotContainer {
      */
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
-      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight);
+      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight, hood);
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight, drivetrain, driver);
       // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
 
