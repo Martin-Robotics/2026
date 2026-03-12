@@ -37,8 +37,8 @@ public class LEDSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (m_limelight != null && m_limelight.hasValidTarget()) {
-      // Color Waves, Forest palette when a limelight target is locked
+    if (m_limelight != null && m_limelight.isAimedAtHub()) {
+      // Color Waves, Forest palette when robot is aimed at the hub (safe to fire)
       m_blinkin.set(Patterns.TARGET_LOCKED);
     } else {
       // No target — restore whatever pattern was last set externally

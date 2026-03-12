@@ -185,6 +185,11 @@ public final class Constants {
         public static final double kCameraHeightMeters = 0.6;        // Height of camera lens from floor
         public static final double kCameraMountAngleDegrees = 13.0;  // Angle of camera from horizontal (positive = tilted up)
         public static final double kHubAprilTagHeightMeters = 1.2;  // Height of hub AprilTag center from floor
+
+        // TX tolerance (degrees) for the "aimed at hub / safe to fire" LED indicator.
+        // Robot must have hub tag visible AND tx within this many degrees of center.
+        // Increase to make the indicator easier to trigger; decrease for tighter aim requirement.
+        public static final double kAimedAtHubTxTolerance = 3.0;
     }
 
     // public static class CommandSwerveDrivetrainOld {
