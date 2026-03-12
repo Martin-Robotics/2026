@@ -398,6 +398,19 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     public boolean isHubCurrentlyVisible() {
         return hubCurrentlyVisible;
     }
+
+    /**
+     * Checks if the robot is aimed at the hub within the tunable tx tolerance defined
+     * in Constants.Limelight.kAimedAtHubTxTolerance.
+     * Only returns true when a hub tag (10 or 26) is currently visible AND
+     * the horizontal offset is within tolerance of center.
+     * Use this for the "safe to fire" LED indicator instead of hasValidTarget().
+     *
+     * @return true if hub is visible and tx is within tolerance of 0
+     */
+    public boolean isAimedAtHub() {
+        return hubCurrentlyVisible && Math.abs(lastHubTx) <= frc.robot.Constants.Limelight.kAimedAtHubTxTolerance;
+    }
     
     /**
      * Checks if the hub has ever been seen since robot startup.
