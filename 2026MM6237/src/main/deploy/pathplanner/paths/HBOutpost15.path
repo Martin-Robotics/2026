@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5139871794871811,
-        "y": 0.6395641025641032
+        "x": 4.33749358974359,
+        "y": 2.3372820512820516
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.513987179487181,
-        "y": 0.639564102564103
+        "x": 4.83749358974359,
+        "y": 2.3372820512820516
       },
       "isLocked": false,
       "linkedName": "Outpost"
     },
     {
       "anchor": {
-        "x": 2.93,
-        "y": 3.3
+        "x": 5.5455,
+        "y": 3.6675
       },
       "prevControl": {
-        "x": 1.9300000000000002,
-        "y": 3.3000000000000003
+        "x": 5.0455,
+        "y": 3.6675000000000004
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [
     {
       "fieldPosition": {
-        "x": 4.625,
-        "y": 4.025
+        "x": 6.393,
+        "y": 4.03
       },
       "rotationOffset": 0.0,
       "minWaypointRelativePos": 0.5973520249221184,

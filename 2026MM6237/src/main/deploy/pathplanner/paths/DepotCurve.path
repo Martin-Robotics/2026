@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5023589743589756,
-        "y": 6.0
+        "x": 4.331679487179487,
+        "y": 5.0175
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7238140142051217,
-        "y": 6.0
+        "x": 4.9424070071025605,
+        "y": 5.0175
       },
       "isLocked": false,
       "linkedName": "Depot"
     },
     {
       "anchor": {
-        "x": 1.7465769230769244,
-        "y": 4.976884615384615
+        "x": 4.953788461538462,
+        "y": 4.505942307692308
       },
       "prevControl": {
-        "x": 1.7814615384615395,
-        "y": 5.80248717948718
+        "x": 4.97123076923077,
+        "y": 4.91874358974359
       },
       "nextControl": null,
       "isLocked": false,
@@ -38,8 +38,8 @@
   "pointTowardsZones": [
     {
       "fieldPosition": {
-        "x": 4.625,
-        "y": 4.025
+        "x": 6.393,
+        "y": 4.03
       },
       "rotationOffset": 0.0,
       "minWaypointRelativePos": 1.0,
