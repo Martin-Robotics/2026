@@ -1,13 +1,11 @@
 package frc.robot.controllers;
 
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.ShooterTuningCommand;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
 import frc.robot.commands.WCP.ReturnShotCommand;
-import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.commands.auto.PrepareToClimbLeft;
 import frc.robot.commands.auto.PrepareToClimbRight;
 import frc.robot.subsystems.Feeder;
@@ -17,7 +15,6 @@ import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 /**
  * Operator Controller mapping for testing and exercising subsystems.
@@ -223,7 +220,7 @@ public class OperatorController {
         //     .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, STATIC_SHOT_DISTANCE_METERS) STATIC_SHOT_DISTANCE_METERS = 2.0
         //         .withName("Prepare Static Shot"));
         operatorController.start()
-            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, 3) 
+            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 3) 
                 .withName("Prepare Static Shot"));
     }
 
@@ -268,27 +265,24 @@ public class OperatorController {
             CommandXboxController driverController) {
         
         // ======================== SHOOTING CONTROLS ========================
-        // Right Trigger: PrepareStaticShotCommand + Intake Agitate (run in parallel)
+        // Right Trigger: PrepareStaticShotCommand (spins up, feeds, and agitates intake)
         // - Spins up shooter, positions hood, feeds when at speed (uses Limelight auto-distance)
-        // - Simultaneously agitates the intake arm to knock balls into the feed system
+        // - Agitates intake arm internally to nudge balls into feed system
         // Distance is continuously tracked by LimelightSubsystem in the background
         // If no distance detected, falls back to 3 meters
         // IMPORTANT: Only fires when DPad UP is NOT held. When DPad UP is held,
         // ShooterTuningCommand owns all shooting subsystems and handles RT internally.
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
                          && operatorController.getHID().getPOV() != 0)
-            .whileTrue(Commands.parallel(
-                new PrepareStaticShotCommand(shooter, feeder, floor, 3.0, true, limelight),
-                intake.agitateCommand()
-            ).withName("Prepare Static Shot + Agitate"));
+            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 3.0, true, limelight)
+                .withName("Prepare Static Shot"));
         
         // Left Trigger: Return Shot — lob balls back to alliance starting zone
         // Static RPM & hood position from Constants.Shooter, feeds immediately without waiting for speed
+        // Also agitates intake arm to help feed balls
         new Trigger(() -> operatorController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold)
-            .whileTrue(Commands.parallel(
-                new ReturnShotCommand(shooter, feeder, floor, hood),
-                intake.agitateCommand()
-            ).withName("Return Shot + Agitate"));
+            .whileTrue(new ReturnShotCommand(shooter, feeder, floor, hood, intake)
+                .withName("Return Shot"));
         
         // NOTE: PrepareToFire (aiming) is now mapped to Driver Y button (see DriverController)
         

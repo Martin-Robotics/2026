@@ -129,11 +129,13 @@ public final class Constants {
     }
 
     public static class Intake {
-        public static final double kIntakePercentOutput = 1;
+        public static final double kIntakePercentOutput = .8;
         public static final double kHomedPositionDegrees = 10;   // Home position (slightly past stowed)
         public static final double kStowedPositionDegrees = 5;   // Safe/normal stowed position
         public static final double kIntakePositionDegrees = -110; // Fully extended intake position
-        public static final double kAgitatePositionDegrees = -80; 
+        public static final double kAgitatePositionDegrees = -50; // Agitate position (30° lower than previous -20°, nudges balls toward feeder)
+        public static final double kAgitateIntervalSeconds = 1.6; // Time at each position during agitate oscillation (1/4 speed)
+        public static final double kAgitateDelaySeconds = 0.25;   // Delay before agitation begins
         public static final double kPivotReduction = 50.0;
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;

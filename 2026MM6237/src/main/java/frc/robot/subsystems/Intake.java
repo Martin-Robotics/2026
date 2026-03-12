@@ -62,6 +62,9 @@ public class Intake extends SubsystemBase {
     private final MotionMagicVoltage pivotMotionMagicRequest = new MotionMagicVoltage(0).withSlot(0);
     private final VoltageOut rollerVoltageRequest = new VoltageOut(0);
     private boolean isHomed = false;
+    // Live-tunable roller speed (read from SmartDashboard every cycle)
+    private double intakeRollerPercent = Constants.Intake.kIntakePercentOutput;
+
     public Intake() {
         pivotMotor = new TalonFX(Ports.kIntakePivot, Ports.kRoboRioCANBus);
         rollerMotor = new TalonFX(Ports.kIntakeRollers, Ports.kRoboRioCANBus);
@@ -71,6 +74,9 @@ public class Intake extends SubsystemBase {
         // SAFETY: Ensure motors start in neutral state with zero voltage
         // This prevents any unintended motion on enable before calibration
         neutralizeMotors();
+        
+        // Seed the dashboard with the current constant so it's editable live
+        SmartDashboard.putNumber("Intake/Roller Speed %", intakeRollerPercent);
         
         // SmartDashboard.putData(this); // Commented out to reduce dashboard clutter
     }
@@ -213,10 +219,19 @@ public class Intake extends SubsystemBase {
             }
         }
         
-        rollerMotor.setControl(
-            rollerVoltageRequest
-                .withOutput(speed.voltage())
-        );
+        if (speed == Speed.INTAKE) {
+            // Read live-tunable value from SmartDashboard
+            intakeRollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", intakeRollerPercent);
+            rollerMotor.setControl(
+                rollerVoltageRequest
+                    .withOutput(Volts.of(intakeRollerPercent * 12.0))
+            );
+        } else {
+            rollerMotor.setControl(
+                rollerVoltageRequest
+                    .withOutput(speed.voltage())
+            );
+        }
     }
     public Command intakeCommand() {
         return Commands.sequence(
@@ -228,20 +243,37 @@ public class Intake extends SubsystemBase {
         ).finallyDo((interrupted) -> set(Speed.STOP));
     }
     public Command agitateCommand() {
-        return runOnce(() -> set(Speed.INTAKE))
-            .andThen(
-                Commands.sequence(
-                    runOnce(() -> set(Position.AGITATE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance),
-                    runOnce(() -> set(Position.INTAKE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance)
-                )
-                .repeatedly()
-            )
-            .finallyDo((interrupted) -> {
-                set(Position.INTAKE);
-                set(Speed.STOP);
-            });
+        // Gently oscillate the intake arm between INTAKE and AGITATE (-50°) on a timer
+        // to nudge balls toward the feeder. Runs rollers to assist feeding.
+        // Uses setManualRollerVoltage to bypass the stowed-position roller safety check.
+        double delay = Constants.Intake.kAgitateDelaySeconds;
+        double interval = Constants.Intake.kAgitateIntervalSeconds;
+        return Commands.sequence(
+            Commands.waitSeconds(delay),
+            runOnce(() -> {
+                setManualPosition(Position.AGITATE);
+                intakeRollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", intakeRollerPercent);
+                setManualRollerVoltage(intakeRollerPercent);
+            }),
+            Commands.sequence(
+                Commands.waitSeconds(interval),
+                runOnce(() -> {
+                    setManualPosition(Position.INTAKE);
+                    intakeRollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", intakeRollerPercent);
+                    setManualRollerVoltage(intakeRollerPercent);
+                }),
+                Commands.waitSeconds(interval),
+                runOnce(() -> {
+                    setManualPosition(Position.AGITATE);
+                    intakeRollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", intakeRollerPercent);
+                    setManualRollerVoltage(intakeRollerPercent);
+                })
+            ).repeatedly()
+        )
+        .finallyDo((interrupted) -> {
+            setManualPosition(Position.INTAKE);
+            setManualRollerVoltage(0);
+        });
     }
     /**
      * Homes the intake pivot by driving into a hard stop until current spike is detected.
