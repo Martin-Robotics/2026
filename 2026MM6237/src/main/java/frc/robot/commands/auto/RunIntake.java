@@ -6,6 +6,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Speed;
 import frc.robot.subsystems.Intake.Position;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -14,10 +15,13 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Extends the intake pivot arm to the INTAKE position, waits for it to reach
  * the position, then spins up the rollers at full speed to collect notes.
  * The arm and rollers continue running when the command ends.
+ * Includes a safety timeout to prevent hanging the auto sequence.
  */
 public class RunIntake extends Command {
     private final Intake intake;
     private boolean armAtPosition = false;
+    private static final double kTimeoutSeconds = 2.0;
+    private final Timer timer = new Timer();
 
     public RunIntake(Intake intake) {
         this.intake = intake;
@@ -26,7 +30,8 @@ public class RunIntake extends Command {
 
     @Override
     public void initialize() {
-        // Extend intake arm to INTAKE position (using manual position for auto)
+        timer.restart();
+        // Extend intake arm to INTAKE position
         intake.setManualPosition(Position.INTAKE);
         armAtPosition = false;
     }
@@ -48,7 +53,11 @@ public class RunIntake extends Command {
 
     @Override
     public boolean isFinished() {
-        // Command finishes once rollers are running
+        if (timer.hasElapsed(kTimeoutSeconds)) {
+            System.out.println("RunIntake: timeout reached, starting rollers anyway");
+            intake.set(Speed.INTAKE);
+            return true;
+        }
         return armAtPosition;
     }
 

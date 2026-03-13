@@ -17,12 +17,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "HBDepot16"
@@ -47,12 +41,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "HB-16Left35"
@@ -68,6 +56,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Lilly's Autos",
+  "folder": null,
   "choreoAuto": false
 }

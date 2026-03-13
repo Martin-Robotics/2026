@@ -27,11 +27,17 @@
           "data": {
             "name": "StopIntake"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Small loop"
+          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "InitAutoTesting",
+  "folder": null,
   "choreoAuto": false
 }
