@@ -189,7 +189,7 @@ public final class Constants {
         // TX tolerance (degrees) for the "aimed at hub / safe to fire" LED indicator.
         // Robot must have hub tag visible AND tx within this many degrees of center.
         // Increase to make the indicator easier to trigger; decrease for tighter aim requirement.
-        public static final double kAimedAtHubTxTolerance = 3.0;
+        public static final double kAimedAtHubTxTolerance = 5.0;  // wider than command's 3° stop threshold so the LED is more forgiving
     }
 
     // public static class CommandSwerveDrivetrainOld {

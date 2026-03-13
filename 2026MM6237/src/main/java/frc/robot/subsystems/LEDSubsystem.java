@@ -11,6 +11,9 @@ public class LEDSubsystem extends SubsystemBase {
   private LimelightSubsystem6237 m_limelight = null;
   private double m_basePattern = Patterns.TELEOP;
 
+  // Set true by PrepareToFire / AimAtHubWhileDriving while the command is running
+  private boolean m_aimingActive = false;
+
   public LEDSubsystem() {
     // Port 2 matches the Rio's PWM port
     m_blinkin = new Spark(2);
@@ -22,6 +25,14 @@ public class LEDSubsystem extends SubsystemBase {
    */
   public void setLimelightSubsystem(LimelightSubsystem6237 limelight) {
     m_limelight = limelight;
+  }
+
+  /**
+   * Called by PrepareToFire and AimAtHubWhileDriving to indicate a targeting
+   * command is active. When false the LEDs revert to the base pattern.
+   */
+  public void setAimingActive(boolean active) {
+    m_aimingActive = active;
   }
 
   /**
@@ -37,11 +48,16 @@ public class LEDSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (m_limelight != null && m_limelight.isAimedAtHub()) {
-      // Color Waves, Forest palette when robot is aimed at the hub (safe to fire)
-      m_blinkin.set(Patterns.TARGET_LOCKED);
+    if (m_aimingActive && m_limelight != null) {
+      if (m_limelight.isAimedAtHub()) {
+        // Targeting command is running AND robot is locked on the hub
+        m_blinkin.set(Patterns.TARGET_LOCKED);
+      } else {
+        // Targeting command is running but not yet locked on
+        m_blinkin.set(Patterns.TARGET_SEEKING);
+      }
     } else {
-      // No target — restore whatever pattern was last set externally
+      // No targeting command active — restore whatever pattern was last set externally
       m_blinkin.set(m_basePattern);
     }
   }
@@ -54,6 +70,7 @@ public class LEDSubsystem extends SubsystemBase {
     public static final double INACTIVE_HUB = 0.59; // Dark Red
     public static final double WARNING = 0.56;       // Hot Pink (3s warning before hub deactivates)
     public static final double END_GAME = -0.87;     // Confetti -- Last 30 Seconds of match
-    public static final double TARGET_LOCKED = -0.37; // Color Waves, Forest (limelight target lock)
+    public static final double TARGET_LOCKED  = -0.37; // Color Waves, Forest (confirmed lock on hub)
+    public static final double TARGET_SEEKING = -0.05; // Color Waves, Lava (targeting active, not yet locked)
   }
 }
