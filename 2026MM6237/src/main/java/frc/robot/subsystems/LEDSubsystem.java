@@ -10,9 +10,8 @@ public class LEDSubsystem extends SubsystemBase {
   // Limelight target-lock state
   private LimelightSubsystem6237 m_limelight = null;
   private double m_basePattern = Patterns.TELEOP;
-
-  // Set true by PrepareToFire / AimAtHubWhileDriving while the command is running
-  private boolean m_aimingActive = false;
+  private boolean m_yTargeting = false;  // Y button (PrepareToFire, held)
+  private boolean m_bTargeting = false;  // B button (AimAtHubWhileDriving, toggle)
 
   public LEDSubsystem() {
     // Port 2 matches the Rio's PWM port
@@ -28,14 +27,6 @@ public class LEDSubsystem extends SubsystemBase {
   }
 
   /**
-   * Called by PrepareToFire and AimAtHubWhileDriving to indicate a targeting
-   * command is active. When false the LEDs revert to the base pattern.
-   */
-  public void setAimingActive(boolean active) {
-    m_aimingActive = active;
-  }
-
-  /**
    * Sets the Blinkin to a specific pattern.
    * Values range from -1.0 to 1.0.
    * See the REV Blinkin manual for the pattern table.
@@ -46,18 +37,25 @@ public class LEDSubsystem extends SubsystemBase {
     m_blinkin.set(patternValue);
   }
 
+  /** Called while Y button is held (PrepareToFire). */
+  public void setYTargetingActive(boolean active) {
+    m_yTargeting = active;
+  }
+
+  /** Flips the B-toggle targeting state. Call once per B button press. */
+  public void toggleBTargeting() {
+    m_bTargeting = !m_bTargeting;
+  }
+
   @Override
   public void periodic() {
-    if (m_aimingActive && m_limelight != null) {
+    if ((m_yTargeting || m_bTargeting) && m_limelight != null) {
       if (m_limelight.isAimedAtHub()) {
-        // Targeting command is running AND robot is locked on the hub
         m_blinkin.set(Patterns.TARGET_LOCKED);
       } else {
-        // Targeting command is running but not yet locked on
         m_blinkin.set(Patterns.TARGET_SEEKING);
       }
     } else {
-      // No targeting command active — restore whatever pattern was last set externally
       m_blinkin.set(m_basePattern);
     }
   }
