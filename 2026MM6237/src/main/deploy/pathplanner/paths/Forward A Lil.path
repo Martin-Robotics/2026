@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 2.9186923076923086
+        "x": 2.5489230769230784,
+        "y": 3.9070897435897436
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2400799605531185,
-        "y": 2.5942408078459636
+        "x": 2.7981866982984736,
+        "y": 3.9262638683109294
       },
       "isLocked": false,
-      "linkedName": "SidEnd4"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 4.081512820512821
+        "x": 3.0605641025641033,
+        "y": 3.9070897435897436
       },
       "prevControl": {
-        "x": 3.196699070409008,
-        "y": 3.7610656143958
+        "x": 2.0605641025641033,
+        "y": 3.9070897435897436
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Connor",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

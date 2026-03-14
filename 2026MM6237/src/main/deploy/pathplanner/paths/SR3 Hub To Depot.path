@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 2.9186923076923086
+        "x": 3.3745256410256417,
+        "y": 3.9187179487179487
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2400799605531185,
-        "y": 2.5942408078459636
+        "x": 3.197748945729007,
+        "y": 4.095494644014588
       },
       "isLocked": false,
-      "linkedName": "SidEnd4"
+      "linkedName": "SR3 E3"
     },
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 4.081512820512821
+        "x": 0.4907307692307705,
+        "y": 6.942051282051282
       },
       "prevControl": {
-        "x": 3.196699070409008,
-        "y": 3.7610656143958
+        "x": 1.200051282051283,
+        "y": 7.628115384615384
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "SR3 E4"
     }
   ],
   "rotationTargets": [],
@@ -41,8 +41,8 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 0.0,
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,

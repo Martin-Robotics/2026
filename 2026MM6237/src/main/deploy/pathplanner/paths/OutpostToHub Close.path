@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 2.9186923076923086
+        "x": 0.4907307692307705,
+        "y": 0.6860769230769233
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2400799605531185,
-        "y": 2.5942408078459636
+        "x": 0.963162709007084,
+        "y": 1.2107283729905256
       },
       "isLocked": false,
-      "linkedName": "SidEnd4"
+      "linkedName": "SR2 E1"
     },
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 4.081512820512821
+        "x": 2.8861410256410265,
+        "y": 3.8838333333333335
       },
       "prevControl": {
-        "x": 3.196699070409008,
-        "y": 3.7610656143958
+        "x": 2.5521207486279085,
+        "y": 3.5156107677975608
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Connor",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

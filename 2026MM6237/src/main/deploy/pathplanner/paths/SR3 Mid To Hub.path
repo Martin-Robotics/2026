@@ -3,32 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 2.9186923076923086
+        "x": 7.804871794871797,
+        "y": 4.3489615384615385
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2400799605531185,
-        "y": 2.5942408078459636
+        "x": 8.804871794871797,
+        "y": 4.3489615384615385
       },
       "isLocked": false,
-      "linkedName": "SidEnd4"
+      "linkedName": "SR3 E2"
     },
     {
       "anchor": {
-        "x": 3.2117307692307704,
-        "y": 4.081512820512821
+        "x": 3.3745256410256417,
+        "y": 3.9187179487179487
       },
       "prevControl": {
-        "x": 3.196699070409008,
-        "y": 3.7610656143958
+        "x": 1.886115384615386,
+        "y": 7.604858974358974
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "SR3 E3"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -135.0
+    },
+    {
+      "waypointRelativePos": 0.7251808021038852,
+      "rotationDegrees": -135.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -48,7 +57,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }
