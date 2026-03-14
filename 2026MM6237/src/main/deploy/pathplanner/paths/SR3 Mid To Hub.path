@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.804871794871797,
-        "y": 4.3489615384615385
+        "x": 8.004039927897121,
+        "y": 4.914229031529452
       },
       "isLocked": false,
       "linkedName": "SR3 E2"
     },
     {
       "anchor": {
-        "x": 3.3745256410256417,
-        "y": 3.9187179487179487
+        "x": 2.446647727272727,
+        "y": 4.498806818181818
       },
       "prevControl": {
-        "x": 1.886115384615386,
-        "y": 7.604858974358974
+        "x": 2.397300838581547,
+        "y": 6.504547821110892
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,11 +30,11 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.41823899371069184,
       "rotationDegrees": -135.0
     },
     {
-      "waypointRelativePos": 0.7251808021038852,
+      "waypointRelativePos": 0.668238993710693,
       "rotationDegrees": -135.0
     }
   ],
