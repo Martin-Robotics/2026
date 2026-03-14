@@ -5,39 +5,27 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "RunIntake"
+            "pathName": "HB-16Left35"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HBTrenchDepot"
+            "pathName": "HB35LeftNuteral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "HBDepotShort"
+            "pathName": "PostNuteralTestBump"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "StopIntakeRollers"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PrepareToFire"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Fire"
+            "pathName": "LastTest"
           }
         }
       ]

@@ -3,11 +3,16 @@ package frc.robot.commands.auto;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
+import frc.robot.commands.WCP.PrepareStaticShotCommand;
+import frc.robot.commands.WCP.PrepareShotCommand.Shot;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.LimelightSubsystem6237;
 
 /**
@@ -23,6 +28,7 @@ import frc.robot.subsystems.LimelightSubsystem6237;
 public class PrepareToFireAutonomous extends Command {
     private final LimelightSubsystem6237 limelight;
     private final CommandSwerveDrivetrain drivetrain;
+    private final Hood hood;
     
     // Simple field-centric request for manual rotation control
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
@@ -42,10 +48,11 @@ public class PrepareToFireAutonomous extends Command {
     private boolean hasEverSeenTarget = false;
     private double lastTx = 0;  // For derivative calculation
 
-    public PrepareToFireAutonomous(LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain) {
+    public PrepareToFireAutonomous(LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, Hood hood) {
         this.limelight = limelight;
         this.drivetrain = drivetrain;
-        addRequirements(drivetrain);
+        this.hood = hood;
+        addRequirements(drivetrain, hood);
     }
 
     @Override
@@ -58,13 +65,13 @@ public class PrepareToFireAutonomous extends Command {
     }
 
     /**
-     * Checks if currently aimed (TX within tolerance).
+     * Checks if currently aimed (hub-center TX within tolerance).
      */
     public boolean isAimed() {
         if (!limelight.isHubCurrentlyVisible()) {
             return false;
         }
-        return Math.abs(limelight.getLastHubTx()) <= AIM_TOLERANCE_DEGREES;
+        return Math.abs(limelight.getHubCenterTx()) <= AIM_TOLERANCE_DEGREES;
     }
 
     @Override
@@ -72,7 +79,8 @@ public class PrepareToFireAutonomous extends Command {
         Rotation2d currentHeading = drivetrain.getState().Pose.getRotation();
         
         boolean hubVisible = limelight.isHubCurrentlyVisible();
-        double tx = limelight.getLastHubTx();
+        // Use CORRECTED TX aimed at hub center (not tag face) — matches teleop PrepareToFire
+        double tx = limelight.getHubCenterTx();
         
         double rotationalRate = 0;
         
@@ -131,6 +139,14 @@ public class PrepareToFireAutonomous extends Command {
                 .withVelocityY(0)
                 .withRotationalRate(rotationalRate)
         );
+        
+        // Position the hood based on corrected distance to hub CENTER
+        // Uses the shared teleop interpolation table — matches PrepareToFire (Driver Y)
+        double detectedDistance = limelight.getHubCenterDistance();
+        if (detectedDistance > 0) {
+            Shot shot = PrepareStaticShotCommand.distanceToShotMap.get(Meters.of(detectedDistance));
+            hood.setPosition(shot.hoodPosition);
+        }
     }
 
     @Override

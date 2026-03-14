@@ -510,7 +510,7 @@ public final class Constants {
         public static final double kTrimTag9  = 0.0;
         public static final double kTrimTag10 = 0.0;
         public static final double kTrimTag11 = 0.0;
-        public static final double kTrimTag24 = 30.0;
+        public static final double kTrimTag24 = 11.0;
         public static final double kTrimTag25 = 11.0;
         public static final double kTrimTag26 = 5.0;
         public static final double kTrimTag27 = -8.0;

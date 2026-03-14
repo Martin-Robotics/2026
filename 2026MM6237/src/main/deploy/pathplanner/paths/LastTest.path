@@ -3,45 +3,34 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5023589743589756,
-        "y": 6.0
+        "x": 7.759014084507042,
+        "y": 5.477457831325301
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.5023589743589756,
-        "y": 6.0
+        "x": 8.325277866222272,
+        "y": 5.256120022504868
       },
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "BriansWeirdOne"
     },
     {
       "anchor": {
-        "x": 3.024698795180723,
-        "y": 4.865506024096386
+        "x": 6.583,
+        "y": 6.1
       },
       "prevControl": {
-        "x": 2.024698795180723,
-        "y": 4.865506024096386
+        "x": 6.336340566369438,
+        "y": 6.0592676565730565
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "16"
+      "linkedName": "35"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [
-    {
-      "fieldPosition": {
-        "x": 4.625,
-        "y": 4.025
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.25,
-      "maxWaypointRelativePos": 1.0,
-      "name": "Point Towards Zone"
-    }
-  ],
+  "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
@@ -53,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -32.57405713457261
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

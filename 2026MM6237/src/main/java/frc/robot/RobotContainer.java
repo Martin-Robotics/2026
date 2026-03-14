@@ -117,7 +117,7 @@ public class RobotContainer {
       
       // Shooter commands - use Autonomous versions with timeout/duration
       // PrepareToFire: aims at hub using Limelight TX with PD control, auto-ends when aimed or timeout
-      NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain));
+      NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain, hood));
       // Fire: spins up shooter/hood from interpolation table, feeds when at speed, auto-ends after duration
       NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, limelight));
       

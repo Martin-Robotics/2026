@@ -50,6 +50,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Lilly's Autos",
+  "folder": null,
   "choreoAuto": false
 }
