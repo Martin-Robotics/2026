@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.controllers.DriverController;
 import frc.robot.controllers.OperatorController;
 import frc.robot.generated.TunerConstants;
@@ -30,7 +29,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -142,22 +140,9 @@ public class RobotContainer {
      */
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
-      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight, hood);
+      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight, hood, m_leds, m_hubMonitor);
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight, drivetrain, driver);
       // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
-
-      // Y button held → enable targeting LED feedback
-      driver.y()
-        .onTrue(Commands.runOnce(() -> m_leds.setYTargetingActive(true)))
-        .onFalse(Commands.runOnce(() -> m_leds.setYTargetingActive(false)));
-
-      // B toggle → flip targeting LED state to match AimAtHubWhileDriving toggle
-      driver.b()
-        .onTrue(Commands.runOnce(() -> m_leds.toggleBTargeting()));
-
-      new Trigger(m_hubMonitor::isHubActive)
-        .whileTrue(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), m_leds))
-        .whileFalse(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.INACTIVE_HUB), m_leds));
     }
 
     /**

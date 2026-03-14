@@ -123,8 +123,6 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             hubTx = primaryTx;
             hubTy = primaryTy;
             foundHubTag = true;
-                    break;
-                }
         }
         
         // Cache whether hub is currently visible for external queries

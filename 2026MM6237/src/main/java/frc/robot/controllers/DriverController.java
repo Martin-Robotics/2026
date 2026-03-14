@@ -15,8 +15,12 @@ import frc.robot.commands.SnapToNearestAngleCommand;
 import frc.robot.commands.auto.PrepareToFire;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.HubMonitor;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import frc.robot.subsystems.Shooter;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 public class DriverController {
     
@@ -55,7 +59,8 @@ public class DriverController {
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public static void mapXboxController(CommandXboxController driverController, CommandSwerveDrivetrain drivetrain, NetworkTable limelight, 
-                                         Shooter shooter, LimelightSubsystem6237 limelightSubsystem, Hood hood) {
+                                         Shooter shooter, LimelightSubsystem6237 limelightSubsystem, Hood hood,
+                                         LEDSubsystem leds, HubMonitor hubMonitor) {
         robotCentricControl = new Trigger(() -> driverController.leftBumper().getAsBoolean());
         slowSpeedControl = new Trigger(() -> driverController.getLeftTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
         fastSpeedControl = new Trigger(() -> driverController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
@@ -99,10 +104,22 @@ public class DriverController {
         driverController.a().whileTrue(new SnapToNearestAngleCommand(drivetrain));
         
         // Y button: PrepareToFire - Aim at hub, read distance, and position hood
+        // Also activates targeting LED feedback while held
         driverController.y().whileTrue(new PrepareToFire(shooter, limelightSubsystem, drivetrain, driverController, hood));
+        driverController.y()
+            .onTrue(Commands.runOnce(() -> leds.setYTargetingActive(true)))
+            .onFalse(Commands.runOnce(() -> leds.setYTargetingActive(false)));
         
         // B button: Toggle aim-at-hub mode - robot auto-rotates to face hub while driver retains full translation
         // Press B to activate, press B again to deactivate. Operator can fire while driver repositions.
+        // Also toggles targeting LED state to match
         driverController.b().toggleOnTrue(new AimAtHubWhileDriving(limelightSubsystem, drivetrain, driverController));
+        driverController.b()
+            .onTrue(Commands.runOnce(() -> leds.toggleBTargeting()));
+
+        // Hub activity indicator — LEDs show active/inactive hub pattern based on HubMonitor
+        new Trigger(hubMonitor::isHubActive)
+            .whileTrue(new RunCommand(() -> leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), leds))
+            .whileFalse(new RunCommand(() -> leds.setPattern(LEDSubsystem.Patterns.INACTIVE_HUB), leds));
     }
 }
