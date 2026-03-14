@@ -146,6 +146,15 @@ public class RobotContainer {
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight, drivetrain, driver);
       // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
 
+      // Y button held → enable targeting LED feedback
+      driver.y()
+        .onTrue(Commands.runOnce(() -> m_leds.setYTargetingActive(true)))
+        .onFalse(Commands.runOnce(() -> m_leds.setYTargetingActive(false)));
+
+      // B toggle → flip targeting LED state to match AimAtHubWhileDriving toggle
+      driver.b()
+        .onTrue(Commands.runOnce(() -> m_leds.toggleBTargeting()));
+
       new Trigger(m_hubMonitor::isHubActive)
         .whileTrue(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), m_leds))
         .whileFalse(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.INACTIVE_HUB), m_leds));

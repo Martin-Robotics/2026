@@ -111,18 +111,20 @@ public class LimelightSubsystem6237 extends SubsystemBase {
         
         // Cache connection status
         limelightConnected = hasTarget;
-        
+
         // === CHECK IF THIS IS ANY HUB TAG (all 8 tags, both alliances) ===
         int hubTagID = -1;
         double hubTx = 0;
         double hubTy = 0;
         boolean foundHubTag = false;
-        
+
         if (hasTarget && Constants.HubGeometry.isHubTag(primaryTagID)) {
             hubTagID = primaryTagID;
             hubTx = primaryTx;
             hubTy = primaryTy;
             foundHubTag = true;
+                    break;
+                }
         }
         
         // Cache whether hub is currently visible for external queries
@@ -749,7 +751,7 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      * Gets the best hub tag ID to use, prioritizing center tags (10 and 26).
      * If multiple tags are visible, prefers the one closest to center of vision (smallest tx).
      * 
-     * @return The preferred hub tag ID (10 or 26), or -1 if no hub tag visible
+     * @return The preferred hub tag ID (8-11 or 24-27), or -1 if no hub tag visible
      */
     public int getBestHubTagID() {
         LimelightTarget_Fiducial[] fiducials = getDetectedFiducials();
@@ -758,16 +760,19 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             return -1;
         }
         
-        // Look for hub tags (10 or 26)
+        // Look for hub tags (8-11, 24-27)
         LimelightTarget_Fiducial bestTag = null;
         double bestTx = Double.MAX_VALUE; // Smallest tx (closest to center) is best
         
         for (LimelightTarget_Fiducial fiducial : fiducials) {
             int tagId = (int)fiducial.fiducialID;
             
-            // Only consider hub tags
-            if (tagId == frc.robot.Constants.Auto.kRedHubAprilTagID || 
-                tagId == frc.robot.Constants.Auto.kBlueHubAprilTagID) {
+            // Only consider hub tags (8-11, 24-27)
+            boolean isHubTag = false;
+            for (int id : frc.robot.Constants.Auto.kHubAprilTagIDs) {
+                if (tagId == id) { isHubTag = true; break; }
+            }
+            if (isHubTag) {
                 
                 double tx = Math.abs(fiducial.tx); // Use absolute value - closest to center
                 

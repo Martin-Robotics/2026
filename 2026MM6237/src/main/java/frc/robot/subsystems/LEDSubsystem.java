@@ -10,6 +10,8 @@ public class LEDSubsystem extends SubsystemBase {
   // Limelight target-lock state
   private LimelightSubsystem6237 m_limelight = null;
   private double m_basePattern = Patterns.TELEOP;
+  private boolean m_yTargeting = false;  // Y button (PrepareToFire, held)
+  private boolean m_bTargeting = false;  // B button (AimAtHubWhileDriving, toggle)
 
   public LEDSubsystem() {
     // Port 2 matches the Rio's PWM port
@@ -35,13 +37,25 @@ public class LEDSubsystem extends SubsystemBase {
     m_blinkin.set(patternValue);
   }
 
+  /** Called while Y button is held (PrepareToFire). */
+  public void setYTargetingActive(boolean active) {
+    m_yTargeting = active;
+  }
+
+  /** Flips the B-toggle targeting state. Call once per B button press. */
+  public void toggleBTargeting() {
+    m_bTargeting = !m_bTargeting;
+  }
+
   @Override
   public void periodic() {
-    if (m_limelight != null && m_limelight.isAimedAtHub()) {
-      // Color Waves, Forest palette when robot is aimed at the hub (safe to fire)
-      m_blinkin.set(Patterns.TARGET_LOCKED);
+    if ((m_yTargeting || m_bTargeting) && m_limelight != null) {
+      if (m_limelight.isAimedAtHub()) {
+        m_blinkin.set(Patterns.TARGET_LOCKED);
+      } else {
+        m_blinkin.set(Patterns.TARGET_SEEKING);
+      }
     } else {
-      // No target — restore whatever pattern was last set externally
       m_blinkin.set(m_basePattern);
     }
   }
@@ -54,6 +68,7 @@ public class LEDSubsystem extends SubsystemBase {
     public static final double INACTIVE_HUB = 0.59; // Dark Red
     public static final double WARNING = 0.56;       // Hot Pink (3s warning before hub deactivates)
     public static final double END_GAME = -0.87;     // Confetti -- Last 30 Seconds of match
-    public static final double TARGET_LOCKED = -0.37; // Color Waves, Forest (limelight target lock)
+    public static final double TARGET_LOCKED  = -0.37; // Color Waves, Forest (confirmed lock on hub)
+    public static final double TARGET_SEEKING = -0.05; // Color Waves, Lava (targeting active, not yet locked)
   }
 }
