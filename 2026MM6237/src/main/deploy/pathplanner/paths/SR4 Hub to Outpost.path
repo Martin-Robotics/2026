@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2698717948717957,
-        "y": 3.9187179487179487
+        "x": 2.498181818181818,
+        "y": 3.2207613636363637
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.549244429496306,
-        "y": 4.271750416586941
+        "x": 2.7775544528063283,
+        "y": 3.573793831505356
       },
       "isLocked": false,
       "linkedName": "SR4 E3"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 24.07549825507887
   },
   "useDefaultConstraints": true
 }

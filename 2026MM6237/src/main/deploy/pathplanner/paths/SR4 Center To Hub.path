@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.444397435897437,
-        "y": 3.8838333333333335
+        "x": 6.435386363636363,
+        "y": 2.664193181818182
       },
       "isLocked": false,
       "linkedName": "SR4 E2"
     },
     {
       "anchor": {
-        "x": 3.2698717948717957,
-        "y": 3.9187179487179487
+        "x": 2.498181818181818,
+        "y": 3.2207613636363637
       },
       "prevControl": {
-        "x": 3.514064102564103,
-        "y": 0.8256153846153853
+        "x": 2.957445755664036,
+        "y": 1.4423765786916531
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,11 +30,11 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5555555555555555,
+      "waypointRelativePos": 0.37106918238993625,
       "rotationDegrees": 45.0
     },
     {
-      "waypointRelativePos": 0.7488494411571327,
+      "waypointRelativePos": 0.699685534591193,
       "rotationDegrees": 45.0
     }
   ],
@@ -51,7 +51,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 24.07549825507887
   },
   "reversed": false,
   "folder": null,
