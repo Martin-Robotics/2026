@@ -47,6 +47,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "ExtendIntakeArm"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "SR4 Hub to Outpost"
