@@ -48,16 +48,16 @@
     },
     {
       "anchor": {
-        "x": 2.45,
-        "y": 7.25
+        "x": 1.716,
+        "y": 4.7
       },
       "prevControl": {
-        "x": 2.45,
-        "y": 6.420234092374432
+        "x": 1.716,
+        "y": 3.8702340923744325
       },
       "nextControl": {
-        "x": 2.45,
-        "y": 8.079765907625568
+        "x": 1.716,
+        "y": 5.529765907625568
       },
       "isLocked": false,
       "linkedName": "10"
@@ -68,8 +68,8 @@
         "y": 0.75
       },
       "prevControl": {
-        "x": 1.7160000000000002,
-        "y": -1.2880182748732576
+        "x": 1.7160000000000006,
+        "y": -1.288018274873258
       },
       "nextControl": {
         "x": 4.6,
@@ -109,7 +109,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Lilly's Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

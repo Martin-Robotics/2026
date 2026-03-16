@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.4907307692307705,
+        "x": 0.7080240963855422,
         "y": 0.6860769230769233
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.963162709007084,
+        "x": 1.1804560361618557,
         "y": 1.2107283729905256
       },
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Connor",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

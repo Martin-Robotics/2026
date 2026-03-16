@@ -54,10 +54,10 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Lilly's Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 4.625,
-    "rotation": 45.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

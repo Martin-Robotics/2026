@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.812149003893257,
-        "y": 6.805125329486348
+        "x": 6.781589743589745,
+        "y": 7.2676410256410255
       },
       "isLocked": false,
       "linkedName": "SidEnd1"
     },
     {
       "anchor": {
-        "x": 7.653705128205129,
-        "y": 7.2095
+        "x": 7.781615384615385,
+        "y": 7.000192307692307
       },
       "prevControl": {
-        "x": 7.430966401125702,
-        "y": 6.931313530244946
+        "x": 7.539079759579052,
+        "y": 7.06082621395139
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,7 +45,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Connor",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

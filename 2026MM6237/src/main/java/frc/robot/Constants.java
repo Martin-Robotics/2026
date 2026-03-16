@@ -129,11 +129,13 @@ public final class Constants {
     }
 
     public static class Intake {
-        public static final double kIntakePercentOutput = 1;
+        public static final double kIntakePercentOutput = .5;
         public static final double kHomedPositionDegrees = 10;   // Home position (slightly past stowed)
         public static final double kStowedPositionDegrees = 5;   // Safe/normal stowed position
         public static final double kIntakePositionDegrees = -110; // Fully extended intake position
-        public static final double kAgitatePositionDegrees = -80; 
+        public static final double kAgitatePositionDegrees = -50; // Agitate position (30° lower than previous -20°, nudges balls toward feeder)
+        public static final double kAgitateIntervalSeconds = .8; // Time at each position during agitate oscillation (1/4 speed)
+        public static final double kAgitateDelaySeconds = 3;   // Delay before agitation begins
         public static final double kPivotReduction = 50.0;
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;
@@ -169,6 +171,13 @@ public final class Constants {
         public static final double kAutoMaxShootingDistanceMeters = 8.0;
         public static final double kAutoMinShooterRPM = 2000;
         public static final double kAutoMaxShooterRPM = 5500;
+
+        // ======================== RETURN SHOT CONSTANTS ========================
+        // Used to lob balls back to the alliance starting zone (not into the hub).
+        // Static values — no Limelight or distance detection needed.
+        // Seeded from the ~3m interpolation point in the hub shot table.
+        public static final double kReturnShotRPM = 3000;
+        public static final double kReturnShotHoodPosition = 0.40;
     }
 
     public static class Limelight {
@@ -185,6 +194,11 @@ public final class Constants {
         public static final double kCameraHeightMeters = 0.6;        // Height of camera lens from floor
         public static final double kCameraMountAngleDegrees = 13.0;  // Angle of camera from horizontal (positive = tilted up)
         public static final double kHubAprilTagHeightMeters = 1.2;  // Height of hub AprilTag center from floor
+
+        // TX tolerance (degrees) for the "aimed at hub / safe to fire" LED indicator.
+        // Robot must have hub tag visible AND tx within this many degrees of center.
+        // Increase to make the indicator easier to trigger; decrease for tighter aim requirement.
+        public static final double kAimedAtHubTxTolerance = 5.0;  // wider than command's 3° stop threshold so the LED is more forgiving
     }
 
     // public static class CommandSwerveDrivetrainOld {
@@ -434,9 +448,138 @@ public final class Constants {
         public static final int kRedHubAprilTagID = 10;      // Red alliance processor (center front)
         public static final int kBlueHubAprilTagID = 26;     // Blue alliance processor (center front)
         public static final int kHubAprilTagID = 4;          // Legacy - for backwards compatibility
+
+        // All valid hub AprilTag IDs for target-lock LED indication
+        // Red alliance: 8, 9, 10, 11  |  Blue alliance: 24, 25, 26, 27
+        public static final int[] kHubAprilTagIDs = { 8, 9, 10, 11, 24, 25, 26, 27 };
         
         // Autonomous firing timing
         public static final double kAutoFireRunTimeSeconds = 2.0;      // Time to run feeder after shooter at speed
         public static final double kAutoPrepareAimTimeSeconds = 0.5;   // Time to attempt aiming before giving up
+    }
+
+    // ======================== HUB GEOMETRY (2026 REBUILT FIELD) ========================
+    // All coordinates in meters, from the official 2026-rebuilt-welded.json field spec.
+    // Hub is a hexagonal processor structure with 4 AprilTags per alliance hub.
+    
+    public static class HubGeometry {
+        // --- Red Hub (far side of field, front face points toward +X / Red wall) ---
+        public static final int[] kRedHubTagIDs = {8, 9, 10, 11};
+        //   Tag  8: right side  (12.271, 3.431) facing -Y
+        //   Tag  9: front       (12.519, 3.679) facing +X
+        //   Tag 10: front       (12.519, 4.035) facing +X
+        //   Tag 11: left side   (12.271, 4.638) facing +Y
+        
+        // Red hub center (geometric center of the hexagonal structure)
+        public static final double kRedHubCenterX = 12.395;  // midpoint of front (12.519) and side (12.271) faces
+        public static final double kRedHubCenterY = 4.035;   // midpoint of Y span
+        
+        // --- Blue Hub (near side of field, front face points toward -X / Blue wall) ---
+        public static final int[] kBlueHubTagIDs = {24, 25, 26, 27};
+        //   Tag 24: left side   (4.270, 4.638) facing +Y
+        //   Tag 25: front       (4.022, 4.390) facing -X
+        //   Tag 26: front       (4.022, 4.035) facing -X
+        //   Tag 27: right side  (4.270, 3.431) facing -Y
+        
+        // Blue hub center (geometric center of the hexagonal structure)
+        public static final double kBlueHubCenterX = 4.146;  // midpoint of front (4.022) and side (4.270) faces
+        public static final double kBlueHubCenterY = 4.035;   // midpoint of Y span
+
+        // --- Per-tag field positions (meters) ---
+        // Used to compute the offset from any visible tag to its hub center.
+        // Format: {x, y} for each tag, indexed by tag ID via getTagPosition()
+        
+        // Red hub tag positions
+        public static final double[] kTag8Pos  = {12.271, 3.431};   // right side
+        public static final double[] kTag9Pos  = {12.519, 3.679};   // front
+        public static final double[] kTag10Pos = {12.519, 4.035};   // front
+        public static final double[] kTag11Pos = {12.271, 4.638};   // left side
+        
+        // Blue hub tag positions
+        public static final double[] kTag24Pos = {4.270, 4.638};    // left side
+        public static final double[] kTag25Pos = {4.022, 4.390};    // front
+        public static final double[] kTag26Pos = {4.022, 4.035};    // front
+        public static final double[] kTag27Pos = {4.270, 3.431};    // right side
+
+        // --- Per-tag TX trim offsets (degrees) ---
+        // Applied AFTER the hub-center geometric correction.
+        // Positive = shift aim to the right, Negative = shift aim to the left.
+        // These are the initial defaults loaded into SmartDashboard at startup.
+        // Tune live via TargetTuning/Trim Tag XX entries, then copy values back here.
+        public static final double kTrimTag8  = 0.0;
+        public static final double kTrimTag9  = 0.0;
+        public static final double kTrimTag10 = 0.0;
+        public static final double kTrimTag11 = 0.0;
+        public static final double kTrimTag24 = 11.0;
+        public static final double kTrimTag25 = 11.0;
+        public static final double kTrimTag26 = 5.0;
+        public static final double kTrimTag27 = -8.0;
+
+        /**
+         * Returns the default TX trim (degrees) for a given tag ID.
+         */
+        public static double getDefaultTrim(int tagID) {
+            switch (tagID) {
+                case 8:  return kTrimTag8;
+                case 9:  return kTrimTag9;
+                case 10: return kTrimTag10;
+                case 11: return kTrimTag11;
+                case 24: return kTrimTag24;
+                case 25: return kTrimTag25;
+                case 26: return kTrimTag26;
+                case 27: return kTrimTag27;
+                default: return 0.0;
+            }
+        }
+
+        /**
+         * Returns the field position {x, y} of a known hub tag, or null if not a hub tag.
+         */
+        public static double[] getTagPosition(int tagID) {
+            switch (tagID) {
+                case 8:  return kTag8Pos;
+                case 9:  return kTag9Pos;
+                case 10: return kTag10Pos;
+                case 11: return kTag11Pos;
+                case 24: return kTag24Pos;
+                case 25: return kTag25Pos;
+                case 26: return kTag26Pos;
+                case 27: return kTag27Pos;
+                default: return null;
+            }
+        }
+
+        /**
+         * Returns the hub center {x, y} for the hub that the given tag belongs to,
+         * or null if not a hub tag.
+         */
+        public static double[] getHubCenter(int tagID) {
+            switch (tagID) {
+                case 8: case 9: case 10: case 11:
+                    return new double[] {kRedHubCenterX, kRedHubCenterY};
+                case 24: case 25: case 26: case 27:
+                    return new double[] {kBlueHubCenterX, kBlueHubCenterY};
+                default:
+                    return null;
+            }
+        }
+
+        /**
+         * Returns true if the given tag ID belongs to any hub (red or blue).
+         */
+        public static boolean isHubTag(int tagID) {
+            return getTagPosition(tagID) != null;
+        }
+
+        /**
+         * Returns true if the given tag belongs to the specified alliance's hub.
+         */
+        public static boolean isOurHubTag(int tagID, edu.wpi.first.wpilibj.DriverStation.Alliance alliance) {
+            if (alliance == edu.wpi.first.wpilibj.DriverStation.Alliance.Red) {
+                return tagID >= 8 && tagID <= 11;
+            } else {
+                return tagID >= 24 && tagID <= 27;
+            }
+        }
     }
 }

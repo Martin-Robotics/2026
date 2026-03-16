@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.933,
-        "y": 4.7
+        "x": 3.024698795180723,
+        "y": 4.865506024096386
       },
       "prevControl": {
-        "x": 1.9329999999999998,
-        "y": 4.7
+        "x": 2.024698795180723,
+        "y": 4.865506024096386
       },
       "nextControl": null,
       "isLocked": false,
@@ -53,10 +53,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -22.0
+    "rotation": -32.57405713457261
   },
   "reversed": false,
-  "folder": "Lilly's Paths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

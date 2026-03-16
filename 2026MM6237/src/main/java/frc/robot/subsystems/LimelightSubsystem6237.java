@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
@@ -24,15 +25,34 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     private boolean limelightConnected = false;
     
     // Continuous tracking of hub distance and heading
-    private double lastHubDistance = -1.0;  // meters, -1 if no target
+    private double lastHubDistance = -1.0;  // meters to TAG, -1 if no target
     private int lastHubTagID = -1;          // tag ID, -1 if no target
-    private double lastHubTx = 0.0;         // horizontal angle to hub
+    private double lastHubTx = 0.0;         // horizontal angle to TAG (raw)
+    private double lastHubCenterTx = 0.0;   // horizontal angle to HUB CENTER (corrected)
+    private double lastHubCenterDistance = -1.0; // distance to HUB CENTER (corrected)
     private boolean hasEverSeenHub = false;
     private boolean hubCurrentlyVisible = false;  // Updated each loop cycle
+    
+    // Tag lock hysteresis — prevents bouncing between adjacent tags (e.g., 25/26)
+    // Currently disabled: simple direct tracking proved more reliable in testing
+    // private int lockedTagID = -1;
+    // private int framesWithoutLockedTag = 0;
+    // private static final int LOCK_RELEASE_FRAMES = 15;
+    
+    // TX smoothing — low-pass filter to dampen frame-to-frame jitter
+    // Currently disabled: added too much lag for our use case
+    // private double smoothedHubCenterTx = 0.0;
+    // private static final double SMOOTHING_ALPHA = 0.15;
     
     // Odometry-based tracking when vision is lost
     private edu.wpi.first.math.geometry.Pose2d lastKnownHubPose = null;  // Field position when hub was last seen
     private final frc.robot.subsystems.CommandSwerveDrivetrain drivetrain;
+
+    // Target tuning dashboard state
+    private boolean targetTuningEnabled = false;
+    private static final String TT_PREFIX = "TargetTuning/";
+    // Tag IDs for iteration
+    private static final int[] ALL_HUB_TAG_IDS = {8, 9, 10, 11, 24, 25, 26, 27};
 
     /**
      * Constructs a LimelightSubsystem with the default Limelight name.
@@ -78,105 +98,164 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      * This runs every robot loop to keep distance/angle data fresh.
      * 
      * OPTIMIZED: Only reads from NetworkTables once per cycle, avoids JSON parsing.
-     * FILTER: Completely ignores tag 9 which interferes with hub tracking.
+     * Recognizes ALL hub tags (8-11 for Red, 24-27 for Blue) and computes a
+     * corrected TX/distance aimed at the hub CENTER rather than the tag face.
      */
     private void updateHubTracking() {
         // === SINGLE READ FROM NETWORKTABLES ===
-        // Read all needed values once at the start
         boolean hasTarget = LimelightHelpers.getTV(limelightName);
         
-        // Get primary target info (for debug display)
         int primaryTagID = hasTarget ? (int)LimelightHelpers.getFiducialID(limelightName) : -1;
         double primaryTx = hasTarget ? LimelightHelpers.getTX(limelightName) : 0;
         double primaryTy = hasTarget ? LimelightHelpers.getTY(limelightName) : 0;
         
-        // === HARD IGNORE TAG 9 ===
-        // Tag 9 interferes with hub tracking - treat it as if no target exists
-        if (primaryTagID == 9) {
-            hasTarget = false;
-            primaryTagID = -1;
-        }
-        
         // Cache connection status
         limelightConnected = hasTarget;
-        
-        // === CHECK IF THIS IS A HUB TAG ===
+
+        // === CHECK IF THIS IS ANY HUB TAG (all 8 tags, both alliances) ===
         int hubTagID = -1;
         double hubTx = 0;
         double hubTy = 0;
         boolean foundHubTag = false;
-        
-        if (hasTarget) {
-            // Check if primary target is a hub tag (10 or 26)
-            if (primaryTagID == frc.robot.Constants.Auto.kRedHubAprilTagID || 
-                primaryTagID == frc.robot.Constants.Auto.kBlueHubAprilTagID) {
-                hubTagID = primaryTagID;
-                hubTx = primaryTx;
-                hubTy = primaryTy;
-                foundHubTag = true;
-            }
-            // Note: We no longer search through all fiducials - just use primary
-            // This avoids JSON parsing overhead and tag 9 interference
+
+        if (hasTarget && Constants.HubGeometry.isHubTag(primaryTagID)) {
+            hubTagID = primaryTagID;
+            hubTx = primaryTx;
+            hubTy = primaryTy;
+            foundHubTag = true;
         }
         
         // Cache whether hub is currently visible for external queries
         hubCurrentlyVisible = foundHubTag;
         
         if (foundHubTag) {
-            // Update tracking data with HUB tag data (not primary!)
+            // Update tracking data with raw tag data
             lastHubTagID = hubTagID;
             lastHubTx = hubTx;
             hasEverSeenHub = true;
             
-            // Calculate distance using simple trigonometry (no JSON parsing needed)
+            // Calculate distance to TAG using simple trigonometry
             lastHubDistance = calculateSimpleDistance(hubTy);
             
-            // Store hub field position when visible (for odometry fallback)
-            if (drivetrain != null && lastHubDistance > 0) {
-                edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;
-                double robotHeading = robotPose.getRotation().getRadians();
-                double angleToHub = robotHeading + Math.toRadians(lastHubTx);
-                
-                double hubX = robotPose.getX() + lastHubDistance * Math.cos(angleToHub);
-                double hubY = robotPose.getY() + lastHubDistance * Math.sin(angleToHub);
-                lastKnownHubPose = new edu.wpi.first.math.geometry.Pose2d(
-                    hubX, hubY, new edu.wpi.first.math.geometry.Rotation2d());
+            // === COMPUTE CORRECTED TX AND DISTANCE TO HUB CENTER ===
+            // Uses robot heading + tag field position + hub center position
+            // to calculate where the hub center is relative to the robot
+            computeHubCenterCorrection(hubTagID, hubTx, lastHubDistance);
+            
+            // Store hub CENTER field position for odometry fallback (not tag position)
+            if (drivetrain != null && lastHubCenterDistance > 0) {
+                double[] hubCenter = Constants.HubGeometry.getHubCenter(hubTagID);
+                if (hubCenter != null) {
+                    lastKnownHubPose = new Pose2d(
+                        hubCenter[0], hubCenter[1], new Rotation2d());
+                }
             }
             
-            // Update SmartDashboard (kept values only)
-            SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
-            SmartDashboard.putNumber("Limelight/Hub Tag ID", lastHubTagID);
-            SmartDashboard.putBoolean("Limelight/Hub Visible", true);
+            // Update SmartDashboard
+            SmartDashboard.putNumber("Hub Distance (m)", lastHubCenterDistance);
+            SmartDashboard.putNumber("Hub Tag ID", lastHubTagID);
+            SmartDashboard.putBoolean("Hub Visible", true);
             
         } else {
             // No hub visible - use odometry fallback if available
-            SmartDashboard.putBoolean("Limelight/Hub Visible", false);
+            SmartDashboard.putBoolean("Hub Visible", false);
             
             if (drivetrain != null && hasEverSeenHub && lastKnownHubPose != null) {
-                edu.wpi.first.math.geometry.Pose2d robotPose = drivetrain.getState().Pose;
+                Pose2d robotPose = drivetrain.getState().Pose;
                 
-                // Calculate distance from odometry
-                lastHubDistance = Math.hypot(
+                // Calculate distance from odometry to hub CENTER
+                lastHubCenterDistance = Math.hypot(
                     robotPose.getX() - lastKnownHubPose.getX(),
                     robotPose.getY() - lastKnownHubPose.getY()
                 );
+                lastHubDistance = lastHubCenterDistance; // Best estimate when vision lost
                 
-                // Calculate TX from odometry
+                // Calculate corrected TX from odometry to hub CENTER
                 double angleToHub = Math.atan2(
                     lastKnownHubPose.getY() - robotPose.getY(),
                     lastKnownHubPose.getX() - robotPose.getX()
                 );
                 double robotHeading = robotPose.getRotation().getRadians();
-                lastHubTx = Math.toDegrees(angleToHub - robotHeading);
+                lastHubCenterTx = Math.toDegrees(angleToHub - robotHeading);
+                lastHubTx = lastHubCenterTx; // Best estimate when vision lost
                 
                 // Normalize to -180 to 180
-                while (lastHubTx > 180) lastHubTx -= 360;
-                while (lastHubTx < -180) lastHubTx += 360;
+                while (lastHubCenterTx > 180) lastHubCenterTx -= 360;
+                while (lastHubCenterTx < -180) lastHubCenterTx += 360;
+                lastHubTx = lastHubCenterTx;
                 
-                SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubDistance);
+                SmartDashboard.putNumber("Limelight/Hub Distance (m)", lastHubCenterDistance);
             }
         }
+    }
+    
+    /**
+     * Computes the corrected TX angle and distance from the robot to the hub CENTER,
+     * given raw Limelight data pointing at a specific tag on the hub face.
+     * 
+     * Uses the robot's heading from odometry to transform the known field-space offset
+     * (tag position → hub center) into the robot's reference frame.
+     * 
+     * @param tagID The visible hub tag ID
+     * @param rawTxDegrees The raw Limelight TX to the tag (degrees)
+     * @param distanceToTag The computed distance to the tag (meters)
+     */
+    private void computeHubCenterCorrection(int tagID, double rawTxDegrees, double distanceToTag) {
+        double[] tagFieldPos = Constants.HubGeometry.getTagPosition(tagID);
+        double[] hubCenter = Constants.HubGeometry.getHubCenter(tagID);
         
+        if (tagFieldPos == null || hubCenter == null || distanceToTag <= 0 || drivetrain == null) {
+            // Can't compute correction — fall back to raw values
+            lastHubCenterTx = rawTxDegrees;
+            lastHubCenterDistance = distanceToTag;
+            return;
+        }
+        
+        // Offset from tag to hub center in field coordinates
+        double offsetFieldX = hubCenter[0] - tagFieldPos[0];
+        double offsetFieldY = hubCenter[1] - tagFieldPos[1];
+        
+        // Get robot heading to rotate field offset into robot-relative frame
+        double robotHeading = drivetrain.getState().Pose.getRotation().getRadians();
+        
+        // Rotate offset into robot-relative coordinates
+        // Robot frame: +X = forward, +Y = left
+        double cosH = Math.cos(-robotHeading);
+        double sinH = Math.sin(-robotHeading);
+        double offsetRobotX = offsetFieldX * cosH - offsetFieldY * sinH;
+        double offsetRobotY = offsetFieldX * sinH + offsetFieldY * cosH;
+        
+        // Tag position in robot-relative coordinates (from TX and distance)
+        double rawTxRadians = Math.toRadians(rawTxDegrees);
+        double tagRobotX = distanceToTag * Math.cos(rawTxRadians);
+        double tagRobotY = distanceToTag * Math.sin(rawTxRadians);
+        
+        // Hub center in robot-relative coordinates
+        double hubCenterRobotX = tagRobotX + offsetRobotX;
+        double hubCenterRobotY = tagRobotY + offsetRobotY;
+        
+        // Corrected TX: angle from robot forward to hub center
+        lastHubCenterTx = Math.toDegrees(Math.atan2(hubCenterRobotY, hubCenterRobotX));
+        
+        // Corrected distance: straight-line to hub center
+        lastHubCenterDistance = Math.hypot(hubCenterRobotX, hubCenterRobotY);
+        
+        // Apply per-tag TX trim from SmartDashboard (live tunable)
+        double trim = SmartDashboard.getNumber(TT_PREFIX + "Trim Tag " + tagID,
+                Constants.HubGeometry.getDefaultTrim(tagID));
+        double rawCorrectedTx = lastHubCenterTx;
+        lastHubCenterTx += trim;
+        
+        // Publish diagnostics when tuning dashboard is active
+        if (targetTuningEnabled) {
+            SmartDashboard.putNumber(TT_PREFIX + "Active Tag", tagID);
+            SmartDashboard.putNumber(TT_PREFIX + "Raw LL TX (deg)", rawTxDegrees);
+            SmartDashboard.putNumber(TT_PREFIX + "Corrected TX (deg)", rawCorrectedTx);
+            SmartDashboard.putNumber(TT_PREFIX + "Trim (deg)", trim);
+            SmartDashboard.putNumber(TT_PREFIX + "Final TX (deg)", lastHubCenterTx);
+            SmartDashboard.putNumber(TT_PREFIX + "Distance to Tag (m)", distanceToTag);
+            SmartDashboard.putNumber(TT_PREFIX + "Distance to Hub (m)", lastHubCenterDistance);
+        }
     }
     
     /**
@@ -251,28 +330,64 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     // ======================== HUB TRACKING (BACKGROUND) ========================
     
     /**
-     * Gets the last tracked distance to the hub.
-     * This is updated continuously in the background by periodic().
-     * @return Distance to hub in meters, or -1.0 if no hub has been seen
+     * Gets the last tracked distance to the hub TAG face.
+     * For shooting calculations, prefer {@link #getHubCenterDistance()}.
+     * @return Distance to tag in meters, or -1.0 if no hub has been seen
      */
     public double getLastHubDistance() {
         return lastHubDistance;
     }
     
     /**
+     * Gets the corrected distance to the hub CENTER (not the tag face).
+     * This is the distance that should be used for shooter RPM / hood interpolation.
+     * @return Distance to hub center in meters, or -1.0 if no hub has been seen
+     */
+    public double getHubCenterDistance() {
+        return lastHubCenterDistance;
+    }
+    
+    /**
      * Gets the last tracked hub tag ID.
-     * @return Hub tag ID (10 or 26), or -1 if no hub has been seen
+     * @return Hub tag ID (8-11 for Red, 24-27 for Blue), or -1 if no hub has been seen
      */
     public int getLastHubTagID() {
         return lastHubTagID;
     }
     
     /**
-     * Gets the last tracked horizontal angle to the hub.
+     * Gets the raw horizontal angle to the hub TAG face.
+     * For aiming, prefer {@link #getHubCenterTx()}.
      * @return TX angle in degrees, or 0.0 if no hub has been seen
      */
     public double getLastHubTx() {
         return lastHubTx;
+    }
+    
+    /**
+     * Gets the corrected horizontal angle to the hub CENTER (not the tag face).
+     * This is the TX that should be used for aiming commands (PrepareToFire, AimAtHubWhileDriving).
+     * @return Corrected TX angle in degrees, or 0.0 if no hub has been seen
+     */
+    public double getHubCenterTx() {
+        return lastHubCenterTx;
+    }
+    
+    /**
+     * Gets the raw (unsmoothed) corrected TX to hub center. Same as getHubCenterTx().
+     * @return Corrected TX angle in degrees
+     */
+    public double getRawHubCenterTx() {
+        return lastHubCenterTx;
+    }
+    
+    /**
+     * Gets the currently locked tag ID for anti-oscillation.
+     * Tag locking is currently disabled — returns the last seen hub tag ID instead.
+     * @return The last seen hub tag ID, or -1 if none
+     */
+    public int getLockedTagID() {
+        return lastHubTagID;
     }
     
     /**
@@ -283,6 +398,19 @@ public class LimelightSubsystem6237 extends SubsystemBase {
     public boolean isHubCurrentlyVisible() {
         return hubCurrentlyVisible;
     }
+
+    /**
+     * Checks if the robot is aimed at the hub within the tunable tx tolerance defined
+     * in Constants.Limelight.kAimedAtHubTxTolerance.
+     * Only returns true when a hub tag (10 or 26) is currently visible AND
+     * the horizontal offset is within tolerance of center.
+     * Use this for the "safe to fire" LED indicator instead of hasValidTarget().
+     *
+     * @return true if hub is visible and tx is within tolerance of 0
+     */
+    public boolean isAimedAtHub() {
+        return hubCurrentlyVisible && Math.abs(lastHubTx) <= frc.robot.Constants.Limelight.kAimedAtHubTxTolerance;
+    }
     
     /**
      * Checks if the hub has ever been seen since robot startup.
@@ -290,6 +418,53 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      */
     public boolean hasEverSeenHub() {
         return hasEverSeenHub;
+    }
+
+    // ======================== TARGET TUNING DASHBOARD ========================
+
+    /**
+     * Publishes per-tag TX trim controls and real-time diagnostic values to SmartDashboard
+     * under the "TargetTuning/" prefix.
+     * 
+     * Trims are seeded from Constants.HubGeometry defaults (initially 0.0).
+     * Adjust trims live on SmartDashboard, then copy final values back to Constants.
+     * 
+     * Published entries:
+     *   TargetTuning/Trim Tag 8..11, 24..27   — editable TX offsets (degrees)
+     *   TargetTuning/Active Tag               — which tag is currently driving aiming
+     *   TargetTuning/Raw LL TX (deg)          — raw Limelight TX before any correction
+     *   TargetTuning/Corrected TX (deg)       — after geometric hub-center correction
+     *   TargetTuning/Trim (deg)               — the trim being applied for the active tag
+     *   TargetTuning/Final TX (deg)           — corrected + trim (what the robot aims at)
+     *   TargetTuning/Distance to Tag (m)      — raw distance to the tag face
+     *   TargetTuning/Distance to Hub (m)      — corrected distance to hub center
+     */
+    public void initializeTargetTuningDashboard() {
+        targetTuningEnabled = true;
+
+        // Seed per-tag trim entries with defaults from Constants
+        for (int tagID : ALL_HUB_TAG_IDS) {
+            SmartDashboard.putNumber(TT_PREFIX + "Trim Tag " + tagID,
+                    Constants.HubGeometry.getDefaultTrim(tagID));
+        }
+
+        // Seed diagnostic readouts with zeros
+        SmartDashboard.putNumber(TT_PREFIX + "Active Tag", 0);
+        SmartDashboard.putNumber(TT_PREFIX + "Raw LL TX (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Corrected TX (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Trim (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Final TX (deg)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Distance to Tag (m)", 0.0);
+        SmartDashboard.putNumber(TT_PREFIX + "Distance to Hub (m)", 0.0);
+    }
+
+    /**
+     * Stops publishing diagnostic values to SmartDashboard (trim entries remain
+     * so the robot still reads them — they just won't update in real time).
+     * Call this to reduce dashboard clutter during competition.
+     */
+    public void removeTargetTuningDashboard() {
+        targetTuningEnabled = false;
     }
 
     // ======================== POSE ESTIMATION ========================
@@ -574,7 +749,7 @@ public class LimelightSubsystem6237 extends SubsystemBase {
      * Gets the best hub tag ID to use, prioritizing center tags (10 and 26).
      * If multiple tags are visible, prefers the one closest to center of vision (smallest tx).
      * 
-     * @return The preferred hub tag ID (10 or 26), or -1 if no hub tag visible
+     * @return The preferred hub tag ID (8-11 or 24-27), or -1 if no hub tag visible
      */
     public int getBestHubTagID() {
         LimelightTarget_Fiducial[] fiducials = getDetectedFiducials();
@@ -583,16 +758,19 @@ public class LimelightSubsystem6237 extends SubsystemBase {
             return -1;
         }
         
-        // Look for hub tags (10 or 26)
+        // Look for hub tags (8-11, 24-27)
         LimelightTarget_Fiducial bestTag = null;
         double bestTx = Double.MAX_VALUE; // Smallest tx (closest to center) is best
         
         for (LimelightTarget_Fiducial fiducial : fiducials) {
             int tagId = (int)fiducial.fiducialID;
             
-            // Only consider hub tags
-            if (tagId == frc.robot.Constants.Auto.kRedHubAprilTagID || 
-                tagId == frc.robot.Constants.Auto.kBlueHubAprilTagID) {
+            // Only consider hub tags (8-11, 24-27)
+            boolean isHubTag = false;
+            for (int id : frc.robot.Constants.Auto.kHubAprilTagIDs) {
+                if (tagId == id) { isHubTag = true; break; }
+            }
+            if (isHubTag) {
                 
                 double tx = Math.abs(fiducial.tx); // Use absolute value - closest to center
                 

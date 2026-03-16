@@ -1,5 +1,7 @@
 package frc.robot.commands.auto;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
@@ -7,6 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
+import frc.robot.commands.WCP.PrepareStaticShotCommand;
+import frc.robot.commands.WCP.PrepareShotCommand.Shot;
+import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem6237;
@@ -26,6 +31,7 @@ public class PrepareToFire extends Command {
     private final LimelightSubsystem6237 limelight;
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
+    private final Hood hood;
     
     // Simple field-centric request for manual rotation control
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
@@ -45,12 +51,13 @@ public class PrepareToFire extends Command {
     private boolean hasEverSeenTarget = false;
     private double lastTx = 0;  // For derivative calculation
 
-    public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController) {
+    public PrepareToFire(Shooter shooter, LimelightSubsystem6237 limelight, CommandSwerveDrivetrain drivetrain, CommandXboxController driverController, Hood hood) {
         this.limelight = limelight;
         this.drivetrain = drivetrain;
         this.driverController = driverController;
+        this.hood = hood;
         
-        addRequirements(drivetrain);
+        addRequirements(drivetrain, hood);
     }
 
     @Override
@@ -67,19 +74,19 @@ public class PrepareToFire extends Command {
         
         // Check if Limelight sees the hub
         boolean hubVisible = limelight.isHubCurrentlyVisible();
-        double tx = limelight.getLastHubTx();  // Degrees offset from crosshair
+        // Use CORRECTED TX aimed at hub center (not tag face)
+        double tx = limelight.getHubCenterTx();
         
         double rotationalRate = 0;
         
         if (hubVisible) {
             hasEverSeenTarget = true;
             
-            // TX is the angle from crosshair to target
-            // Positive TX = target is to the RIGHT of crosshair
+            // TX is the corrected angle from robot forward to the HUB CENTER
+            // Positive TX = hub center is to the RIGHT
             // We need to rotate RIGHT (negative in FRC convention) to center it
             
-            // Calculate target heading: where we need to point to center the tag
-            // Current heading + TX = heading that would center the tag
+            // Calculate target heading: where we need to point to center the hub
             lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
             
             // Calculate derivative (rate of change of error) for damping
@@ -87,7 +94,6 @@ public class PrepareToFire extends Command {
             lastTx = tx;
             
             // Use TX directly for proportional control with derivative damping
-            // If TX is positive (target right), we rotate right (negative rate in FRC)
             if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
                 // P term: proportional to error
                 double pTerm = -tx * PROPORTIONAL_GAIN;
@@ -110,7 +116,7 @@ public class PrepareToFire extends Command {
             }
             
         } else if (hasEverSeenTarget && lastTargetHeading != null) {
-            // Lost the target - rotate toward last known heading
+            // Lost the target - rotate toward last known heading (hub center)
             Rotation2d error = lastTargetHeading.minus(currentHeading);
             double errorDegrees = error.getDegrees();
             
@@ -139,6 +145,14 @@ public class PrepareToFire extends Command {
                 .withVelocityY(0)
                 .withRotationalRate(rotationalRate)
         );
+        
+        // Position the hood based on corrected distance to hub CENTER
+        // This runs continuously so the hood tracks distance changes while the driver aims
+        double detectedDistance = limelight.getHubCenterDistance();
+        if (detectedDistance > 0) {
+            Shot shot = PrepareStaticShotCommand.distanceToShotMap.get(Meters.of(detectedDistance));
+            hood.setPosition(shot.hoodPosition);
+        }
     }
 
     @Override

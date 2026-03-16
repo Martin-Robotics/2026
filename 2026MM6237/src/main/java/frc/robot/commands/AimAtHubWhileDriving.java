@@ -4,7 +4,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,12 +23,14 @@ import frc.robot.subsystems.LimelightSubsystem6237;
  *   <li>The operator can fire while the driver repositions</li>
  * </ul>
  * 
- * <p>Hub aiming uses the same proven PD control from PrepareToFire:
+ * <p>Hub aiming uses PD control from Limelight TX:
  * <ul>
  *   <li>When Limelight sees the hub tag: uses TX directly for self-correcting visual feedback</li>
- *   <li>When hub tag is lost: LimelightSubsystem6237 provides odometry-estimated TX as fallback</li>
+ *   <li>When hub tag is lost: HOLDS the last heading where hub was visible (no rotation)</li>
  *   <li>If hub has never been seen: no rotation applied (driver has full manual control)</li>
  * </ul>
+ * 
+ * <p>Max rotation rate is clamped to keep the mode gentle and predictable.
  * 
  * <p>Requires the drivetrain subsystem, so it interrupts the default drive command.
  * When the command ends (toggle off), normal driving resumes automatically.
@@ -47,16 +48,18 @@ public class AimAtHubWhileDriving extends Command {
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
         .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
     
-    // --- PD Control Gains (same proven values as PrepareToFire) ---
+    // --- PD Control Gains ---
     private static final double PROPORTIONAL_GAIN = 0.03;   // rad/s per degree of TX error
     private static final double DERIVATIVE_GAIN = 0.005;    // Damping to reduce oscillation
     private static final double MIN_ROTATION_SPEED = 0.15;  // rad/s minimum to overcome friction
     private static final double AIM_TOLERANCE_DEGREES = 3.0; // "Aimed" when within this
     private static final double FINE_AIM_THRESHOLD = 8.0;   // Below this, don't apply min speed
     
+    // Max rotation rate for this mode — keeps things gentle and predictable
+    // About 1/3 of the robot's full angular rate
+    private static final double MAX_AIM_ROTATION_RATE = 1.5; // rad/s
+    
     // State tracking
-    private Rotation2d lastTargetHeading = null;
-    private boolean hasEverSeenTarget = false;
     private double lastTx = 0;  // For derivative calculation
 
     /**
@@ -78,10 +81,8 @@ public class AimAtHubWhileDriving extends Command {
 
     @Override
     public void initialize() {
-        lastTargetHeading = null;
-        hasEverSeenTarget = false;
         lastTx = 0;
-        SmartDashboard.putBoolean("AimAtHub/Active", true);
+        SmartDashboard.putBoolean("AimAtHub Mode", true);
     }
 
     @Override
@@ -105,24 +106,14 @@ public class AimAtHubWhileDriving extends Command {
                            * Constants.TempSwerve.MaxSpeed * speedMultiplier;
         
         // === ROTATION: Automatic hub aiming via Limelight TX + PD control ===
-        Rotation2d currentHeading = drivetrain.getState().Pose.getRotation();
-        
-        // getLastHubTx() returns:
-        //   - Direct Limelight TX when hub tag is visible (most accurate)
-        //   - Odometry-estimated TX when hub tag is lost but was previously seen
-        //   - 0.0 if hub has never been seen
         boolean hubVisible = limelight.isHubCurrentlyVisible();
-        boolean hubEverSeen = limelight.hasEverSeenHub();
-        double tx = limelight.getLastHubTx();
+        double tx = limelight.getHubCenterTx();
         
         double rotationalRate = 0;
         
         if (hubVisible) {
             // === DIRECT VISION TRACKING ===
-            hasEverSeenTarget = true;
-            
-            // Store target heading for "lost target" fallback within this command
-            lastTargetHeading = currentHeading.plus(Rotation2d.fromDegrees(tx));
+            // Hub is visible — use PD control on the corrected TX to aim at hub center
             
             // PD control on TX
             double txDerivative = tx - lastTx;
@@ -145,58 +136,18 @@ public class AimAtHubWhileDriving extends Command {
                 lastTx = 0;
             }
             
-        } else if (hubEverSeen || (hasEverSeenTarget && lastTargetHeading != null)) {
-            // === ODOMETRY FALLBACK ===
-            // LimelightSubsystem6237 continuously updates lastHubTx via odometry
-            // when the hub isn't visible, so we can still use tx from the subsystem.
-            // Additionally, if we had a target heading from within this command session,
-            // use heading-based control as a secondary fallback.
-            
-            if (hubEverSeen) {
-                // Use subsystem's odometry-estimated TX (updated every cycle)
-                double txDerivative = tx - lastTx;
-                lastTx = tx;
-                
-                if (Math.abs(tx) > AIM_TOLERANCE_DEGREES) {
-                    double pTerm = -tx * PROPORTIONAL_GAIN;
-                    double dTerm = -txDerivative * DERIVATIVE_GAIN;
-                    rotationalRate = pTerm + dTerm;
-                    
-                    if (Math.abs(tx) > FINE_AIM_THRESHOLD) {
-                        if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
-                            rotationalRate = MIN_ROTATION_SPEED;
-                        } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
-                            rotationalRate = -MIN_ROTATION_SPEED;
-                        }
-                    }
-                } else {
-                    lastTx = 0;
-                }
-            } else {
-                // Heading-based fallback from this command session
-                Rotation2d error = lastTargetHeading.minus(currentHeading);
-                double errorDegrees = error.getDegrees();
-                
-                if (Math.abs(errorDegrees) > AIM_TOLERANCE_DEGREES) {
-                    rotationalRate = errorDegrees * PROPORTIONAL_GAIN;
-                    if (rotationalRate > 0 && rotationalRate < MIN_ROTATION_SPEED) {
-                        rotationalRate = MIN_ROTATION_SPEED;
-                    } else if (rotationalRate < 0 && rotationalRate > -MIN_ROTATION_SPEED) {
-                        rotationalRate = -MIN_ROTATION_SPEED;
-                    }
-                }
-            }
-            
         } else {
-            // === NEVER SEEN HUB — let driver rotate manually ===
-            // Fall back to right stick rotation so the driver isn't stuck
-            rotationalRate = -1 * driverController.getRightX() 
-                             * Constants.TempSwerve.MaxAngularRate * speedMultiplier;
+            // === HUB NOT VISIBLE — HOLD CURRENT HEADING ===
+            // Don't chase odometry estimates or spin wildly. Just hold still rotationally.
+            // The driver can reposition to find the hub again, and aiming will resume
+            // automatically once a hub tag comes back into view.
+            rotationalRate = 0;
+            lastTx = 0;  // Reset derivative so we don't get a spike when hub reappears
         }
         
-        // Clamp rotation rate
-        rotationalRate = Math.max(-Constants.TempSwerve.MaxAngularRate, 
-                        Math.min(Constants.TempSwerve.MaxAngularRate, rotationalRate));
+        // Clamp rotation rate to keep this mode gentle
+        rotationalRate = Math.max(-MAX_AIM_ROTATION_RATE, 
+                        Math.min(MAX_AIM_ROTATION_RATE, rotationalRate));
         
         // === APPLY COMBINED DRIVE REQUEST ===
         drivetrain.setControl(
@@ -222,6 +173,6 @@ public class AimAtHubWhileDriving extends Command {
                 .withVelocityY(0)
                 .withRotationalRate(0)
         );
-        SmartDashboard.putBoolean("AimAtHub/Active", false);
+        SmartDashboard.putBoolean("AimAtHub Mode", false);
     }
 }

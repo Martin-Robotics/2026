@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,6 +30,10 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    // Start USB camera stream — automatically published to NetworkTables
+    // Viewable in Shuffleboard, SmartDashboard, or at http://10.62.37.2:1181
+    CameraServer.startAutomaticCapture();
   }
 
   /**
@@ -45,16 +50,6 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    
-    // Update subsystem tuning displays
-    frc.robot.util.SubsystemTuning.updateAllDashboards(
-        m_robotContainer.getFeeder(),
-        m_robotContainer.getShooter(),
-        m_robotContainer.getIntake(),
-        m_robotContainer.getHood(),
-        m_robotContainer.getHanger(),
-        m_robotContainer.getFloor()
-    );
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

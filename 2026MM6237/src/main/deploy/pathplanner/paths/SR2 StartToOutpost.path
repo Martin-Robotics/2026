@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 0.4907307692307705,
+        "x": 0.7080240963855422,
         "y": 0.6860769230769233
       },
       "prevControl": {
-        "x": -0.034245158001362186,
-        "y": 0.6857116179755006
+        "x": 0.9572877177609376,
+        "y": 0.666902798355739
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Connor",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.498181818181818,
+        "y": 3.2207613636363637
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.7775544528063283,
+        "y": 3.573793831505356
+      },
+      "isLocked": false,
+      "linkedName": "SR4 E3"
+    },
+    {
+      "anchor": {
+        "x": 0.6424578313253011,
+        "y": 0.680192771084337
+      },
+      "prevControl": {
+        "x": 0.8376750336860583,
+        "y": 0.8363665329729434
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 24.07549825507887
+  },
+  "useDefaultConstraints": true
+}

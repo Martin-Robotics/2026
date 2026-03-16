@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.controllers.DriverController;
 import frc.robot.controllers.OperatorController;
 import frc.robot.generated.TunerConstants;
@@ -30,7 +29,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -82,16 +80,25 @@ public class RobotContainer {
       
       // Initialize dashboard values so they appear on startup
       initializeDashboard();
+      
+      // Enable target tuning dashboard for field calibration
+      // Comment out or call limelight.removeTargetTuningDashboard() for competition
+      limelight.initializeTargetTuningDashboard();
     }
     
     /**
      * Initialize the minimal set of SmartDashboard values so they're visible on startup.
      */
     private void initializeDashboard() {
-      SmartDashboard.putNumber("Limelight/Hub Distance (m)", 0.0);
-      SmartDashboard.putBoolean("Limelight/Hub Visible", false);
-      SmartDashboard.putNumber("Limelight/Hub Tag ID", 0);
-      SmartDashboard.putBoolean("AimAtHub/Active", false);
+      SmartDashboard.putNumber("Hub Distance (m)", 0.0);
+      SmartDashboard.putBoolean("Hub Locked", false);
+      SmartDashboard.putNumber("Hub Tag ID", 0);
+      SmartDashboard.putBoolean("AimAtHub Mode", false);
+      SmartDashboard.putString("Hub/Active Hub", "Both");
+      SmartDashboard.putBoolean("Hub/Our Hub Active", true);
+      SmartDashboard.putString("Hub/Status", "");
+      SmartDashboard.putNumber("Hub/Countdown (s)", 0.0);
+      SmartDashboard.putNumber("Match Time (s)", 0.0);
     }
 
     /**
@@ -110,7 +117,7 @@ public class RobotContainer {
       
       // Shooter commands - use Autonomous versions with timeout/duration
       // PrepareToFire: aims at hub using Limelight TX with PD control, auto-ends when aimed or timeout
-      NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain));
+      NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain, hood));
       // Fire: spins up shooter/hood from interpolation table, feeds when at speed, auto-ends after duration
       NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, limelight));
       
@@ -133,13 +140,9 @@ public class RobotContainer {
      */
     private void configureBindings() {
       // DriverMapping6237MR.mapXboxController(driver, drivetrain, NetworkTableInstance.getDefault().getTable("limelight"));
-      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight);
+      DriverController.mapXboxController(driver, drivetrain, null, shooter, limelight, hood, m_leds, m_hubMonitor);
       OperatorController.mapXboxController(operator, feeder, shooter, intake, hood, hanger, floor, limelight, drivetrain, driver);
       // OperatorController.mapXboxControllerTestInputs(operator, feeder, shooter, intake, hood, hanger, floor);
-
-      new Trigger(m_hubMonitor::isHubActive)
-        .whileTrue(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.ACTIVE_HUB), m_leds))
-        .whileFalse(new RunCommand(() -> m_leds.setPattern(LEDSubsystem.Patterns.INACTIVE_HUB), m_leds));
     }
 
     /**
