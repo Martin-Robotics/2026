@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,7 +34,11 @@ public class Robot extends TimedRobot {
 
     // Start USB camera stream — automatically published to NetworkTables
     // Viewable in Shuffleboard, SmartDashboard, or at http://10.62.37.2:1181
-    CameraServer.startAutomaticCapture();
+    // Conservative settings to stay within FMS 4 Mbps bandwidth limit
+    // (Limelight also uses bandwidth — leave room for it)
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(320, 240);
+    camera.setFPS(15);
   }
 
   /**

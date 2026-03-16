@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -150,11 +151,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 () -> getState().Speeds, // Supplier of current robot speeds
                 // Consumer of ChassisSpeeds and feedforwards to drive the robot
                 (speeds, feedforwards) -> {
-                    // Scale down autonomous speeds by the configured factor
+                    // Read live-tunable auto speed from SmartDashboard, clamped to 0.05–1.0 for safety
+                    double scaleFactor = SmartDashboard.getNumber("Auto/Speed %",
+                        Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor);
+                    scaleFactor = Math.max(0.05, Math.min(1.0, scaleFactor));
+                    
                     var scaledSpeeds = new ChassisSpeeds(
-                        speeds.vxMetersPerSecond * Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor,
-                        speeds.vyMetersPerSecond * Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor,
-                        speeds.omegaRadiansPerSecond * Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor
+                        speeds.vxMetersPerSecond * scaleFactor,
+                        speeds.vyMetersPerSecond * scaleFactor,
+                        speeds.omegaRadiansPerSecond * scaleFactor
                     );
                     
                     setControl(

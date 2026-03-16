@@ -99,6 +99,7 @@ public class RobotContainer {
       SmartDashboard.putString("Hub/Status", "");
       SmartDashboard.putNumber("Hub/Countdown (s)", 0.0);
       SmartDashboard.putNumber("Match Time (s)", 0.0);
+      SmartDashboard.putNumber("Auto/Speed %", Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor);
     }
 
     /**
