@@ -506,10 +506,10 @@ public final class Constants {
         // Positive = shift aim to the right, Negative = shift aim to the left.
         // These are the initial defaults loaded into SmartDashboard at startup.
         // Tune live via TargetTuning/Trim Tag XX entries, then copy values back here.
-        public static final double kTrimTag8  = 0.0;
-        public static final double kTrimTag9  = 0.0;
-        public static final double kTrimTag10 = 0.0;
-        public static final double kTrimTag11 = 0.0;
+        public static final double kTrimTag8  = 11.0;
+        public static final double kTrimTag9  = 11.0;
+        public static final double kTrimTag10 = 5.0;
+        public static final double kTrimTag11 = -8.0;
         public static final double kTrimTag24 = 11.0;
         public static final double kTrimTag25 = 11.0;
         public static final double kTrimTag26 = 5.0;
