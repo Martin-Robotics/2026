@@ -23,6 +23,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import frc.robot.commands.auto.*;
+import frc.robot.commands.CalibrateTrimCommand;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -100,6 +101,9 @@ public class RobotContainer {
       SmartDashboard.putNumber("Hub/Countdown (s)", 0.0);
       SmartDashboard.putNumber("Match Time (s)", 0.0);
       SmartDashboard.putNumber("Auto/Speed %", Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor);
+      
+      // Trim calibration dashboard (see CALIBRATION_FIELD_GUIDE.md)
+      CalibrateTrimCommand.initDashboard();
     }
 
     /**
@@ -188,5 +192,13 @@ public class RobotContainer {
 
     public LEDSubsystem getLEDs() {
       return m_leds;
+    }
+
+    public LimelightSubsystem6237 getLimelight() {
+      return limelight;
+    }
+
+    public CommandSwerveDrivetrain getDrivetrain() {
+      return drivetrain;
     }
 }
