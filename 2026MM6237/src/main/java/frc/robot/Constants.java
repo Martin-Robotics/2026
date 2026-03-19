@@ -506,10 +506,18 @@ public final class Constants {
         // Positive = shift aim to the right, Negative = shift aim to the left.
         // These are the initial defaults loaded into SmartDashboard at startup.
         // Tune live via TargetTuning/Trim Tag XX entries, then copy values back here.
-        public static final double kTrimTag8  = 11.0;
-        public static final double kTrimTag9  = 11.0;
-        public static final double kTrimTag10 = 5.0;
-        public static final double kTrimTag11 = -8.0;
+        //
+        // Mirror pairs (same structural position on hex):
+        //   Tag 27 (Blue side, low Y)  ↔  Tag 8  (Red side, low Y)
+        //   Tag 25 (Blue front off-ctr) ↔  Tag 9  (Red front off-ctr)
+        //   Tag 26 (Blue front center)  ↔  Tag 10 (Red front center)
+        //   Tag 24 (Blue side, high Y)  ↔  Tag 11 (Red side, high Y)
+        // Red trims = −(blue mirror partner) because robot faces opposite direction.
+        // Tag 9 field-verified at -8.0 on 2026-03-19.
+        public static final double kTrimTag8  = 8.0;    // mirror of Tag27 (-8.0), negated
+        public static final double kTrimTag9  = -8.0;   // mirror of Tag25 (11.0) → -11.0, FIELD TUNED to -8.0
+        public static final double kTrimTag10 = -5.0;   // mirror of Tag26 (5.0), negated
+        public static final double kTrimTag11 = -11.0;  // mirror of Tag24 (11.0), negated
         public static final double kTrimTag24 = 11.0;
         public static final double kTrimTag25 = 11.0;
         public static final double kTrimTag26 = 5.0;
