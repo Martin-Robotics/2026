@@ -100,6 +100,7 @@ public class RobotContainer {
       SmartDashboard.putNumber("Hub/Countdown (s)", 0.0);
       SmartDashboard.putNumber("Match Time (s)", 0.0);
       SmartDashboard.putNumber("Auto/Speed %", Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor);
+      SmartDashboard.putNumber("Auto/Bump Comp (m)", BumpCompensation.kDefaultBumpCompMeters);
     }
 
     /**
@@ -127,6 +128,13 @@ public class RobotContainer {
       NamedCommands.registerCommand("PrepareToClimbLeft", new PrepareToClimbLeft(hanger));
       NamedCommands.registerCommand("PrepareToClimbRight", new PrepareToClimbRight(hanger));
       NamedCommands.registerCommand("Climb", new Climb(hanger));
+      
+      // Bump compensation — insert after paths that cross the field bump
+      // "BumpCompOutbound" = robot just traveled AWAY from alliance wall (+X for Blue)
+      // "BumpCompReturn"   = robot just traveled BACK toward alliance wall (-X for Blue)
+      // Tune amount via SmartDashboard "Auto/Bump Comp (m)" — default 0.15m (~6 in)
+      NamedCommands.registerCommand("BumpCompOutbound", new BumpCompensation(drivetrain, true));
+      NamedCommands.registerCommand("BumpCompReturn", new BumpCompensation(drivetrain, false));
     }
 
 

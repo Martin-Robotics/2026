@@ -13,6 +13,12 @@
         {
           "type": "named",
           "data": {
+            "name": "BumpCompOutbound"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "RunIntake"
           }
         },
@@ -32,6 +38,12 @@
           "type": "path",
           "data": {
             "pathName": "SR4 Center To Hub"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "BumpCompReturn"
           }
         },
         {
