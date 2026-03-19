@@ -135,7 +135,7 @@ public final class Constants {
         public static final double kIntakePositionDegrees = -110; // Fully extended intake position
         public static final double kAgitatePositionDegrees = -50; // Agitate position (30° lower than previous -20°, nudges balls toward feeder)
         public static final double kAgitateIntervalSeconds = .8; // Time at each position during agitate oscillation (1/4 speed)
-        public static final double kAgitateDelaySeconds = 3;   // Delay before agitation begins
+        public static final double kAgitateDelaySeconds = 1.75;   // Delay before agitation begins
         public static final double kPivotReduction = 50.0;
         public static final Angle kPositionTolerance = Degrees.of(5);
         public static final double kStatorCurrentLimit = 120;
