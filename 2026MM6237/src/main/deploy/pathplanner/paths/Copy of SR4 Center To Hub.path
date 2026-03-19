@@ -3,32 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7080240963855422,
-        "y": 0.6860769230769233
+        "x": 8.696180722891567,
+        "y": 3.6634578313253012
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1804560361618557,
-        "y": 1.2107283729905256
+        "x": 7.326695291656133,
+        "y": 2.746151013143483
       },
       "isLocked": false,
-      "linkedName": "SR2 E1"
+      "linkedName": "E3 BR2"
     },
     {
       "anchor": {
-        "x": 2.8861410256410265,
-        "y": 3.8838333333333335
+        "x": 2.498181818181818,
+        "y": 3.2207613636363637
       },
       "prevControl": {
-        "x": 2.5521207486279085,
-        "y": 3.5156107677975608
+        "x": 2.957445755664036,
+        "y": 1.4423765786916531
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "SR4 E3"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.37106918238993625,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 0.699685534591193,
+      "rotationDegrees": 45.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +51,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 24.07549825507887
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

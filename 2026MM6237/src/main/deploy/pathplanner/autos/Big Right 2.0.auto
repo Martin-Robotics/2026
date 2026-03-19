@@ -7,25 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR2 StartToOutpost"
+            "pathName": "Copy of SR4 Start To Center"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "ExtendIntakeArm"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 4.0
+            "name": "RunIntake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "SR2 OutpostToHub Far"
+            "pathName": "Copy of SR4 Intake Center"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeRollers"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Copy of SR4 Center To Hub"
           }
         },
         {
@@ -38,6 +44,18 @@
           "type": "named",
           "data": {
             "name": "Fire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ExtendIntakeArm"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "SR4 Hub to Outpost"
           }
         }
       ]

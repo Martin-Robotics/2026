@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1804560361618557,
-        "y": 1.2107283729905256
+        "x": 1.0467831325301202,
+        "y": 1.2702891566265067
       },
       "isLocked": false,
       "linkedName": "SR2 E1"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

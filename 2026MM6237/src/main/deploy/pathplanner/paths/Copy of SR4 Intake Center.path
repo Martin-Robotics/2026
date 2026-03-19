@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.7080240963855422,
-        "y": 0.6860769230769233
+        "x": 8.696180722891567,
+        "y": 1.2265783132530124
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1804560361618557,
-        "y": 1.2107283729905256
+        "x": 8.696180722891567,
+        "y": 1.4765783132530124
       },
       "isLocked": false,
-      "linkedName": "SR2 E1"
+      "linkedName": "E1 BR2"
     },
     {
       "anchor": {
-        "x": 2.8861410256410265,
-        "y": 3.8838333333333335
+        "x": 8.696180722891567,
+        "y": 3.6634578313253012
       },
       "prevControl": {
-        "x": 2.5521207486279085,
-        "y": 3.5156107677975608
+        "x": 8.649667902378745,
+        "y": 3.3727527031201725
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "E3 BR2"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
