@@ -654,6 +654,19 @@
               "_glyph": 148,
               "_showGlyph": false
             }
+          },
+          "2,1": {
+            "size": [
+              2,
+              2
+            ],
+            "content": {
+              "_type": "Text View",
+              "_source0": "network_table:///SmartDashboard/TargetTuning/Active Tag",
+              "_title": "SmartDashboard/TargetTuning/Active Tag",
+              "_glyph": 148,
+              "_showGlyph": false
+            }
           }
         }
       }
