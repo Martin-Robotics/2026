@@ -40,13 +40,13 @@ public class AimAtHubWhileDriving extends Command {
     private final CommandSwerveDrivetrain drivetrain;
     private final CommandXboxController driverController;
     
-    // Field-centric drive request — same setup as DriverController's default
-    // Uses BlueAlliance perspective so CTRE handles Red alliance flip via setOperatorPerspectiveForward()
+    // Field-centric drive request -- same setup as DriverController's default
+    // Uses OperatorPerspective so CTRE handles Red alliance flip via setOperatorPerspectiveForward()
     private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
         .withDeadband(Constants.TempSwerve.MaxSpeed * Constants.OperatorConstants.driverStickDeadband)
         .withRotationalDeadband(0)  // We handle our own rotation control
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
     
     // --- PD Control Gains ---
     private static final double PROPORTIONAL_GAIN = 0.03;   // rad/s per degree of TX error
@@ -99,10 +99,11 @@ public class AimAtHubWhileDriving extends Command {
             speedMultiplier = 55.0 / 35.0;  // Scale to 55%
         }
         
-        // Same inversion logic as DriverController
-        double velocityX = DriverController.invertXNumberFieldCentric * driverController.getLeftY() 
+        // Same inversion logic as DriverController (including translation swap)
+        double swapMult = DriverController.getTranslationSwapMultiplier();
+        double velocityX = swapMult * DriverController.invertXNumberFieldCentric * driverController.getLeftY() 
                            * Constants.TempSwerve.MaxSpeed * speedMultiplier;
-        double velocityY = DriverController.invertYNumberFieldCentric * driverController.getLeftX() 
+        double velocityY = swapMult * DriverController.invertYNumberFieldCentric * driverController.getLeftX() 
                            * Constants.TempSwerve.MaxSpeed * speedMultiplier;
         
         // === ROTATION: Automatic hub aiming via Limelight TX + PD control ===

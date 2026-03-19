@@ -4,6 +4,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -28,29 +30,39 @@ public class DriverController {
     // - getLeftY() is NEGATIVE when pushed FORWARD (away from driver)
     // - getLeftX() is POSITIVE when pushed RIGHT
     // 
-    // FRC Field conventions (Blue Alliance perspective):
-    // - Positive X = toward Red alliance wall (forward for Blue)
-    // - Positive Y = toward left side of field (when standing at Blue driver station)
-    //
-    // With BlueAlliance perspective, Red drivers need controls inverted (handled below)
+    // FRC Field conventions:
+    // - With OperatorPerspective, "forward" always means "away from the driver station"
+    //   regardless of alliance (CTRE handles the rotation via setOperatorPerspectiveForward)
     public static double invertXNumberFieldCentric = -1.0;  // Negate because stick Y is inverted
     public static double invertYNumberFieldCentric = -1.0;  // Negate because we want left=positive
 
     public static double invertXNumberRobotCentric = -1.0;
     public static double invertYNumberRobotCentric = -1.0;
 
+    // Translation swap: when true, forward/back and left/right are reversed
+    // Toggled by holding Start button for 1 second
+    private static boolean translationSwapped = false;
+    private static final Debouncer startDebouncer = new Debouncer(1.0, DebounceType.kRising);
+    private static boolean lastDebouncedStart = false;
+
+    /** Returns -1.0 when swapped (reverse translation), +1.0 normally */
+    public static double getTranslationSwapMultiplier() {
+        return translationSwapped ? -1.0 : 1.0;
+    }
+
     public static Trigger robotCentricControl;
     public static Trigger slowSpeedControl;
     public static Trigger fastSpeedControl;
 
-    // Field-centric drive with BlueAlliance perspective
-    // CTRE's setOperatorPerspectiveForward() in CommandSwerveDrivetrain.periodic() 
-    // handles the alliance-based rotation automatically (180° for Red)
+    // Field-centric drive with OperatorPerspective
+    // CTRE's setOperatorPerspectiveForward() in CommandSwerveDrivetrain.periodic()
+    // sets 0 deg for Blue, 180 deg for Red -- OperatorPerspective uses that value
+    // so "forward" on the stick always means "away from the driver station"
     private static final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(Constants.TempSwerve.MaxSpeed * OperatorConstants.driverStickDeadband)
         .withRotationalDeadband(Constants.TempSwerve.MaxAngularRate * Constants.OperatorConstants.driverStickDeadband)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);  // CTRE handles Red flip via setOperatorPerspectiveForward
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);  // Uses setOperatorPerspectiveForward per alliance
 
     // Robot-centric drive - no perspective adjustment needed (always relative to robot)
     private static final SwerveRequest.RobotCentric robotCentricDrive = new SwerveRequest.RobotCentric()
@@ -66,6 +78,18 @@ public class DriverController {
         fastSpeedControl = new Trigger(() -> driverController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold);
 
         Command defaultDrivetrainCommand = drivetrain.applyRequest(() -> {
+            // --- Translation swap: hold Start for 1 second to toggle ---
+            boolean rawStart = driverController.start().getAsBoolean();
+            boolean debouncedStart = startDebouncer.calculate(rawStart);
+            // Detect rising edge of the debounced signal (just became true)
+            if (debouncedStart && !lastDebouncedStart) {
+                translationSwapped = !translationSwapped;
+                System.out.println("[DriverController] Translation swap: " + (translationSwapped ? "REVERSED" : "NORMAL"));
+            }
+            lastDebouncedStart = debouncedStart;
+
+            double swapMult = getTranslationSwapMultiplier();
+
             // Determine speed multiplier based on triggers
             // Left trigger = 15%, Normal = 35%, Right trigger = 55%
             double speedMultiplier = 1.0; // Default is 35% (already in Constants.TempSwerve.MaxSpeed)
@@ -75,19 +99,19 @@ public class DriverController {
                 speedMultiplier = 55.0 / 35.0; // Scale to 55%
             }
             
-            // Calculate velocities - NO manual alliance flip needed!
-            // CTRE's setOperatorPerspectiveForward() handles Red alliance automatically
-            double velocityX = invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
-            double velocityY = invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
+            // Calculate velocities -- swapMult flips both X and Y translation when toggled
+            // CTRE OperatorPerspective handles alliance flip via setOperatorPerspectiveForward()
+            double velocityX = swapMult * invertXNumberFieldCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
+            double velocityY = swapMult * invertYNumberFieldCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier;
             
             if (robotCentricControl.getAsBoolean()) {
-                // Robot-centric control when left bumper is pressed (no alliance flip needed)
+                // Robot-centric control when left bumper is pressed
                 return robotCentricDrive
-                    .withVelocityX(invertXNumberRobotCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
-                    .withVelocityY(invertYNumberRobotCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
+                    .withVelocityX(swapMult * invertXNumberRobotCentric * driverController.getLeftY() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
+                    .withVelocityY(swapMult * invertYNumberRobotCentric * driverController.getLeftX() * Constants.TempSwerve.MaxSpeed * speedMultiplier)
                     .withRotationalRate(-1 * driverController.getRightX() * Constants.TempSwerve.MaxAngularRate * speedMultiplier);
             } else {
-                // Field-centric control - CTRE handles alliance perspective automatically
+                // Field-centric control
                 return drive
                     .withVelocityX(velocityX)
                     .withVelocityY(velocityY)

@@ -290,6 +290,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         ? kRedAlliancePerspectiveRotation
                         : kBlueAlliancePerspectiveRotation
                 );
+                if (!m_hasAppliedOperatorPerspective) {
+                    seedFieldCentric();
+                }
                 m_hasAppliedOperatorPerspective = true;
             });
         }
