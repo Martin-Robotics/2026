@@ -519,10 +519,10 @@ public final class Constants {
         //   Tag 24 (Blue side, high Y)  ↔  Tag 11 (Red side, high Y)
         // Red trims = −(blue mirror partner) because robot faces opposite direction.
         // Tag 9 field-verified at -8.0 on 2026-03-19.
-        public static final double kTrimTag8  = 8.0;    // mirror of Tag27 (-8.0), negated
-        public static final double kTrimTag9  = -8.0;   // mirror of Tag25 (11.0) → -11.0, FIELD TUNED to -8.0
-        public static final double kTrimTag10 = -5.0;   // mirror of Tag26 (5.0), negated
-        public static final double kTrimTag11 = -11.0;  // mirror of Tag24 (11.0), negated
+        public static final double kTrimTag8  = 22.0;    // mirror of Tag27 (-8.0), negated
+        public static final double kTrimTag9  = 8.0;   // mirror of Tag25 (11.0) → -11.0, FIELD TUNED to -8.0
+        public static final double kTrimTag10 = 5.0;   // mirror of Tag26 (5.0), negated
+        public static final double kTrimTag11 = -15.0;  // mirror of Tag24 (11.0), negated
         public static final double kTrimTag24 = 11.0;
         public static final double kTrimTag25 = 11.0;
         public static final double kTrimTag26 = 5.0;
