@@ -460,7 +460,7 @@ public final class Constants {
         // Autonomous RPM boost -- added on top of the shared interpolation table RPM
         // Compensates for auto-specific factors (battery sag, no driver correction, etc.)
         // Tunable via SmartDashboard "Auto/RPM Boost" (default 250 RPM ~ 2ft extra range)
-        public static final double kAutoRpmBoostDefault = 250.0;
+        public static final double kAutoRpmBoostDefault = 175.0;
     }
 
     // ======================== HUB GEOMETRY (2026 REBUILT FIELD) ========================
