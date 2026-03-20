@@ -13,6 +13,7 @@ import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hood;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.LimelightSubsystem6237;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * Autonomous command to fire at the hub.
@@ -62,8 +63,12 @@ public class FireAutonomous extends Command {
         // Look up RPM and hood from SHARED interpolation table (single source of truth)
         final Shot shot = PrepareStaticShotCommand.distanceToShotMap.get(actualDistance);
         
+        // Apply auto-only RPM boost (tunable from SmartDashboard)
+        double rpmBoost = SmartDashboard.getNumber("Auto/RPM Boost", Constants.Auto.kAutoRpmBoostDefault);
+        double boostedRPM = shot.shooterRPM + rpmBoost;
+        
         // Always spin up shooter and position hood
-        shooter.setRPM(shot.shooterRPM);
+        shooter.setRPM(boostedRPM);
         hood.setPosition(shot.hoodPosition);
         
         if (!shooterAtSpeed) {

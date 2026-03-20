@@ -456,6 +456,11 @@ public final class Constants {
         // Autonomous firing timing
         public static final double kAutoFireRunTimeSeconds = 2.0;      // Time to run feeder after shooter at speed
         public static final double kAutoPrepareAimTimeSeconds = 0.5;   // Time to attempt aiming before giving up
+
+        // Autonomous RPM boost -- added on top of the shared interpolation table RPM
+        // Compensates for auto-specific factors (battery sag, no driver correction, etc.)
+        // Tunable via SmartDashboard "Auto/RPM Boost" (default 250 RPM ~ 2ft extra range)
+        public static final double kAutoRpmBoostDefault = 250.0;
     }
 
     // ======================== HUB GEOMETRY (2026 REBUILT FIELD) ========================
