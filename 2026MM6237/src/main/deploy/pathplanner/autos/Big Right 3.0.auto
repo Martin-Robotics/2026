@@ -1,0 +1,109 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Big Right start to First Shot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Big Right Shot to Bump Prep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Prep to Center"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Past Bump To Fuel Corner"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Corner To Fuel Prep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RunIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Prep to Fuel Done"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeRollers"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Done to Bump Return"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Return to Big Right Bump Returned"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Returned to Big Right Second Fire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

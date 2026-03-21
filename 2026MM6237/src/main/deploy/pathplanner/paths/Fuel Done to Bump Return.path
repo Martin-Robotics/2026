@@ -3,41 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.502435897435899,
-        "y": 2.3605384615384617
+        "x": 8.729,
+        "y": 2.7783132530120485
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.002614457831324,
-        "y": 3.7399518072289153
+        "x": 8.040518072289156,
+        "y": 2.7127469879518085
       },
       "isLocked": false,
-      "linkedName": "Big Right Start"
+      "linkedName": "Fuel Done"
     },
     {
       "anchor": {
-        "x": 8.696180722891567,
-        "y": 1.2265783132530124
+        "x": 6.040746987951807,
+        "y": 2.472337349397591
       },
       "prevControl": {
-        "x": 7.756397590361445,
-        "y": 0.7894698795180717
+        "x": 6.6854816151886265,
+        "y": 2.537906687520184
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "E1 BR2"
+      "linkedName": "Bump Return"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.12163050624589318,
-      "rotationDegrees": 45.0
-    },
-    {
-      "waypointRelativePos": 0.39513477975016376,
-      "rotationDegrees": 45.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -51,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

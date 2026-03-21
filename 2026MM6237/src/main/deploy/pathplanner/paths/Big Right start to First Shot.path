@@ -8,36 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.002614457831324,
-        "y": 3.7399518072289153
+        "x": 3.07933734939759,
+        "y": 2.4941927710843377
       },
       "isLocked": false,
       "linkedName": "Big Right Start"
     },
     {
       "anchor": {
-        "x": 8.696180722891567,
-        "y": 1.2265783132530124
+        "x": 2.685939759036144,
+        "y": 2.6034698795180726
       },
       "prevControl": {
-        "x": 7.756397590361445,
-        "y": 0.7894698795180717
+        "x": 3.4329165661092707,
+        "y": 2.308342822114908
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "E1 BR2"
+      "linkedName": "Big Right First Fire"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.12163050624589318,
-      "rotationDegrees": 45.0
-    },
-    {
-      "waypointRelativePos": 0.39513477975016376,
-      "rotationDegrees": 45.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -51,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 45.0
   },
   "reversed": false,
   "folder": null,
