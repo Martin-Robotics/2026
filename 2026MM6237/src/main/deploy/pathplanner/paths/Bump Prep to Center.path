@@ -3,41 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.502435897435899,
-        "y": 2.3605384615384617
+        "x": 2.959132530120482,
+        "y": 2.6034698795180726
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.002614457831324,
-        "y": 3.7399518072289153
+        "x": 3.959132530120482,
+        "y": 2.6034698795180726
       },
       "isLocked": false,
-      "linkedName": "Big Right Start"
+      "linkedName": "Bump Prep"
     },
     {
       "anchor": {
-        "x": 8.696180722891567,
-        "y": 1.2265783132530124
+        "x": 6.182807228915664,
+        "y": 2.6034698795180726
       },
       "prevControl": {
-        "x": 7.756397590361445,
-        "y": 0.7894698795180717
+        "x": 5.182807228915664,
+        "y": 2.6034698795180726
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "E1 BR2"
+      "linkedName": "Center Past Bump"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.12163050624589318,
-      "rotationDegrees": 45.0
-    },
-    {
-      "waypointRelativePos": 0.39513477975016376,
-      "rotationDegrees": 45.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -51,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
