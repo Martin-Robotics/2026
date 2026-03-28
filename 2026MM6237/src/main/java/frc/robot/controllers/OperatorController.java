@@ -1,5 +1,6 @@
 package frc.robot.controllers;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -303,27 +304,29 @@ public class OperatorController {
         
         // ======================== INTAKE CONTROLS ========================
         // A Button: Move intake arm to INTAKE position (does not run rollers)
+        // Uses Commands.runOnce() instead of intake.runOnce() to avoid requiring intake subsystem
+        // This prevents accidental button presses from canceling ReturnShotCommand/PrepareStaticShotCommand
         operatorController.a()
-            .onTrue(intake.runOnce(() -> {
+            .onTrue(Commands.runOnce(() -> {
                 intake.setManualPosition(Intake.Position.INTAKE);
             }).withName("Extend Intake Arm"));
         
         // B Button: Move intake arm to STOWED position (also stops rollers)
         operatorController.b()
-            .onTrue(intake.runOnce(() -> {
+            .onTrue(Commands.runOnce(() -> {
                 intake.setManualPosition(Intake.Position.STOWED);
                 intake.set(Intake.Speed.STOP);
             }).withName("Retract Intake Arm"));
         
         // X Button: Run intake rollers
         operatorController.x()
-            .onTrue(intake.runOnce(() -> {
+            .onTrue(Commands.runOnce(() -> {
                 intake.set(Intake.Speed.INTAKE);
             }).withName("Start Intake Rollers"));
         
         // Y Button: Stop intake rollers
         operatorController.y()
-            .onTrue(intake.runOnce(() -> {
+            .onTrue(Commands.runOnce(() -> {
                 intake.set(Intake.Speed.STOP);
             }).withName("Stop Intake Rollers"));
         
