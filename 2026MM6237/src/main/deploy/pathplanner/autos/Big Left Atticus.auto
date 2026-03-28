@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR3 to Mid"
+            "pathName": "BA Start Back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BA Over Bump 1"
           }
         },
         {
@@ -19,7 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR3 Intake At Mid"
+            "pathName": "BA Intake"
           }
         },
         {
@@ -31,7 +37,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR3 Mid To Hub"
+            "pathName": "BA Intake to Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BA Back Over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BA Prep Shoot"
           }
         },
         {
@@ -49,7 +67,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR3 Hub To Depot"
+            "pathName": "BA Shoot to Depot"
           }
         },
         {
@@ -61,13 +79,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR3 Intake Depot"
+            "pathName": "BA Intake Depot"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StopIntakeRollers"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BA Depot to Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
           }
         }
       ]

@@ -37,13 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center Past Bump To Fuel Corner"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Fuel Corner To Fuel Prep"
+            "pathName": "Past Bump to Fuel Prep"
           }
         },
         {

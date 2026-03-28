@@ -94,9 +94,9 @@ public class DriverController {
             // Left trigger = 15%, Normal = 35%, Right trigger = 55%
             double speedMultiplier = 1.0; // Default is 35% (already in Constants.TempSwerve.MaxSpeed)
             if (slowSpeedControl.getAsBoolean()) {
-                speedMultiplier = 15.0 / 35.0; // Scale to 15%
+                speedMultiplier = 20.0 / 40.0; // Scale to 15%
             } else if (fastSpeedControl.getAsBoolean()) {
-                speedMultiplier = 55.0 / 35.0; // Scale to 55%
+                speedMultiplier = 60.0 / 40.0; // Scale to 55%
             }
             
             // Calculate velocities -- swapMult flips both X and Y translation when toggled

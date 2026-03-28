@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.632,
-        "y": 0.6860769230769233
+        "x": 0.6643132530120479,
+        "y": 5.925493975903614
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.430959446895188,
-        "y": 0.38610042108998704
+        "x": 1.5300321368121899,
+        "y": 6.1034680797204475
       },
       "isLocked": false,
-      "linkedName": "SR2 E1"
+      "linkedName": "BA E8"
     },
     {
       "anchor": {
-        "x": 2.653156626506024,
-        "y": 1.6746144578313262
+        "x": 2.522024096385542,
+        "y": 4.701590361445783
       },
       "prevControl": {
-        "x": 2.263411372673966,
-        "y": 1.4844827681923547
+        "x": 1.364449533154271,
+        "y": 5.430617302440652
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "BA E6"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 45.0
+    "rotation": -27.255328374943048
   },
   "reversed": false,
   "folder": null,

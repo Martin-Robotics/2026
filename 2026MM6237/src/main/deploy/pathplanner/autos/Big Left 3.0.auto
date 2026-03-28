@@ -7,7 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR4 Start To Center"
+            "pathName": "BG2 Start To Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "PrepareToFire"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Fire"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Shoot to Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Over Bump 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Prep Intake"
           }
         },
         {
@@ -19,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR4 Intake Center"
+            "pathName": "BG2 Intake"
           }
         },
         {
@@ -31,7 +61,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SR4 Center To Hub"
+            "pathName": "BG2 Intake Over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 End Shoot"
           }
         },
         {
