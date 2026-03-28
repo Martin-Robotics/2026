@@ -29,9 +29,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Bump Prep to Center"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bump Prep to Center"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RunIntake"
+                }
+              }
+            ]
           }
         },
         {
@@ -41,27 +54,21 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "RunIntake"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Fuel Prep to Fuel Done"
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "StopIntakeRollers"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Fuel Done to Bump Return"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeRollers"
           }
         },
         {
@@ -85,7 +92,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire2"
           }
         }
       ]
