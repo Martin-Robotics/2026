@@ -122,6 +122,9 @@ public class RobotContainer {
       NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain, hood));
       // Fire: spins up shooter/hood from interpolation table, feeds when at speed, auto-ends after duration
       NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, limelight));
+      // Fire2: same as Fire but runs 3x longer (6 seconds) for full hopper dumps
+      NamedCommands.registerCommand("Fire2", new FireAutonomous(feeder, shooter, hood, floor, limelight, 
+          Constants.Auto.kAutoFireRunTimeSeconds * 3.0));
       
       // Climb commands
       NamedCommands.registerCommand("PrepareToClimb", new PrepareToClimb(hanger));

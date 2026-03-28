@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * - Spins up shooter and positions hood
  * - Once both are ready, engages feeder and floor for a fixed duration
  * - Automatically ends after firing duration completes
+ * 
+ * Use the optional fireDurationSeconds constructor parameter to create longer-firing
+ * variants (e.g., "Fire2" for full hopper dumps).
  */
 public class FireAutonomous extends Command {
 
@@ -32,16 +35,29 @@ public class FireAutonomous extends Command {
     private final Hood hood;
     private final Floor floor;
     private final LimelightSubsystem6237 limelight;
+    private final double fireDurationSeconds;
     
     private final Timer fireTimer = new Timer();
     private boolean shooterAtSpeed = false;
 
+    /**
+     * Creates a FireAutonomous command with the default fire duration.
+     */
     public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, LimelightSubsystem6237 limelight) {
+        this(feeder, shooter, hood, floor, limelight, Constants.Auto.kAutoFireRunTimeSeconds);
+    }
+
+    /**
+     * Creates a FireAutonomous command with a custom fire duration.
+     * @param fireDurationSeconds How long to run feeder/floor after shooter reaches speed
+     */
+    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, LimelightSubsystem6237 limelight, double fireDurationSeconds) {
         this.feeder = feeder;
         this.shooter = shooter;
         this.hood = hood;
         this.floor = floor;
         this.limelight = limelight;
+        this.fireDurationSeconds = fireDurationSeconds;
         addRequirements(feeder, shooter, hood, floor);
     }
 
@@ -87,7 +103,7 @@ public class FireAutonomous extends Command {
 
     @Override
     public boolean isFinished() {
-        return shooterAtSpeed && fireTimer.hasElapsed(Constants.Auto.kAutoFireRunTimeSeconds);
+        return shooterAtSpeed && fireTimer.hasElapsed(fireDurationSeconds);
     }
 
     @Override
