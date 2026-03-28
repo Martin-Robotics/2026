@@ -29,6 +29,8 @@ public class ReturnShotCommand extends Command {
     private final Hood hood;
     private final Intake intake;
     
+    private boolean shooterAtSpeed = false;
+    
     // Agitate state
     private final Timer agitateTimer = new Timer();
     private boolean agitateAtIntake = false;
@@ -56,6 +58,7 @@ public class ReturnShotCommand extends Command {
     public void initialize() {
         // Set hood to the static return position immediately
         hood.setPosition(Constants.Shooter.kReturnShotHoodPosition);
+        shooterAtSpeed = false;
         // Start agitate delay timer — agitation begins after kAgitateDelaySeconds
         agitateTimer.restart();
         agitateAtIntake = false;
@@ -67,9 +70,12 @@ public class ReturnShotCommand extends Command {
         // Spin up shooter to static return RPM
         shooter.setRPM(Constants.Shooter.kReturnShotRPM);
 
-        // Feed immediately — no need to wait for full speed for a lob return
-        feeder.set(Feeder.Speed.FEED);
-        floor.set(Floor.Speed.FEED);
+        // Engage feeder and floor once shooter is at speed (same as PrepareStaticShotCommand)
+        if (!shooterAtSpeed && shooter.isVelocityWithinTolerance()) {
+            shooterAtSpeed = true;
+            feeder.set(Feeder.Speed.FEED);
+            floor.set(Floor.Speed.FEED);
+        }
         
         // ---- Agitate logic ----
         // Wait for initial delay, then oscillate intake arm between INTAKE and AGITATE
@@ -108,6 +114,7 @@ public class ReturnShotCommand extends Command {
         shooter.stop();
         feeder.setPercentOutput(0);
         floor.set(Floor.Speed.STOP);
+        shooterAtSpeed = false;
         // Return intake to INTAKE position (not stowed) and stop rollers
         intake.setManualPosition(Intake.Position.INTAKE);
         intake.setManualRollerVoltage(0);
