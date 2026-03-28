@@ -176,7 +176,7 @@ public final class Constants {
         // Used to lob balls back to the alliance starting zone (not into the hub).
         // Static values — no Limelight or distance detection needed.
         // Seeded from the ~3m interpolation point in the hub shot table.
-        public static final double kReturnShotRPM = 2000;
+        public static final double kReturnShotRPM = 3500;
         public static final double kReturnShotHoodPosition = 0.7;
     }
 
