@@ -139,14 +139,10 @@ public class PrepareStaticShotCommand extends Command {
         // Spin up shooter to target RPM
         shooter.setRPM(shot.shooterRPM);
         
-        // Track when shooter reaches speed
+        // Engage feeder and floor once shooter is at speed
+        // Hood positioning is handled separately by PrepareToFire (Driver Y button)
         if (!shooterAtSpeed && shooter.isVelocityWithinTolerance()) {
             shooterAtSpeed = true;
-        }
-        
-        // Continuously command feeder and floor once shooter is at speed
-        // (Must be outside the !shooterAtSpeed check to keep them running every cycle)
-        if (shooterAtSpeed) {
             feeder.set(Feeder.Speed.FEED);
             floor.set(Floor.Speed.FEED);
         }
@@ -154,8 +150,6 @@ public class PrepareStaticShotCommand extends Command {
         // ---- Agitate logic ----
         // Wait for initial delay, then oscillate intake arm between INTAKE and AGITATE
         if (!agitateStarted) {
-            // During delay, hold intake at INTAKE position (don't leave motor uncontrolled)
-            intake.setManualPosition(Intake.Position.INTAKE);
             if (agitateTimer.hasElapsed(Constants.Intake.kAgitateDelaySeconds)) {
                 agitateStarted = true;
                 agitateTimer.restart();

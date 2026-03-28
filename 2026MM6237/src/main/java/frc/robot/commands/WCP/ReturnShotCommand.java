@@ -74,8 +74,6 @@ public class ReturnShotCommand extends Command {
         // ---- Agitate logic ----
         // Wait for initial delay, then oscillate intake arm between INTAKE and AGITATE
         if (!agitateStarted) {
-            // During delay, hold intake at INTAKE position (don't leave motor uncontrolled)
-            intake.setManualPosition(Intake.Position.INTAKE);
             if (agitateTimer.hasElapsed(Constants.Intake.kAgitateDelaySeconds)) {
                 agitateStarted = true;
                 agitateTimer.restart();
