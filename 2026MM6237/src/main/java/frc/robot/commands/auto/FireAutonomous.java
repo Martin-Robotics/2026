@@ -11,6 +11,7 @@ import frc.robot.commands.WCP.PrepareShotCommand.Shot;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hood;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.LimelightSubsystem6237;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,6 +28,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * 
  * Use the optional fireDurationSeconds constructor parameter to create longer-firing
  * variants (e.g., "Fire2" for full hopper dumps).
+ * 
+ * Also agitates the intake arm (same as teleop) to help feed balls to the shooter.
  */
 public class FireAutonomous extends Command {
 
@@ -34,37 +37,48 @@ public class FireAutonomous extends Command {
     private final Shooter shooter;
     private final Hood hood;
     private final Floor floor;
+    private final Intake intake;
     private final LimelightSubsystem6237 limelight;
     private final double fireDurationSeconds;
     
     private final Timer fireTimer = new Timer();
     private boolean shooterAtSpeed = false;
 
+    // Agitate state (matches PrepareStaticShotCommand)
+    private final Timer agitateTimer = new Timer();
+    private boolean agitateAtIntake = false;
+    private boolean agitateStarted = false;
+
     /**
      * Creates a FireAutonomous command with the default fire duration.
      */
-    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, LimelightSubsystem6237 limelight) {
-        this(feeder, shooter, hood, floor, limelight, Constants.Auto.kAutoFireRunTimeSeconds);
+    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, Intake intake, LimelightSubsystem6237 limelight) {
+        this(feeder, shooter, hood, floor, intake, limelight, Constants.Auto.kAutoFireRunTimeSeconds);
     }
 
     /**
      * Creates a FireAutonomous command with a custom fire duration.
      * @param fireDurationSeconds How long to run feeder/floor after shooter reaches speed
      */
-    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, LimelightSubsystem6237 limelight, double fireDurationSeconds) {
+    public FireAutonomous(Feeder feeder, Shooter shooter, Hood hood, Floor floor, Intake intake, LimelightSubsystem6237 limelight, double fireDurationSeconds) {
         this.feeder = feeder;
         this.shooter = shooter;
         this.hood = hood;
         this.floor = floor;
+        this.intake = intake;
         this.limelight = limelight;
         this.fireDurationSeconds = fireDurationSeconds;
-        addRequirements(feeder, shooter, hood, floor);
+        addRequirements(feeder, shooter, hood, floor, intake);
     }
 
     @Override
     public void initialize() {
         fireTimer.reset();
         shooterAtSpeed = false;
+        // Reset agitate state
+        agitateTimer.restart();
+        agitateAtIntake = false;
+        agitateStarted = false;
     }
 
     @Override
@@ -99,6 +113,32 @@ public class FireAutonomous extends Command {
                 floor.set(Floor.Speed.FEED);
             }
         }
+
+        // ---- Agitate logic (matches PrepareStaticShotCommand) ----
+        // Wait for initial delay, then oscillate intake arm between INTAKE and AGITATE
+        if (!agitateStarted) {
+            if (agitateTimer.hasElapsed(Constants.Intake.kAgitateDelaySeconds)) {
+                agitateStarted = true;
+                agitateTimer.restart();
+                agitateAtIntake = false;
+                intake.setManualPosition(Intake.Position.AGITATE);
+                double rollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", Constants.Intake.kIntakePercentOutput);
+                intake.setManualRollerVoltage(rollerPercent);
+            }
+        } else {
+            double interval = Constants.Intake.kAgitateIntervalSeconds;
+            if (agitateTimer.hasElapsed(interval)) {
+                agitateTimer.restart();
+                agitateAtIntake = !agitateAtIntake;
+                if (agitateAtIntake) {
+                    intake.setManualPosition(Intake.Position.INTAKE);
+                } else {
+                    intake.setManualPosition(Intake.Position.AGITATE);
+                }
+                double rollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", Constants.Intake.kIntakePercentOutput);
+                intake.setManualRollerVoltage(rollerPercent);
+            }
+        }
     }
 
     @Override
@@ -112,5 +152,9 @@ public class FireAutonomous extends Command {
         shooter.stop();
         feeder.setPercentOutput(0);
         floor.set(Floor.Speed.STOP);
+        // Return intake to INTAKE position and stop rollers (matches PrepareStaticShotCommand)
+        intake.setManualPosition(Intake.Position.INTAKE);
+        intake.setManualRollerVoltage(0);
+        agitateTimer.stop();
     }
 }

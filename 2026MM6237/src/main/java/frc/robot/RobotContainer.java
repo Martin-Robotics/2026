@@ -121,9 +121,10 @@ public class RobotContainer {
       // PrepareToFire: aims at hub using Limelight TX with PD control, auto-ends when aimed or timeout
       NamedCommands.registerCommand("PrepareToFire", new PrepareToFireAutonomous(limelight, drivetrain, hood));
       // Fire: spins up shooter/hood from interpolation table, feeds when at speed, auto-ends after duration
-      NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, limelight));
+      // Also agitates intake arm to help feed balls (same as teleop)
+      NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, intake, limelight));
       // Fire2: same as Fire but runs 3x longer (6 seconds) for full hopper dumps
-      NamedCommands.registerCommand("Fire2", new FireAutonomous(feeder, shooter, hood, floor, limelight, 
+      NamedCommands.registerCommand("Fire2", new FireAutonomous(feeder, shooter, hood, floor, intake, limelight, 
           Constants.Auto.kAutoFireRunTimeSeconds * 3.0));
       
       // Climb commands
