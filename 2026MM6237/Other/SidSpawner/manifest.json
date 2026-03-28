@@ -1,0 +1,9 @@
+{
+"manifest_version": 3,
+"name": "Sid Spawner",
+"description": "Spawn some Sids!",
+"version": "62.37",
+"permissions": ["tabs", "activeTab", "scripting", "storage"],
+"web_accessible_resources": [{"resources": ["sid.png", "pineapple.png"], "matches": ["<all_urls>"]}],
+"action": {"default_popup": "window.html"}
+}

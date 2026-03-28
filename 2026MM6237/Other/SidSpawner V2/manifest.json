@@ -1,0 +1,10 @@
+{
+"manifest_version" : 3,
+"name": "Sid Spawner (V2)",
+"description": "Spawn even more Sids!",
+"version": "62.37",
+"permissions" : ["activeTab", "storage", "scripting", "tabs"],
+"web_accessible_resources": [{"resources": ["images/sid.png", "images/pineapple.png", "images/sid2.png", "images/sid3.png", "images/sid4.png"], "matches": ["<all_urls>"]}],
+"content_scripts": [{"matches": ["<all_urls>"], "js": ["contentScript.js"]}],
+"action": {"default_popup": "window.html"}
+}
