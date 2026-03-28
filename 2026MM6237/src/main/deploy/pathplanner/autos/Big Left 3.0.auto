@@ -35,15 +35,15 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "BG2 Prep Intake"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "RunIntake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Prep Intake"
           }
         },
         {
