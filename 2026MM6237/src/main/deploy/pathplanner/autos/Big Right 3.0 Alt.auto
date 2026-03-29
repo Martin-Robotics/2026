@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BA Start Back"
+            "pathName": "Big Right start to First Shot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Big Right Shot to Bump Prep"
           }
         },
         {
@@ -17,7 +23,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BA Over Bump 1"
+                  "pathName": "Bump Prep to Center"
                 }
               },
               {
@@ -32,7 +38,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BA Intake"
+            "pathName": "Past Bump to Fuel Prep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Prep to Fuel Done"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Done to Bump Return"
           }
         },
         {
@@ -44,19 +62,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BA Intake to Bump"
+            "pathName": "Bump Return to Big Right Bump Returned"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BA Back Over Bump"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BA Prep Shoot"
+            "pathName": "Bump Returned to Big Right Second Fire"
           }
         },
         {
@@ -68,25 +80,50 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BA Shoot to Depot"
+            "pathName": "Big Right Shot to Bump Prep"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "StartIntakeRollers"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Bump Prep to Center"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RunIntake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "BA Intake Depot"
+            "pathName": "Past Bump to Fuel Prep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Prep to Fuel Done"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Fuel Done to Bump Return"
           }
         },
         {
@@ -98,7 +135,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BA Depot to Shoot"
+            "pathName": "Bump Return to Big Right Bump Returned"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Bump Returned to Big Right Second Fire"
           }
         },
         {
@@ -110,7 +153,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire2"
           }
         }
       ]

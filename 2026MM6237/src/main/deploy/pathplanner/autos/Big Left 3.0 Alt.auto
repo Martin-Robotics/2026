@@ -11,6 +11,67 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Shoot to Bump"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "BG2 Over Bump 1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "RunIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Prep Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Intake to Return"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeRollers"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 Return Over Bump"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "BG2 End Shoot"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "PrepareToFire"
@@ -19,7 +80,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Fire"
+            "name": "Fire2"
           }
         },
         {
@@ -60,15 +121,15 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "StopIntakeRollers"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "BG2 Intake to Return"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopIntakeRollers"
           }
         },
         {
