@@ -102,6 +102,7 @@ public class RobotContainer {
       SmartDashboard.putNumber("Auto/Speed %", Constants.CommandSwerveDrivetrain.kAutoSpeedScaleFactor);
       SmartDashboard.putNumber("Auto/RPM Boost", Constants.Auto.kAutoRpmBoostDefault);
       SmartDashboard.putNumber("Auto/Roller Speed %", Constants.Auto.kAutoRollerSpeedDefault);
+      SmartDashboard.putNumber("Auto/Fire2 Time (s)", Constants.Auto.kAutoFire2RunTimeSeconds);
     }
 
     /**
@@ -124,9 +125,9 @@ public class RobotContainer {
       // Fire: spins up shooter/hood from interpolation table, feeds when at speed, auto-ends after duration
       // Also agitates intake arm to help feed balls (same as teleop)
       NamedCommands.registerCommand("Fire", new FireAutonomous(feeder, shooter, hood, floor, intake, limelight));
-      // Fire2: same as Fire but runs 3x longer (6 seconds) for full hopper dumps
+      // Fire2: longer fire duration for full hopper dumps, tunable via SmartDashboard
       NamedCommands.registerCommand("Fire2", new FireAutonomous(feeder, shooter, hood, floor, intake, limelight, 
-          Constants.Auto.kAutoFireRunTimeSeconds * 3.0));
+          SmartDashboard.getNumber("Auto/Fire2 Time (s)", Constants.Auto.kAutoFire2RunTimeSeconds)));
       
       // Climb commands
       NamedCommands.registerCommand("PrepareToClimb", new PrepareToClimb(hanger));

@@ -455,6 +455,7 @@ public final class Constants {
         
         // Autonomous firing timing
         public static final double kAutoFireRunTimeSeconds = 2.0;      // Time to run feeder after shooter at speed
+        public static final double kAutoFire2RunTimeSeconds = 4.0;     // Fire2 duration for full hopper dumps
         public static final double kAutoPrepareAimTimeSeconds = 0.5;   // Time to attempt aiming before giving up
 
         // Autonomous RPM boost -- added on top of the shared interpolation table RPM
