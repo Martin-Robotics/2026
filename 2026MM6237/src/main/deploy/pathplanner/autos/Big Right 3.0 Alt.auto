@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Big Right start to First Shot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Big Right Shot to Bump Prep"
+            "pathName": "Big Right New Start"
           }
         },
         {
@@ -23,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bump Prep to Center"
+                  "pathName": "Big Right New Over Bump"
                 }
               },
               {
@@ -38,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Past Bump to Fuel Prep"
+            "pathName": "Big Right 2 Fuel Prep"
           }
         },
         {

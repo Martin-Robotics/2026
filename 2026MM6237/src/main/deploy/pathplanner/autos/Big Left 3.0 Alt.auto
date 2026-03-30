@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BG2 Start To Shoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "BG2 Shoot to Bump"
+            "pathName": "BG2A Start Back Up"
           }
         },
         {
@@ -23,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BG2 Over Bump 1"
+                  "pathName": "BG2A Over Bump"
                 }
               },
               {
