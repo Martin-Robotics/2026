@@ -461,6 +461,10 @@ public final class Constants {
         // Compensates for auto-specific factors (battery sag, no driver correction, etc.)
         // Tunable via SmartDashboard "Auto/RPM Boost" (default 250 RPM ~ 2ft extra range)
         public static final double kAutoRpmBoostDefault = 0.0;
+        
+        // Autonomous roller speed -- used for intake agitation during auto fire
+        // Tunable via SmartDashboard "Auto/Roller Speed %"
+        public static final double kAutoRollerSpeedDefault = 0.95;
     }
 
     // ======================== HUB GEOMETRY (2026 REBUILT FIELD) ========================

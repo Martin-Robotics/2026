@@ -122,7 +122,7 @@ public class FireAutonomous extends Command {
                 agitateTimer.restart();
                 agitateAtIntake = false;
                 intake.setManualPosition(Intake.Position.AGITATE);
-                double rollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", Constants.Intake.kIntakePercentOutput);
+                double rollerPercent = SmartDashboard.getNumber("Auto/Roller Speed %", Constants.Auto.kAutoRollerSpeedDefault);
                 intake.setManualRollerVoltage(rollerPercent);
             }
         } else {
@@ -135,7 +135,7 @@ public class FireAutonomous extends Command {
                 } else {
                     intake.setManualPosition(Intake.Position.AGITATE);
                 }
-                double rollerPercent = SmartDashboard.getNumber("Intake/Roller Speed %", Constants.Intake.kIntakePercentOutput);
+                double rollerPercent = SmartDashboard.getNumber("Auto/Roller Speed %", Constants.Auto.kAutoRollerSpeedDefault);
                 intake.setManualRollerVoltage(rollerPercent);
             }
         }
