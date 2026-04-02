@@ -465,7 +465,7 @@ public final class Constants {
         
         // Autonomous roller speed -- used for intake agitation during auto fire
         // Tunable via SmartDashboard "Auto/Roller Speed %"
-        public static final double kAutoRollerSpeedDefault = 0.95;
+        public static final double kAutoRollerSpeedDefault = 0.75;
     }
 
     // ======================== HUB GEOMETRY (2026 REBUILT FIELD) ========================
