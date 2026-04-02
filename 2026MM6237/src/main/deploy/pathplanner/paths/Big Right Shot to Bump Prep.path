@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.685939759036144,
-        "y": 2.6034698795180726
+        "x": 2.019349397590361,
+        "y": 2.701819277108433
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.935939759036144,
-        "y": 2.6034698795180726
+        "x": 2.269349397590361,
+        "y": 2.701819277108433
       },
       "isLocked": false,
-      "linkedName": "Big Right First Fire"
+      "linkedName": "Big Right Second Fire"
     },
     {
       "anchor": {

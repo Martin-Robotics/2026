@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 2.685939759036144,
-        "y": 2.6034698795180726
+        "x": 2.019349397590361,
+        "y": 2.701819277108433
       },
       "prevControl": {
-        "x": 3.4329165661092707,
-        "y": 2.308342822114908
+        "x": 2.7663262046634878,
+        "y": 2.4066922197052683
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Big Right First Fire"
+      "linkedName": "Big Right Second Fire"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 45.0
+    "rotation": 45.000000000000014
   },
   "reversed": false,
   "folder": null,

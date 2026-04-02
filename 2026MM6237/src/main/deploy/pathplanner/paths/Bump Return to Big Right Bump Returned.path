@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 2.904493975903614,
-        "y": 2.4395542168674704
+        "x": 2.019349397590361,
+        "y": 2.472337349397591
       },
       "prevControl": {
-        "x": 5.0791084337349375,
-        "y": 2.40677108433735
+        "x": 4.193963855421684,
+        "y": 2.4395542168674704
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bump Returned"
+      "linkedName": "Big right bump returned"
     }
   ],
   "rotationTargets": [],
