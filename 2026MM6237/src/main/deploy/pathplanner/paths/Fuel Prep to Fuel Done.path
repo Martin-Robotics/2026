@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.734055555555555,
-        "y": 0.8095888888888885
+        "x": 8.215361445783133,
+        "y": 0.84410843373494
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.723091700133869,
-        "y": 1.4215406961178043
+        "x": 8.204397590361447,
+        "y": 1.456060240963856
       },
       "isLocked": false,
       "linkedName": "Fuel Prep"
     },
     {
       "anchor": {
-        "x": 7.734055555555555,
-        "y": 3.1585730337078655
+        "x": 8.215361445783133,
+        "y": 3.1498554216867465
       },
       "prevControl": {
-        "x": 7.723091700133869,
-        "y": 2.5794043590090703
+        "x": 8.204397590361447,
+        "y": 2.5706867469879513
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": 90.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

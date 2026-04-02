@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.767325301204821,
-        "y": 7.16032530120482
+        "x": 8.291855421686748,
+        "y": 7.171253012048193
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.767325301204821,
-        "y": 6.91032530120482
+        "x": 8.291855421686748,
+        "y": 6.921253012048193
       },
       "isLocked": false,
       "linkedName": "BG2 E4"
     },
     {
       "anchor": {
-        "x": 7.767325301204821,
-        "y": 4.909216867469879
+        "x": 8.291855421686748,
+        "y": 4.8982891566265065
       },
       "prevControl": {
-        "x": 7.767325301204821,
-        "y": 5.159216867469879
+        "x": 8.291855421686748,
+        "y": 5.1482891566265065
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -50,5 +50,5 @@
     "velocity": 0,
     "rotation": -90.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
