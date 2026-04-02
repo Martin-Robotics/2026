@@ -62,8 +62,8 @@ public final class Constants {
 
     public static class Feeder {
         public static final double kFeedRPM = 5000;
-        public static final double kStatorCurrentLimit = 120;
-        public static final double kSupplyCurrentLimit = 50;
+        public static final double kStatorCurrentLimit = 60;
+        public static final double kSupplyCurrentLimit = 40;
         public static final double kP = 1;
         public static final double kI = 0;
         public static final double kD = 0;
@@ -85,8 +85,8 @@ public final class Constants {
 
     public static class Floor {
         public static final double kFeedPercentOutput = 0.83;
-        public static final double kStatorCurrentLimit = 120;
-        public static final double kSupplyCurrentLimit = 30;
+        public static final double kStatorCurrentLimit = 60;
+        public static final double kSupplyCurrentLimit = 40;
         public static final double kVoltageMultiplier = 12.0;
     }
 
@@ -138,8 +138,8 @@ public final class Constants {
         public static final double kAgitateDelaySeconds = 1.25;   // Delay before agitation begins
         public static final double kPivotReduction = 50.0;
         public static final Angle kPositionTolerance = Degrees.of(5);
-        public static final double kStatorCurrentLimit = 120;
-        public static final double kSupplyCurrentLimit = 70;
+        public static final double kStatorCurrentLimit = 40;
+        public static final double kSupplyCurrentLimit = 40;
         public static final double kPivotKP = 5;//0.1;  // Very low gain for safe testing (similar to 6% manual voltage)
         public static final double kPivotKI = 0;
         public static final double kPivotKD = 0;
