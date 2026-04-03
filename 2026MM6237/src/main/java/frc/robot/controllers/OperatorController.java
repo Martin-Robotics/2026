@@ -220,7 +220,7 @@ public class OperatorController {
         //     .whileTrue(new PrepareStaticShotCommand(shooter, hood, feeder, floor, STATIC_SHOT_DISTANCE_METERS) STATIC_SHOT_DISTANCE_METERS = 2.0
         //         .withName("Prepare Static Shot"));
         operatorController.start()
-            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 3) 
+            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 2) 
                 .withName("Prepare Static Shot"));
     }
 
@@ -274,7 +274,7 @@ public class OperatorController {
         // ShooterTuningCommand owns all shooting subsystems and handles RT internally.
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
                          && operatorController.getHID().getPOV() != 0)
-            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 3.0, true, limelight)
+            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 2.0, true, limelight)
                 .withName("Prepare Static Shot"));
         
         // Left Trigger: Return Shot — lob balls back to alliance starting zone
