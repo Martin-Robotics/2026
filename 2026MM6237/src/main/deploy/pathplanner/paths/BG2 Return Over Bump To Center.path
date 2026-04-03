@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8633734939759021,
-        "y": 5.364879518072288
+        "x": 2.7133734939759035,
+        "y": 5.564879518072289
       },
       "isLocked": false,
       "linkedName": "BG2 E6"
     },
     {
       "anchor": {
-        "x": 2.1395542168674693,
-        "y": 5.051277108433735
+        "x": 6.1609518072289156,
+        "y": 5.564879518072289
       },
       "prevControl": {
-        "x": 1.9931815784063804,
-        "y": 5.253946915533706
+        "x": 5.1609518072289156,
+        "y": 5.564879518072289
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "BG2 E1"
+      "linkedName": "BG2 E3"
     }
   ],
   "rotationTargets": [],
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -25.463345061871607
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,

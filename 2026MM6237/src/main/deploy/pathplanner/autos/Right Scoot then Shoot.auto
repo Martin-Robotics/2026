@@ -80,7 +80,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Big Right Shot to Bump Prep"
+            "pathName": "Big Right Second Fire to Bump Returned"
           }
         },
         {
@@ -90,7 +90,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Bump Prep to Center"
+                  "pathName": "Bump Returned to Center"
                 }
               },
               {

@@ -80,7 +80,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BG2 Shoot to Bump"
+            "pathName": "BG2 End Shoot to Return Over bump"
           }
         },
         {
@@ -90,7 +90,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "BG2 Over Bump 1"
+                  "pathName": "BG2 Return Over Bump To Center"
                 }
               },
               {
