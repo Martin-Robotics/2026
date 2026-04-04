@@ -132,10 +132,11 @@ public class PrepareStaticShotCommand extends Command {
         Distance actualDistance = targetDistance;
         
         if (useDetectedDistance && limelight != null) {
-            // Use hub-center corrected distance from Limelight
+            // Check if hub tag is ACTUALLY visible (not just odometry fallback)
+            boolean hubVisible = limelight.isHubCurrentlyVisible();
             double detectedDistance = limelight.getHubCenterDistance();
             
-            if (detectedDistance > 0) {
+            if (hubVisible && detectedDistance > 0) {
                 // Valid lock — use it and remember it
                 lastLockedDistance = detectedDistance;
                 actualDistance = Meters.of(detectedDistance);
