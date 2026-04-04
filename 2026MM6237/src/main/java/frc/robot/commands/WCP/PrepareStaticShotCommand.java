@@ -66,6 +66,11 @@ public class PrepareStaticShotCommand extends Command {
     private final frc.robot.subsystems.LimelightSubsystem6237 limelight;
     private boolean shooterAtSpeed = false;
     
+    // Tracks the last valid Limelight lock distance during this button press.
+    // If Limelight loses lock while button is held, we use this instead of fallback.
+    // Reset to -1 (no lock) when command ends.
+    private double lastLockedDistance = -1.0;
+    
     // Agitate state
     private final Timer agitateTimer = new Timer();
     private boolean agitateAtIntake = false;
@@ -109,6 +114,7 @@ public class PrepareStaticShotCommand extends Command {
     @Override
     public void initialize() {
         shooterAtSpeed = false;
+        lastLockedDistance = -1.0;  // Clear any previous lock when button is first pressed
         // Start agitate delay timer — agitation begins after kAgitateDelaySeconds
         agitateTimer.restart();
         agitateAtIntake = false;
@@ -126,12 +132,19 @@ public class PrepareStaticShotCommand extends Command {
         Distance actualDistance = targetDistance;
         
         if (useDetectedDistance && limelight != null) {
-            // Use hub-center corrected distance from Limelight
+            // Check if hub tag is ACTUALLY visible (not just odometry fallback)
+            boolean hubVisible = limelight.isHubCurrentlyVisible();
             double detectedDistance = limelight.getHubCenterDistance();
             
-            if (detectedDistance > 0) {
+            if (hubVisible && detectedDistance > 0) {
+                // Valid lock — use it and remember it
+                lastLockedDistance = detectedDistance;
                 actualDistance = Meters.of(detectedDistance);
+            } else if (lastLockedDistance > 0) {
+                // Lost lock but we had one earlier this button press — use that
+                actualDistance = Meters.of(lastLockedDistance);
             }
+            // else: no current lock and never had one — use fallback (targetDistance)
         }
         
         final Shot shot = distanceToShotMap.get(actualDistance);
