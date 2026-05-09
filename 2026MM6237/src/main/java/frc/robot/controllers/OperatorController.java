@@ -6,6 +6,7 @@ import frc.robot.Constants;
 import frc.robot.commands.ShooterTuningCommand;
 import frc.robot.commands.WCP.PrepareStaticShotCommand;
 import frc.robot.commands.WCP.ReturnShotCommand;
+import frc.robot.commands.WCP.StaticSendItCommand;
 import frc.robot.commands.auto.PrepareToClimbLeft;
 import frc.robot.commands.auto.PrepareToClimbRight;
 import frc.robot.subsystems.Feeder;
@@ -265,17 +266,13 @@ public class OperatorController {
             CommandXboxController driverController) {
         
         // ======================== SHOOTING CONTROLS ========================
-        // Right Trigger: PrepareStaticShotCommand (spins up, feeds, and agitates intake)
-        // - Spins up shooter, positions hood, feeds when at speed (uses Limelight auto-distance)
-        // - Agitates intake arm internally to nudge balls into feed system
-        // Distance is continuously tracked by LimelightSubsystem in the background
-        // If no distance detected, falls back to 3 meters
+        // Right Trigger: StaticSendItCommand — max RPM, max hood, feed at speed
         // IMPORTANT: Only fires when DPad UP is NOT held. When DPad UP is held,
         // ShooterTuningCommand owns all shooting subsystems and handles RT internally.
         new Trigger(() -> operatorController.getRightTriggerAxis() > Constants.OperatorConstants.kTriggerButtonThreshold
                          && operatorController.getHID().getPOV() != 0)
-            .whileTrue(new PrepareStaticShotCommand(shooter, feeder, floor, intake, 2.0, true, limelight)
-                .withName("Prepare Static Shot"));
+            .whileTrue(new StaticSendItCommand(shooter, feeder, floor, hood, intake)
+                .withName("Static Send It"));
         
         // Left Trigger: Return Shot — lob balls back to alliance starting zone
         // Static RPM & hood position from Constants.Shooter, feeds immediately without waiting for speed
