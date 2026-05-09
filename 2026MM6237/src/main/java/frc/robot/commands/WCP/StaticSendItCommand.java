@@ -41,6 +41,10 @@ public class StaticSendItCommand extends Command {
 
     private boolean shooterAtSpeed = false;
 
+    // Fallback: start feeding after this many seconds even if shooter never reaches speed
+    private static final double FEED_TIMEOUT_SECONDS = 2.5;
+    private final Timer feedTimeoutTimer = new Timer();
+
     // Agitate state — mirrors PrepareStaticShotCommand behaviour
     private final Timer agitateTimer = new Timer();
     private boolean agitateAtIntake = false;
@@ -58,6 +62,7 @@ public class StaticSendItCommand extends Command {
     @Override
     public void initialize() {
         shooterAtSpeed = false;
+        feedTimeoutTimer.restart();
         agitateTimer.restart();
         agitateAtIntake = false;
         agitateStarted = false;
@@ -71,8 +76,8 @@ public class StaticSendItCommand extends Command {
         // Spin up shooter to max
         shooter.setRPM(SEND_IT_RPM);
 
-        // Engage feeder and floor once shooter is at speed
-        if (!shooterAtSpeed && shooter.isVelocityWithinTolerance()) {
+        // Engage feeder and floor once shooter is at speed, or after 2.5s timeout
+        if (!shooterAtSpeed && (shooter.isVelocityWithinTolerance() || feedTimeoutTimer.hasElapsed(FEED_TIMEOUT_SECONDS))) {
             shooterAtSpeed = true;
             feeder.set(Feeder.Speed.FEED);
             floor.set(Floor.Speed.FEED);
@@ -113,5 +118,6 @@ public class StaticSendItCommand extends Command {
         intake.setManualPosition(Intake.Position.INTAKE);
         intake.setManualRollerVoltage(0);
         agitateTimer.stop();
+        feedTimeoutTimer.stop();
     }
 }
